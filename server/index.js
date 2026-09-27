@@ -27,9 +27,9 @@ function makeDay(label, order) { return { id: crypto.randomUUID(), label, order,
 function makeToken() { return crypto.randomBytes(24).toString('base64url') }
 function amountNumber(value) { return Number.parseFloat(String(value || '').replace(/[^0-9.]/g, '')) || 0 }
 function settlementFor(slot) {
-  const people = [...new Set((slot.attendance || []).filter((item) => item.status === 'going').map((item) => item.name))]
   const payments = slot.payments || []; const total = payments.reduce((sum, item) => sum + amountNumber(item.amount), 0)
-  if (!people.length || !total) return { total, perPerson: 0, transfers: [], message: people.length ? 'Add payment amounts to calculate a split.' : 'Collect at least one Going RSVP to calculate a split.' }
+  const people = [...new Set(payments.map((item) => item.paid_by?.trim()).filter(Boolean))]
+  if (!people.length || !total) return { total, perPerson: 0, transfers: [], message: people.length ? 'Add payment amounts to calculate a split.' : 'Add at least one named payment to calculate a split.' }
   const perPerson = total / people.length; const balances = new Map(people.map((name) => [name, -perPerson]))
   for (const payment of payments) balances.set(payment.paid_by, (balances.get(payment.paid_by) || 0) + amountNumber(payment.amount))
   const creditors = [...balances].filter(([, value]) => value > 0.005).map(([name, value]) => ({ name, value }))
@@ -172,6 +172,7 @@ app.post('/api/trips/:id/days/:dayId/timeslots/:slotId/payments', (req, res) => 
 app.put('/api/trips/:id/days/:dayId/timeslots/:slotId/payments/:paymentId', (req, res) => {
   const db = readDb(); const trip = db.trips.find((item) => item.id === req.params.id); const day = trip?.days.find((item) => item.id === req.params.dayId); const slot = day?.timeslots.find((item) => item.id === req.params.slotId); const payment = slot?.payments?.find((item) => item.id === req.params.paymentId)
   if (!payment) return res.status(404).json({ error: 'Payment entry not found.' })
+  if (req.body.delete === true) { slot.payments = slot.payments.filter((item) => item.id !== payment.id); writeDb(db); return res.json({ trip: publicTrip(trip) }) }
   if (!req.body.paid_by?.trim()) return res.status(400).json({ error: 'Please say who paid.' })
   payment.paid_by = req.body.paid_by.trim(); payment.amount = req.body.amount?.trim() || ''; payment.note = req.body.note?.trim() || ''
   writeDb(db); res.json({ trip: publicTrip(trip) })
@@ -195,7 +196,7 @@ app.post('/api/trips/:id/days/:dayId/timeslots/:slotId/payment-summary', async (
   if (!slot) return res.status(404).json({ error: 'Activity not found.' })
   const settlement = settlementFor(slot)
   try {
-    const response = await fetch('https://api.openai.com/v1/responses', { method: 'POST', headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: process.env.OPENAI_MODEL || 'gpt-5', instructions: 'Write a concise, friendly payment settlement summary. Use only the supplied facts. Do not invent payments, people, amounts, or transfers.', input: JSON.stringify({ activity: slot.title, payments: slot.payments || [], going: (slot.attendance || []).filter((item) => item.status === 'going').map((item) => item.name), settlement }) }) })
+    const response = await fetch('https://api.openai.com/v1/responses', { method: 'POST', headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: process.env.OPENAI_MODEL || 'gpt-5', instructions: 'Write a concise, friendly payment settlement summary. Use only the supplied facts. Do not invent payments, people, amounts, or transfers.', input: JSON.stringify({ activity: slot.title, payments: slot.payments || [], participants: [...new Set((slot.payments || []).map((item) => item.paid_by).filter(Boolean))], settlement }) }) })
     const result = await response.json(); if (!response.ok) return res.status(502).json({ error: result.error?.message || 'AI summary could not be generated.' })
     res.json({ summary: result.output_text || 'No summary was returned.', settlement })
   } catch { res.status(502).json({ error: 'Could not reach the AI summary service.' }) }
