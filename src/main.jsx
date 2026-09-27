@@ -20,6 +20,7 @@ import './subtle-shadows.css'
 import './mobile-white.css'
 import './top-gradient.css'
 import './mobile-layout-fix.css'
+import './activity-time-mobile-fix.css'
 const API = import.meta.env.VITE_API_URL || '/api'
 const blankSlot = { time:'', title:'', location_text:'', links:[''], notes:'', attendance_required:false, splitting_payments:false }
 if (typeof window !== 'undefined') new MutationObserver(() => document.querySelectorAll('input[type="url"]').forEach((input) => { if (input.placeholder.includes('link')) input.placeholder = 'https://' })).observe(document.documentElement, { childList: true, subtree: true })
