@@ -1,0 +1,1 @@
+.hero h1:after{display:none}.viewer header>p:last-of-type{display:none}.viewer header,.edit-header{position:relative;padding-bottom:25px}.viewer header:after,.edit-header:after{content:'';position:absolute;left:0;right:0;bottom:0;border-bottom:1px solid #9eafb8}.viewer header h1{margin-bottom:0}.edit-header{margin-bottom:0}
