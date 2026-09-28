@@ -1,0 +1,74 @@
+/* The public plan should read as an agenda first; group tools stay visually secondary. */
+.split-participants{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  column-gap:6px;
+  margin:10px 0 12px;
+  padding:0 0 12px 12px;
+  border-bottom:1px solid #b7c7d0;
+}
+.split-participants label{margin:0;color:#355468}
+.split-participants>label,.participant-bubbles,.split-participants>small{grid-column:1/-1}
+.split-participants .add-going{grid-column:1/-1;justify-self:start}
+.split-participants>button,.add-person button{
+  margin-top:7px;
+  border:1px solid #b8dce9;
+  border-radius:7px;
+  background:#fff;
+  color:#327ba4;
+  padding:7px 9px;
+  font-size:.74rem;
+  font-weight:600;
+}
+.participant-bubbles{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 3px}
+.participant-bubble{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  min-height:29px;
+  border-radius:999px;
+  background:#e7f3f8;
+  color:#347fa9;
+  justify-content:center;
+  padding:5px 10px;
+  font-size:.74rem;
+  font-weight:600;
+}
+.participant-bubble button{
+  position:absolute;
+  top:-5px;
+  right:-5px;
+  display:grid;
+  place-items:center;
+  width:16px;
+  height:16px;
+  margin:0;
+  padding:0;
+  border:1px solid #a7cbdc;
+  border-radius:50%;
+  background:#fff;
+  color:#b34248;
+  font-size:.82rem;
+  line-height:1;
+}
+.add-person{display:flex;gap:6px;max-width:none;margin-top:9px}
+.add-person input{width:0;min-width:0;flex:1;height:32px;margin:0;padding:6px 9px;font-size:.76rem}
+.add-person button{flex:0 0 auto;height:32px;margin:0;padding:6px 7px;font-size:.7rem}
+.split-participants .save-people{grid-column:2;height:32px;align-self:end;margin-bottom:0;padding:6px 7px;background:#6BAED6;color:#fff;border-color:#6BAED6;font-size:.7rem}
+.split-participants small{display:block;margin-top:6px;line-height:1.35}
+.delete-day{margin-left:auto;color:#b34248!important;font-size:.84rem!important;padding:7px 2px!important}
+.tabs button[draggable="true"],.draggable-card{cursor:default}
+.settlement{box-shadow:none!important}
+.payment-form .amount-input,.payment-form .amount-input input{background:#fff!important;color:#193147!important}
+.receipt-preview{display:inline-block;margin-top:8px;color:#327ba4;font-size:.75rem;font-weight:600}
+.payment-editor{grid-template-columns:minmax(80px,.75fr) 68px minmax(90px,1fr) auto auto auto}
+.payment-editor .delete-payment{color:#b34248!important}
+@media(max-width:540px){
+  .split-participants{padding-left:0}
+  .split-participants .save-people{width:auto}
+  .split-participants .add-going{width:auto}
+  .day-tools{align-items:center}
+  .payment-editor{grid-template-columns:minmax(0,.8fr) 54px minmax(0,1fr)!important}
+  .payment-editor input:first-child,.payment-editor input:nth-child(3){grid-column:auto!important}
+  .payment-editor button{width:100%;min-width:0}
+}

@@ -26,10 +26,19 @@ function publicTrip(trip) {
 function makeDay(label, order) { return { id: crypto.randomUUID(), label, order, timeslots: [] } }
 function makeToken() { return crypto.randomBytes(24).toString('base64url') }
 function amountNumber(value) { return Number.parseFloat(String(value || '').replace(/[^0-9.]/g, '')) || 0 }
+function cleanNames(names) {
+  const seen = new Set()
+  return (Array.isArray(names) ? names : []).map((name) => String(name).trim()).filter((name) => {
+    const key = name.toLowerCase()
+    if (!key || seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
 function settlementFor(slot) {
   const payments = slot.payments || []; const total = payments.reduce((sum, item) => sum + amountNumber(item.amount), 0)
-  const people = [...new Set(payments.map((item) => item.paid_by?.trim()).filter(Boolean))]
-  if (!people.length || !total) return { total, perPerson: 0, transfers: [], message: people.length ? 'Add payment amounts to calculate a split.' : 'Add at least one named payment to calculate a split.' }
+  const people = cleanNames(slot.payment_participants)
+  if (!people.length || !total) return { total, perPerson: 0, transfers: [], message: people.length ? 'Add payment amounts to calculate a split.' : 'Add everyone splitting this activity before calculating.' }
   const perPerson = total / people.length; const balances = new Map(people.map((name) => [name, -perPerson]))
   for (const payment of payments) balances.set(payment.paid_by, (balances.get(payment.paid_by) || 0) + amountNumber(payment.amount))
   const creditors = [...balances].filter(([, value]) => value > 0.005).map(([name, value]) => ({ name, value }))
@@ -116,7 +125,7 @@ app.post('/api/trips/:id/days/:dayId/timeslots', (req, res) => {
   const db = readDb(); const saved = db.trips.find((item) => item.id === trip.id); const day = saved.days.find((item) => item.id === req.params.dayId)
   if (!day) return res.status(404).json({ error: 'Day not found.' })
   if (!req.body.title?.trim()) return res.status(400).json({ error: 'An activity title is required.' })
-  const slot = { id: crypto.randomUUID(), time: req.body.time || '', title: req.body.title.trim(), location_text: req.body.location_text?.trim() || '', links: Array.isArray(req.body.links) ? req.body.links.filter(Boolean).map(String) : [], notes: req.body.notes?.trim() || '', attendance_required: Boolean(req.body.attendance_required), splitting_payments: Boolean(req.body.splitting_payments), attendance: [], comments: [], payments: [], order: day.timeslots.length }
+  const slot = { id: crypto.randomUUID(), time: req.body.time || '', title: req.body.title.trim(), location_text: req.body.location_text?.trim() || '', links: Array.isArray(req.body.links) ? req.body.links.filter(Boolean).map(String) : [], notes: req.body.notes?.trim() || '', attendance_required: Boolean(req.body.attendance_required), splitting_payments: Boolean(req.body.splitting_payments), attendance: [], comments: [], payments: [], payment_participants: [], payment_participants_configured: false, order: day.timeslots.length }
   day.timeslots.push(slot); writeDb(db); res.status(201).json({ trip: publicTrip(saved) })
 })
 
@@ -169,6 +178,15 @@ app.post('/api/trips/:id/days/:dayId/timeslots/:slotId/payments', (req, res) => 
   writeDb(db); res.status(201).json({ trip: publicTrip(trip) })
 })
 
+app.put('/api/trips/:id/days/:dayId/timeslots/:slotId/payment-participants', (req, res) => {
+  const db = readDb(); const trip = db.trips.find((item) => item.id === req.params.id); const day = trip?.days.find((item) => item.id === req.params.dayId); const slot = day?.timeslots.find((item) => item.id === req.params.slotId)
+  if (!slot) return res.status(404).json({ error: 'Activity not found.' })
+  if (!slot.splitting_payments) return res.status(400).json({ error: 'Payment splitting is not enabled for this activity.' })
+  slot.payment_participants = cleanNames(req.body.participants)
+  slot.payment_participants_configured = true
+  writeDb(db); res.json({ trip: publicTrip(trip) })
+})
+
 app.put('/api/trips/:id/days/:dayId/timeslots/:slotId/payments/:paymentId', (req, res) => {
   const db = readDb(); const trip = db.trips.find((item) => item.id === req.params.id); const day = trip?.days.find((item) => item.id === req.params.dayId); const slot = day?.timeslots.find((item) => item.id === req.params.slotId); const payment = slot?.payments?.find((item) => item.id === req.params.paymentId)
   if (!payment) return res.status(404).json({ error: 'Payment entry not found.' })
@@ -188,18 +206,6 @@ app.get('/api/trips/:id/days/:dayId/timeslots/:slotId/settlement', (req, res) =>
   const trip = readDb().trips.find((item) => item.id === req.params.id); const day = trip?.days.find((item) => item.id === req.params.dayId); const slot = day?.timeslots.find((item) => item.id === req.params.slotId)
   if (!slot) return res.status(404).json({ error: 'Activity not found.' })
   res.json({ settlement: settlementFor(slot) })
-})
-
-app.post('/api/trips/:id/days/:dayId/timeslots/:slotId/payment-summary', async (req, res) => {
-  if (!process.env.OPENAI_API_KEY) return res.status(503).json({ error: 'AI summaries are not configured yet. Add OPENAI_API_KEY to the server environment.' })
-  const trip = readDb().trips.find((item) => item.id === req.params.id); const day = trip?.days.find((item) => item.id === req.params.dayId); const slot = day?.timeslots.find((item) => item.id === req.params.slotId)
-  if (!slot) return res.status(404).json({ error: 'Activity not found.' })
-  const settlement = settlementFor(slot)
-  try {
-    const response = await fetch('https://api.openai.com/v1/responses', { method: 'POST', headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: process.env.OPENAI_MODEL || 'gpt-5', instructions: 'Write a concise, friendly payment settlement summary. Use only the supplied facts. Do not invent payments, people, amounts, or transfers.', input: JSON.stringify({ activity: slot.title, payments: slot.payments || [], participants: [...new Set((slot.payments || []).map((item) => item.paid_by).filter(Boolean))], settlement }) }) })
-    const result = await response.json(); if (!response.ok) return res.status(502).json({ error: result.error?.message || 'AI summary could not be generated.' })
-    res.json({ summary: result.output_text || 'No summary was returned.', settlement })
-  } catch { res.status(502).json({ error: 'Could not reach the AI summary service.' }) }
 })
 
 app.delete('/api/trips/:id/days/:dayId/timeslots/:slotId', (req, res) => {

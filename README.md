@@ -12,16 +12,9 @@ planr makes shareable itineraries for a day or multi-day trip. The public link i
 
 Keep that terminal open while using the app. Press `Control+C` to stop it.
 
-## Optional AI payment summaries
+## Payment splits
 
-Payment calculations work with no AI or API key. To enable the **Write AI summary** button, set an OpenAI API key in the same terminal before starting planr:
-
-```bash
-export OPENAI_API_KEY="your_key_here"
-npm run dev
-```
-
-The key stays on the server and is never sent to people opening a share link. For deployment, add `OPENAI_API_KEY` as an environment variable in your hosting provider's settings.
+For each activity that has payment splitting enabled, add the names of everyone sharing that activity. The payment calculator then divides the total among those people and shows exactly who should pay whom. This list is separate from RSVPs, so it works even when not everyone who attends is sharing a particular cost.
 
 ## How links work
 
