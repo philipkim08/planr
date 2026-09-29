@@ -81,6 +81,9 @@
 .payment .payment-form>input,.payment .payment-form>.amount-input{grid-row:auto;height:40px;min-height:40px;margin:0;font-size:.72rem}
 .payment .payment-form>input:nth-child(3){grid-column:3;width:100%}
 .payment .upload,.payment .payment-buttons button,.payment .settle-tools>button{position:relative;height:40px;min-height:40px;margin:0;border:0;border-radius:7px;background:#6BAED6!important;color:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0 5px;font-size:0;font-weight:700;line-height:1;white-space:nowrap;text-align:center}
+.payment .upload{grid-column:1}
+.payment .settle-tools>button{grid-column:2}
+.payment .payment-buttons button{grid-column:3;background:#327ba4!important}
 .payment .upload::before,.payment .payment-buttons button::before,.payment .settle-tools>button::before{content:'';width:14px;height:14px;flex:0 0 14px;background:#fff;mask:center/contain no-repeat;-webkit-mask:center/contain no-repeat}
 .payment .upload::before,.payment .payment-buttons button::before,.payment .settle-tools>button::before{position:absolute;top:50%;transform:translateY(-50%)}
 .payment .upload::before{left:calc(50% - 39px)}
@@ -110,6 +113,8 @@
   .split-participants{padding-left:0}
   .split-participants .save-people{width:auto}
   .split-participants .add-going{width:auto}
+  .split-participants .add-person{grid-column:1/-1;max-width:none;width:100%}
+  .payment .upload::before,.payment .payment-buttons button::before,.payment .settle-tools>button::before{display:none}
   .day-tools{align-items:center}
   .payment-editor{grid-template-columns:minmax(0,.8fr) 54px minmax(0,1fr)!important}
   .payment-editor input:first-child,.payment-editor input:nth-child(3){grid-column:auto!important}
