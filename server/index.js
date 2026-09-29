@@ -1,235 +1,26 @@
-import express from 'express'
-import cors from 'cors'
-import crypto from 'crypto'
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const app = express()
-const port = process.env.PORT || 3001
-const dataDir = path.join(__dirname, '..', 'data')
-const dbFile = path.join(dataDir, 'trips.json')
-
-fs.mkdirSync(dataDir, { recursive: true })
-if (!fs.existsSync(dbFile)) fs.writeFileSync(dbFile, JSON.stringify({ trips: [] }, null, 2))
-
-app.use(cors())
-app.use(express.json())
-
-function readDb() { return JSON.parse(fs.readFileSync(dbFile, 'utf8')) }
-function writeDb(db) { fs.writeFileSync(dbFile, JSON.stringify(db, null, 2)) }
-function publicTrip(trip) {
-  const { edit_token, ...safeTrip } = trip
-  return safeTrip
-}
-function makeDay(label, order) { return { id: crypto.randomUUID(), label, order, timeslots: [] } }
-function makeToken() { return crypto.randomBytes(24).toString('base64url') }
-function amountNumber(value) { return Number.parseFloat(String(value || '').replace(/[^0-9.]/g, '')) || 0 }
-function cleanNames(names) {
-  const seen = new Set()
-  return (Array.isArray(names) ? names : []).map((name) => String(name).trim()).filter((name) => {
-    const key = name.toLowerCase()
-    if (!key || seen.has(key)) return false
-    seen.add(key)
-    return true
-  })
-}
-function settlementFor(slot) {
-  const payments = slot.payments || []; const total = payments.reduce((sum, item) => sum + amountNumber(item.amount), 0)
-  const people = cleanNames(slot.payment_participants)
-  if (!people.length || !total) return { total, perPerson: 0, transfers: [], message: people.length ? 'Add payment amounts to calculate a split.' : 'Add everyone splitting this activity before calculating.' }
-  const perPerson = total / people.length; const balances = new Map(people.map((name) => [name, -perPerson]))
-  for (const payment of payments) balances.set(payment.paid_by, (balances.get(payment.paid_by) || 0) + amountNumber(payment.amount))
-  const creditors = [...balances].filter(([, value]) => value > 0.005).map(([name, value]) => ({ name, value }))
-  const debtors = [...balances].filter(([, value]) => value < -0.005).map(([name, value]) => ({ name, value: -value })); const transfers = []
-  for (const debtor of debtors) for (const creditor of creditors) { const amount = Math.min(debtor.value, creditor.value); if (amount > 0.005) { transfers.push({ from: debtor.name, to: creditor.name, amount: Math.round(amount * 100) / 100 }); debtor.value -= amount; creditor.value -= amount } }
-  return { total, perPerson, transfers, message: transfers.length ? '' : 'Everyone is settled up.' }
-}
-
-app.post('/api/trips', (req, res) => {
-  const { title, dates } = req.body
-  if (!title?.trim()) return res.status(400).json({ error: 'A trip title is required.' })
-  const labels = Array.isArray(dates) && dates.length ? dates : ['Day 1']
-  const trip = {
-    id: crypto.randomUUID(), title: title.trim(), created_at: new Date().toISOString(),
-    edit_token: makeToken(), days: labels.map((label, index) => makeDay(label, index))
-  }
-  const db = readDb(); db.trips.push(trip); writeDb(db)
-  res.status(201).json({ trip: publicTrip(trip), editToken: trip.edit_token })
-})
-
-app.get('/api/trips/:id', (req, res) => {
-  const trip = readDb().trips.find((item) => item.id === req.params.id)
-  if (!trip) return res.status(404).json({ error: 'Trip not found.' })
-  res.json({ trip: publicTrip(trip) })
-})
-
-function getEditableTrip(req, res) {
-  const trip = readDb().trips.find((item) => item.id === req.params.id)
-  if (!trip) { res.status(404).json({ error: 'Trip not found.' }); return null }
-  if (req.get('x-edit-token') !== trip.edit_token) { res.status(403).json({ error: 'That edit link is not valid.' }); return null }
-  return trip
-}
-
-app.get('/api/trips/:id/edit', (req, res) => {
-  const trip = getEditableTrip(req, res)
-  if (trip) res.json({ trip: publicTrip(trip) })
-})
-
-app.put('/api/trips/:id', (req, res) => {
-  const trip = getEditableTrip(req, res); if (!trip) return
-  if (!req.body.title?.trim()) return res.status(400).json({ error: 'A trip title is required.' })
-  const db = readDb(); const saved = db.trips.find((item) => item.id === trip.id)
-  saved.title = req.body.title.trim(); writeDb(db)
-  res.json({ trip: publicTrip(saved) })
-})
-
-app.post('/api/trips/:id/days', (req, res) => {
-  const trip = getEditableTrip(req, res); if (!trip) return
-  const label = req.body.label?.trim() || `Day ${trip.days.length + 1}`
-  const day = makeDay(label, trip.days.length)
-  const db = readDb(); const saved = db.trips.find((item) => item.id === trip.id); saved.days.push(day); writeDb(db)
-  res.status(201).json({ trip: publicTrip(saved) })
-})
-
-app.put('/api/trips/:id/days/:dayId', (req, res) => {
-  const trip = getEditableTrip(req, res); if (!trip) return
-  if (req.params.dayId === 'reorder') {
-    if (!Array.isArray(req.body.ids) || req.body.ids.length !== trip.days.length) return res.status(400).json({ error: 'Invalid day order.' })
-    const db = readDb(); const saved = db.trips.find((item) => item.id === trip.id); const byId = new Map(saved.days.map((item) => [item.id, item]))
-    if (req.body.ids.some((id) => !byId.has(id))) return res.status(400).json({ error: 'Invalid day order.' })
-    saved.days = req.body.ids.map((id, order) => ({ ...byId.get(id), order })); writeDb(db); return res.json({ trip: publicTrip(saved) })
-  }
-  const db = readDb(); const saved = db.trips.find((item) => item.id === trip.id); const day = saved.days.find((item) => item.id === req.params.dayId)
-  if (!day) return res.status(404).json({ error: 'Day not found.' })
-  day.label = req.body.label?.trim() || day.label; writeDb(db); res.json({ trip: publicTrip(saved) })
-})
-
-app.put('/api/trips/:id/days/reorder', (req, res) => {
-  const trip = getEditableTrip(req, res); if (!trip) return
-  if (!Array.isArray(req.body.ids) || req.body.ids.length !== trip.days.length) return res.status(400).json({ error: 'Invalid day order.' })
-  const db = readDb(); const saved = db.trips.find((item) => item.id === trip.id); const byId = new Map(saved.days.map((day) => [day.id, day]))
-  if (req.body.ids.some((id) => !byId.has(id))) return res.status(400).json({ error: 'Invalid day order.' })
-  saved.days = req.body.ids.map((id, order) => ({ ...byId.get(id), order })); writeDb(db); res.json({ trip: publicTrip(saved) })
-})
-
-app.delete('/api/trips/:id/days/:dayId', (req, res) => {
-  const trip = getEditableTrip(req, res); if (!trip) return
-  if (trip.days.length === 1) return res.status(400).json({ error: 'A trip needs at least one day.' })
-  const db = readDb(); const saved = db.trips.find((item) => item.id === trip.id); saved.days = saved.days.filter((item) => item.id !== req.params.dayId).map((item, i) => ({ ...item, order: i })); writeDb(db); res.json({ trip: publicTrip(saved) })
-})
-
-app.post('/api/trips/:id/days/:dayId/timeslots', (req, res) => {
-  const trip = getEditableTrip(req, res); if (!trip) return
-  const db = readDb(); const saved = db.trips.find((item) => item.id === trip.id); const day = saved.days.find((item) => item.id === req.params.dayId)
-  if (!day) return res.status(404).json({ error: 'Day not found.' })
-  if (!req.body.title?.trim()) return res.status(400).json({ error: 'An activity title is required.' })
-  const slot = { id: crypto.randomUUID(), time: req.body.time || '', title: req.body.title.trim(), location_text: req.body.location_text?.trim() || '', links: Array.isArray(req.body.links) ? req.body.links.filter(Boolean).map(String) : [], notes: req.body.notes?.trim() || '', attendance_required: Boolean(req.body.attendance_required), splitting_payments: Boolean(req.body.splitting_payments), attendance: [], comments: [], payments: [], payment_participants: [], payment_participants_configured: false, order: day.timeslots.length }
-  day.timeslots.push(slot); writeDb(db); res.status(201).json({ trip: publicTrip(saved) })
-})
-
-app.put('/api/trips/:id/days/:dayId/timeslots/:slotId', (req, res) => {
-  const trip = getEditableTrip(req, res); if (!trip) return
-  const db = readDb(); const saved = db.trips.find((item) => item.id === trip.id); const day = saved.days.find((item) => item.id === req.params.dayId); const slot = day?.timeslots.find((item) => item.id === req.params.slotId)
-  if (!slot) return res.status(404).json({ error: 'Activity not found.' })
-  for (const key of ['time', 'title', 'location_text', 'notes']) if (key in req.body) slot[key] = String(req.body[key]).trim()
-  if ('links' in req.body) slot.links = Array.isArray(req.body.links) ? req.body.links.filter(Boolean).map(String) : []
-  if ('attendance_required' in req.body) slot.attendance_required = Boolean(req.body.attendance_required)
-  if ('splitting_payments' in req.body) slot.splitting_payments = Boolean(req.body.splitting_payments)
-  if (!slot.title) return res.status(400).json({ error: 'An activity title is required.' })
-  writeDb(db); res.json({ trip: publicTrip(saved) })
-})
-
-app.post('/api/trips/:id/days/:dayId/timeslots/:slotId/attendance', (req, res) => {
-  const db = readDb(); const trip = db.trips.find((item) => item.id === req.params.id); const day = trip?.days.find((item) => item.id === req.params.dayId); const slot = day?.timeslots.find((item) => item.id === req.params.slotId)
-  const name = req.body.name?.trim(); const status = req.body.status
-  if (!slot) return res.status(404).json({ error: 'Activity not found.' })
-  if (!slot.attendance_required) return res.status(400).json({ error: 'Attendance is not enabled for this activity.' })
-  if (!name || !['going', 'maybe', 'not-going'].includes(status)) return res.status(400).json({ error: 'Please add your name and response.' })
-  slot.attendance ||= []; slot.attendance = [...slot.attendance.filter((response) => response.name.toLowerCase() !== name.toLowerCase()), { name, status }]
-  writeDb(db); res.json({ trip: publicTrip(trip) })
-})
-
-app.post('/api/trips/:id/days/:dayId/timeslots/:slotId/comments', (req, res) => {
-  const db = readDb(); const trip = db.trips.find((item) => item.id === req.params.id); const day = trip?.days.find((item) => item.id === req.params.dayId); const slot = day?.timeslots.find((item) => item.id === req.params.slotId)
-  const name = req.body.name?.trim(); const body = req.body.body?.trim()
-  if (!slot) return res.status(404).json({ error: 'Activity not found.' })
-  if (!name || !body) return res.status(400).json({ error: 'Add your name and a comment.' })
-  slot.comments ||= []; slot.comments.push({ id: crypto.randomUUID(), name, body, created_at: new Date().toISOString() })
-  writeDb(db); res.status(201).json({ trip: publicTrip(trip) })
-})
-
-app.delete('/api/trips/:id/days/:dayId/timeslots/:slotId/comments/:commentId', (req, res) => {
-  const db = readDb(); const trip = db.trips.find((item) => item.id === req.params.id); const day = trip?.days.find((item) => item.id === req.params.dayId); const slot = day?.timeslots.find((item) => item.id === req.params.slotId); const comment = slot?.comments?.find((item) => item.id === req.params.commentId)
-  if (!comment) return res.status(404).json({ error: 'Comment not found.' })
-  if (comment.name.toLowerCase() !== req.body.name?.trim().toLowerCase()) return res.status(403).json({ error: 'Only the commenter can delete this comment.' })
-  slot.comments = slot.comments.filter((item) => item.id !== comment.id); writeDb(db); res.json({ trip: publicTrip(trip) })
-})
-
-app.post('/api/trips/:id/days/:dayId/timeslots/:slotId/payments', (req, res) => {
-  const db = readDb(); const trip = db.trips.find((item) => item.id === req.params.id); const day = trip?.days.find((item) => item.id === req.params.dayId); const slot = day?.timeslots.find((item) => item.id === req.params.slotId)
-  const paid_by = req.body.paid_by?.trim(); const note = req.body.note?.trim() || ''; const amount = req.body.amount?.trim() || ''; const receipt_data = req.body.receipt_data || ''
-  if (!slot) return res.status(404).json({ error: 'Activity not found.' })
-  if (!slot.splitting_payments) return res.status(400).json({ error: 'Payment splitting is not enabled for this activity.' })
-  if (!paid_by) return res.status(400).json({ error: 'Please say who paid.' })
-  if (receipt_data && (!String(receipt_data).startsWith('data:image/') || String(receipt_data).length > 2_500_000)) return res.status(400).json({ error: 'Please use an image smaller than about 1.8 MB.' })
-  slot.payments ||= []; slot.payments.push({ id: crypto.randomUUID(), paid_by, amount, note, receipt_data, created_at: new Date().toISOString() })
-  writeDb(db); res.status(201).json({ trip: publicTrip(trip) })
-})
-
-app.put('/api/trips/:id/days/:dayId/timeslots/:slotId/payment-participants', (req, res) => {
-  const db = readDb(); const trip = db.trips.find((item) => item.id === req.params.id); const day = trip?.days.find((item) => item.id === req.params.dayId); const slot = day?.timeslots.find((item) => item.id === req.params.slotId)
-  if (!slot) return res.status(404).json({ error: 'Activity not found.' })
-  if (!slot.splitting_payments) return res.status(400).json({ error: 'Payment splitting is not enabled for this activity.' })
-  slot.payment_participants = cleanNames(req.body.participants)
-  slot.payment_participants_configured = true
-  writeDb(db); res.json({ trip: publicTrip(trip) })
-})
-
-app.put('/api/trips/:id/days/:dayId/timeslots/:slotId/payments/:paymentId', (req, res) => {
-  const db = readDb(); const trip = db.trips.find((item) => item.id === req.params.id); const day = trip?.days.find((item) => item.id === req.params.dayId); const slot = day?.timeslots.find((item) => item.id === req.params.slotId); const payment = slot?.payments?.find((item) => item.id === req.params.paymentId)
-  if (!payment) return res.status(404).json({ error: 'Payment entry not found.' })
-  if (req.body.delete === true) { slot.payments = slot.payments.filter((item) => item.id !== payment.id); writeDb(db); return res.json({ trip: publicTrip(trip) }) }
-  if (!req.body.paid_by?.trim()) return res.status(400).json({ error: 'Please say who paid.' })
-  payment.paid_by = req.body.paid_by.trim(); payment.amount = req.body.amount?.trim() || ''; payment.note = req.body.note?.trim() || ''
-  writeDb(db); res.json({ trip: publicTrip(trip) })
-})
-
-app.delete('/api/trips/:id/days/:dayId/timeslots/:slotId/payments/:paymentId', (req, res) => {
-  const db = readDb(); const trip = db.trips.find((item) => item.id === req.params.id); const day = trip?.days.find((item) => item.id === req.params.dayId); const slot = day?.timeslots.find((item) => item.id === req.params.slotId)
-  if (!slot?.payments?.some((item) => item.id === req.params.paymentId)) return res.status(404).json({ error: 'Payment entry not found.' })
-  slot.payments = slot.payments.filter((item) => item.id !== req.params.paymentId); writeDb(db); res.json({ trip: publicTrip(trip) })
-})
-
-app.get('/api/trips/:id/days/:dayId/timeslots/:slotId/settlement', (req, res) => {
-  const trip = readDb().trips.find((item) => item.id === req.params.id); const day = trip?.days.find((item) => item.id === req.params.dayId); const slot = day?.timeslots.find((item) => item.id === req.params.slotId)
-  if (!slot) return res.status(404).json({ error: 'Activity not found.' })
-  res.json({ settlement: settlementFor(slot) })
-})
-
-app.delete('/api/trips/:id/days/:dayId/timeslots/:slotId', (req, res) => {
-  const trip = getEditableTrip(req, res); if (!trip) return
-  const db = readDb(); const saved = db.trips.find((item) => item.id === trip.id); const day = saved.days.find((item) => item.id === req.params.dayId)
-  if (!day) return res.status(404).json({ error: 'Day not found.' })
-  day.timeslots = day.timeslots.filter((item) => item.id !== req.params.slotId).map((item, i) => ({ ...item, order: i })); writeDb(db); res.json({ trip: publicTrip(saved) })
-})
-
-app.put('/api/trips/:id/days/:dayId/reorder', (req, res) => {
-  const trip = getEditableTrip(req, res); if (!trip) return
-  const db = readDb(); const saved = db.trips.find((item) => item.id === trip.id); const day = saved.days.find((item) => item.id === req.params.dayId)
-  if (!day || !Array.isArray(req.body.ids)) return res.status(400).json({ error: 'Invalid reorder request.' })
-  const byId = new Map(day.timeslots.map((slot) => [slot.id, slot]));
-  if (req.body.ids.length !== byId.size || req.body.ids.some((id) => !byId.has(id))) return res.status(400).json({ error: 'Invalid activity list.' })
-  day.timeslots = req.body.ids.map((id, order) => ({ ...byId.get(id), order })); writeDb(db); res.json({ trip: publicTrip(saved) })
-})
-
-app.use('/api', (_req, res) => res.status(404).json({ error: 'This API endpoint does not exist. Restart planr after updating its server.' }))
-
-const distDir = path.join(__dirname, '..', 'dist')
-if (fs.existsSync(distDir)) {
-  app.use(express.static(distDir))
-  app.get('*', (_req, res) => res.sendFile(path.join(distDir, 'index.html')))
-}
-
-app.listen(port, () => console.log(`planr API running at http://localhost:${port}`))
+import express from 'express';import cors from 'cors';import crypto from 'crypto';import fs from 'fs';import path from 'path';import{fileURLToPath}from'url';import{createClient}from'@supabase/supabase-js'
+const root=path.join(path.dirname(fileURLToPath(import.meta.url)),'..'),file=path.join(root,'data/trips.json'),app=express(),port=process.env.PORT||3001,enabled=!!(process.env.SUPABASE_URL&&process.env.SUPABASE_SECRET_KEY),sb=enabled?createClient(process.env.SUPABASE_URL,process.env.SUPABASE_SECRET_KEY):null
+fs.mkdirSync(path.dirname(file),{recursive:true});if(!fs.existsSync(file))fs.writeFileSync(file,'{"trips":[]}');app.use(cors());app.use(express.json({limit:'6mb'}))
+const local=()=>JSON.parse(fs.readFileSync(file,'utf8')),write=x=>fs.writeFileSync(file,JSON.stringify(x,null,2)),pub=t=>{const{edit_token,owner_id,...x}=t;return x},names=x=>[...new Map((x||[]).map(n=>[String(n).trim().toLowerCase(),String(n).trim()]).filter(([k])=>k)).values()],day=(t,id)=>t.days.find(x=>x.id===id),slot=(t,d,id)=>day(t,d)?.timeslots.find(x=>x.id===id)
+const get=async id=>{if(!sb)return local().trips.find(t=>t.id===id)||null;const{data,error}=await sb.from('trips').select('*').eq('id',id).maybeSingle();if(error)throw error;return data?{id:data.id,title:data.title,created_at:data.created_at,edit_token:data.edit_token,owner_id:data.owner_id,...data.plan}:null},save=async t=>{if(!sb){const d=local(),i=d.trips.findIndex(x=>x.id===t.id);i<0?d.trips.push(t):d.trips[i]=t;write(d);return}const{error}=await sb.from('trips').upsert({id:t.id,title:t.title,created_at:t.created_at,edit_token:t.edit_token,owner_id:t.owner_id||null,plan:{days:t.days||[]}});if(error)throw error},editable=async(req,res)=>{const t=await get(req.params.id);if(!t){res.status(404).json({error:'Trip not found.'});return}if(req.get('x-edit-token')!==t.edit_token){res.status(403).json({error:'That edit link is not valid.'});return}return t},fail=(res,e)=>{console.error(e);res.status(500).json({error:'Could not save your plan. Please try again.'})},wrap=f=>(req,res)=>f(req,res).catch(e=>fail(res,e))
+const calc=s=>{const p=s.payments||[],people=names(s.payment_participants),total=p.reduce((n,x)=>n+(parseFloat(String(x.amount||'').replace(/[^0-9.]/g,''))||0),0);if(!people.length||!total)return{total,perPerson:0,transfers:[],message:people.length?'Add payment amounts to calculate a split.':'Add everyone splitting this activity before calculating.'};const each=total/people.length,b=new Map(people.map(x=>[x,-each]));p.forEach(x=>b.set(x.paid_by,(b.get(x.paid_by)||0)+(parseFloat(String(x.amount||'').replace(/[^0-9.]/g,''))||0)));const c=[...b].filter(x=>x[1]>.005).map(([name,value])=>({name,value})),d=[...b].filter(x=>x[1]<-.005).map(([name,value])=>({name,value:-value})),out=[];d.forEach(a=>c.forEach(z=>{const amount=Math.min(a.value,z.value);if(amount>.005){out.push({from:a.name,to:z.name,amount:Math.round(amount*100)/100});a.value-=amount;z.value-=amount}}));return{total,perPerson:each,transfers:out,message:out.length?'':'Everyone is settled up.'}}
+app.post('/api/trips',wrap(async(req,res)=>{if(!req.body.title?.trim())return res.status(400).json({error:'A trip title is required.'});const labels=req.body.dates?.length?req.body.dates:['Day 1'],t={id:crypto.randomUUID(),title:req.body.title.trim(),created_at:new Date().toISOString(),edit_token:crypto.randomBytes(24).toString('base64url'),owner_id:null,days:labels.map((label,order)=>({id:crypto.randomUUID(),label,order,timeslots:[]}))};await save(t);res.status(201).json({trip:pub(t),editToken:t.edit_token})}))
+app.get('/api/trips/:id',wrap(async(req,res)=>{const t=await get(req.params.id);t?res.json({trip:pub(t)}):res.status(404).json({error:'Trip not found.'})}))
+app.get('/api/trips/:id/edit',wrap(async(req,res)=>{const t=await editable(req,res);if(t)res.json({trip:pub(t)})}))
+app.put('/api/trips/:id',wrap(async(req,res)=>{const t=await editable(req,res);if(!t)return;if(!req.body.title?.trim())return res.status(400).json({error:'A trip title is required.'});t.title=req.body.title.trim();await save(t);res.json({trip:pub(t)})}))
+app.post('/api/trips/:id/days',wrap(async(req,res)=>{const t=await editable(req,res);if(!t)return;t.days.push({id:crypto.randomUUID(),label:req.body.label?.trim()||`Day ${t.days.length+1}`,order:t.days.length,timeslots:[]});await save(t);res.status(201).json({trip:pub(t)})}))
+app.put('/api/trips/:id/days/:dayId',wrap(async(req,res)=>{const t=await editable(req,res);if(!t)return;if(req.params.dayId==='reorder'){const ids=req.body.ids||[],m=new Map(t.days.map(x=>[x.id,x]));if(ids.length!==t.days.length||ids.some(x=>!m.has(x)))return res.status(400).json({error:'Invalid day order.'});t.days=ids.map((id,order)=>({...m.get(id),order}))}else{const d=day(t,req.params.dayId);if(!d)return res.status(404).json({error:'Day not found.'});d.label=req.body.label?.trim()||d.label}await save(t);res.json({trip:pub(t)})}))
+app.delete('/api/trips/:id/days/:dayId',wrap(async(req,res)=>{const t=await editable(req,res);if(!t)return;if(t.days.length===1)return res.status(400).json({error:'A trip needs at least one day.'});t.days=t.days.filter(d=>d.id!==req.params.dayId).map((d,order)=>({...d,order}));await save(t);res.json({trip:pub(t)})}))
+app.post('/api/trips/:id/days/:dayId/timeslots',wrap(async(req,res)=>{const t=await editable(req,res),d=t&&day(t,req.params.dayId);if(!d)return res.status(404).json({error:'Day not found.'});if(!req.body.title?.trim())return res.status(400).json({error:'An activity title is required.'});d.timeslots.push({id:crypto.randomUUID(),time:req.body.time||'',title:req.body.title.trim(),location_text:req.body.location_text?.trim()||'',links:(req.body.links||[]).filter(Boolean),notes:req.body.notes?.trim()||'',attendance_required:!!req.body.attendance_required,splitting_payments:!!req.body.splitting_payments,attendance:[],comments:[],payments:[],payment_participants:[],payment_participants_configured:false,order:d.timeslots.length});await save(t);res.status(201).json({trip:pub(t)})}))
+app.put('/api/trips/:id/days/:dayId/timeslots/:slotId',wrap(async(req,res)=>{const t=await editable(req,res),s=t&&slot(t,req.params.dayId,req.params.slotId);if(!s)return res.status(404).json({error:'Activity not found.'});['time','title','location_text','notes'].forEach(k=>{if(k in req.body)s[k]=String(req.body[k]).trim()});if('links'in req.body)s.links=(req.body.links||[]).filter(Boolean);if('attendance_required'in req.body)s.attendance_required=!!req.body.attendance_required;if('splitting_payments'in req.body)s.splitting_payments=!!req.body.splitting_payments;if(!s.title)return res.status(400).json({error:'An activity title is required.'});await save(t);res.json({trip:pub(t)})}))
+app.delete('/api/trips/:id/days/:dayId/timeslots/:slotId',wrap(async(req,res)=>{const t=await editable(req,res),d=t&&day(t,req.params.dayId);if(!d)return res.status(404).json({error:'Day not found.'});d.timeslots=d.timeslots.filter(s=>s.id!==req.params.slotId).map((s,order)=>({...s,order}));await save(t);res.json({trip:pub(t)})}))
+app.put('/api/trips/:id/days/:dayId/reorder',wrap(async(req,res)=>{const t=await editable(req,res),d=t&&day(t,req.params.dayId),ids=req.body.ids||[],m=d&&new Map(d.timeslots.map(s=>[s.id,s]));if(!d||ids.length!==d.timeslots.length||ids.some(x=>!m.has(x)))return res.status(400).json({error:'Invalid reorder request.'});d.timeslots=ids.map((id,order)=>({...m.get(id),order}));await save(t);res.json({trip:pub(t)})}))
+const publicSlot=fn=>wrap(async(req,res)=>{const t=await get(req.params.id),s=t&&slot(t,req.params.dayId,req.params.slotId);if(!s)return res.status(404).json({error:'Activity not found.'});const err=await fn(t,s,req);if(err)return res.status(400).json({error:err});await save(t);res.json({trip:pub(t)})})
+app.post('/api/trips/:id/days/:dayId/timeslots/:slotId/attendance',publicSlot((t,s,r)=>{const n=r.body.name?.trim(),v=r.body.status;if(!s.attendance_required)return'Attendance is not enabled for this activity.';if(!n||!['going','maybe','not-going'].includes(v))return'Please add your name and response.';s.attendance=[...(s.attendance||[]).filter(x=>x.name.toLowerCase()!==n.toLowerCase()),{name:n,status:v}]}))
+app.post('/api/trips/:id/days/:dayId/timeslots/:slotId/comments',publicSlot((t,s,r)=>{const n=r.body.name?.trim(),b=r.body.body?.trim();if(!n||!b)return'Add your name and a comment.';(s.comments||=[]).push({id:crypto.randomUUID(),name:n,body:b,created_at:new Date().toISOString()})}))
+app.delete('/api/trips/:id/days/:dayId/timeslots/:slotId/comments/:commentId',wrap(async(req,res)=>{const t=await get(req.params.id),s=t&&slot(t,req.params.dayId,req.params.slotId),c=s?.comments?.find(x=>x.id===req.params.commentId);if(!c)return res.status(404).json({error:'Comment not found.'});if(c.name.toLowerCase()!==req.body.name?.trim().toLowerCase())return res.status(403).json({error:'Only the commenter can delete this comment.'});s.comments=s.comments.filter(x=>x.id!==c.id);await save(t);res.json({trip:pub(t)})}))
+app.put('/api/trips/:id/days/:dayId/timeslots/:slotId/payment-participants',publicSlot((t,s,r)=>{if(!s.splitting_payments)return'Payment splitting is not enabled for this activity.';s.payment_participants=names(r.body.participants);s.payment_participants_configured=true}))
+app.post('/api/trips/:id/days/:dayId/timeslots/:slotId/payments',publicSlot((t,s,r)=>{const n=r.body.paid_by?.trim();if(!s.splitting_payments)return'Payment splitting is not enabled for this activity.';if(!n)return'Please say who paid.';(s.payments||=[]).push({id:crypto.randomUUID(),paid_by:n,amount:r.body.amount?.trim()||'',note:r.body.note?.trim()||'',receipt_data:r.body.receipt_data||'',created_at:new Date().toISOString()})}))
+app.put('/api/trips/:id/days/:dayId/timeslots/:slotId/payments/:paymentId',publicSlot((t,s,r)=>{const p=s.payments?.find(x=>x.id===r.params.paymentId);if(!p)return'Payment entry not found.';if(r.body.delete)s.payments=s.payments.filter(x=>x.id!==p.id);else{if(!r.body.paid_by?.trim())return'Please say who paid.';Object.assign(p,{paid_by:r.body.paid_by.trim(),amount:r.body.amount?.trim()||'',note:r.body.note?.trim()||''})}}))
+app.get('/api/trips/:id/days/:dayId/timeslots/:slotId/settlement',wrap(async(req,res)=>{const t=await get(req.params.id),s=t&&slot(t,req.params.dayId,req.params.slotId);s?res.json({settlement:calc(s)}):res.status(404).json({error:'Activity not found.'})}))
+app.get('/api/health',(_q,r)=>r.json({ok:true,storage:enabled?'supabase':'local'}));app.use('/api',(_q,r)=>r.status(404).json({error:'This API endpoint does not exist.'}));const dist=path.join(root,'dist');if(fs.existsSync(dist)){app.use(express.static(dist));app.get('*',(_q,r)=>r.sendFile(path.join(dist,'index.html')))}app.listen(port,()=>console.log(`planr API (${enabled?'Supabase':'local'} storage) on ${port}`))

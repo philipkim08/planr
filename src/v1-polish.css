@@ -55,15 +55,58 @@
 .add-person input{width:0;min-width:0;flex:1;height:32px;margin:0;padding:6px 9px;font-size:.76rem}
 .add-person button{flex:0 0 auto;height:32px;margin:0;padding:6px 7px;font-size:.7rem}
 .split-participants .save-people{grid-column:2;height:32px;align-self:end;margin-bottom:0;padding:6px 7px;background:#6BAED6;color:#fff;border-color:#6BAED6;font-size:.7rem}
+.split-participants .save-people{display:none}
 .split-participants small{display:block;margin-top:6px;line-height:1.35}
 .delete-day{margin-left:auto;color:#b34248!important;font-size:.84rem!important;padding:7px 2px!important}
 .tabs button[draggable="true"],.draggable-card{cursor:default}
 .settlement{box-shadow:none!important}
 .payment-form .amount-input,.payment-form .amount-input input{background:#fff!important;color:#193147!important}
 .receipt-preview{display:inline-block;margin-top:8px;color:#327ba4;font-size:.75rem;font-weight:600}
+.editor nav .logo{font-size:1.15rem;color:#193147}
+.editor nav .logo b{color:#6BAED6}
+.hero{padding-top:108px;padding-bottom:45px}
+.hero h1{font-size:0!important;line-height:1!important;white-space:nowrap}
+.hero h1::before{content:'plans worth sharing';font:700 clamp(2rem,8.2vw,4.2rem)/1 "Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:-.035em;color:#193147}
+.split-participants>small:last-child{display:none}
+.split-participants{margin:7px 0 8px;padding:0 0 8px}
+.split-participants>label{grid-column:1;grid-row:1;align-self:center}
+.split-participants .add-going{grid-column:2;grid-row:1;justify-self:end;align-self:center;margin:0;padding:0;border:0;background:transparent;color:#327ba4;font-size:.72rem;font-weight:600}
+.split-participants .participant-bubbles{grid-column:1/-1;grid-row:2;margin:6px 0 3px}
+.split-participants .add-person{grid-row:3}
+.split-participants .save-people{grid-row:3}
+.payment-buttons button{font-weight:700}
+.payment{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.payment>b,.payment .split-participants,.payment .payment-lines,.payment .settlement,.payment .receipt-preview,.payment>.saved{grid-column:1/-1}
+.payment .payment-form,.payment .payment-buttons,.payment .settle-tools{display:contents!important}
+.payment .payment-form>input,.payment .payment-form>.amount-input{grid-row:auto;height:40px;min-height:40px;margin:0;font-size:.72rem}
+.payment .payment-form>input:nth-child(3){grid-column:3;width:100%}
+.payment .upload,.payment .payment-buttons button,.payment .settle-tools>button{position:relative;height:40px;min-height:40px;margin:0;border:0;border-radius:7px;background:#6BAED6!important;color:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0 5px;font-size:0;font-weight:700;line-height:1;white-space:nowrap;text-align:center}
+.payment .upload::before,.payment .payment-buttons button::before,.payment .settle-tools>button::before{content:'';width:14px;height:14px;flex:0 0 14px;background:#fff;mask:center/contain no-repeat;-webkit-mask:center/contain no-repeat}
+.payment .upload::before,.payment .payment-buttons button::before,.payment .settle-tools>button::before{position:absolute;top:50%;transform:translateY(-50%)}
+.payment .upload::before{left:calc(50% - 39px)}
+.payment .payment-buttons button::before{left:calc(50% - 58px)}
+.payment .settle-tools>button::before{left:calc(50% - 48px)}
+.payment .upload::before{mask-image:url('../icons/receipt-text.png');-webkit-mask-image:url('../icons/receipt-text.png')}
+.payment .payment-buttons button::before{mask-image:url('../icons/circle-dollar-sign.png');-webkit-mask-image:url('../icons/circle-dollar-sign.png')}
+.payment .settle-tools>button::before{mask-image:url('../icons/calculator.png');-webkit-mask-image:url('../icons/calculator.png')}
+.payment .upload::after,.payment .payment-buttons button::after,.payment .settle-tools>button::after{position:relative;top:1px;font-size:.74rem;line-height:1}
+.payment .upload::after{content:'Upload'}
+.payment .payment-buttons button::after{content:'Add payment'}
+.payment .settle-tools>button::after{content:'Settle up'}
+.payment .settlement{margin:0}
+.activity-summary .edit-btn{font-size:0!important;width:34px;height:31px;display:grid;place-items:center}
+.activity-summary .edit-btn::before{content:'';width:14px;height:14px;background:#fff;mask:url('../icons/pencil.png') center/contain no-repeat;-webkit-mask:url('../icons/pencil.png') center/contain no-repeat}
+.activity-actions .action-button:last-child,.activity-actions:has(> :nth-child(4)) .action-button:nth-child(3),.activity-actions:not(:has(> :nth-child(3))) .action-button:first-child,.activity-actions:has(> :nth-child(3)) .action-button:nth-child(2){position:relative;padding-left:29px;text-indent:-20px;font-size:.75rem}
+.activity-actions .action-button:last-child::before,.activity-actions:has(> :nth-child(4)) .action-button:nth-child(3)::before,.activity-actions:not(:has(> :nth-child(3))) .action-button:first-child::before,.activity-actions:has(> :nth-child(3)) .action-button:nth-child(2)::before{content:'';position:absolute;z-index:2;left:9px;top:50%;width:14px;height:14px;background:#193147;transform:translateY(-50%);mask-position:center;mask-size:contain;mask-repeat:no-repeat;-webkit-mask-position:center;-webkit-mask-size:contain;-webkit-mask-repeat:no-repeat}
+.activity-actions .action-button:last-child::after,.activity-actions:has(> :nth-child(4)) .action-button:nth-child(3)::after,.activity-actions:not(:has(> :nth-child(3))) .action-button:first-child::after,.activity-actions:has(> :nth-child(3)) .action-button:nth-child(2)::after{content:'';position:absolute;z-index:1;left:7px;top:50%;width:18px;height:18px;background:#fff;transform:translateY(-50%)}
+.activity-actions .action-button:last-child::before{mask-image:url('../icons/message-circle.png');-webkit-mask-image:url('../icons/message-circle.png')}
+.activity-actions:has(> :nth-child(4)) .action-button:nth-child(3)::before,.activity-actions:not(:has(> :nth-child(3))) .action-button:first-child::before{mask-image:url('../icons/credit-card.png');-webkit-mask-image:url('../icons/credit-card.png')}
+.activity-actions:has(> :nth-child(3)) .action-button:nth-child(2)::before{mask-image:url('../icons/users-round.png');-webkit-mask-image:url('../icons/users-round.png')}
 .payment-editor{grid-template-columns:minmax(80px,.75fr) 68px minmax(90px,1fr) auto auto auto}
 .payment-editor .delete-payment{color:#b34248!important}
 @media(max-width:540px){
+  .hero{padding-top:82px;padding-bottom:40px}
+  .hero h1::before{font-size:clamp(1.9rem,8.2vw,2.4rem)}
   .split-participants{padding-left:0}
   .split-participants .save-people{width:auto}
   .split-participants .add-going{width:auto}

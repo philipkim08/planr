@@ -16,6 +16,12 @@ Keep that terminal open while using the app. Press `Control+C` to stop it.
 
 For each activity that has payment splitting enabled, add the names of everyone sharing that activity. The payment calculator then divides the total among those people and shows exactly who should pay whom. This list is separate from RSVPs, so it works even when not everyone who attends is sharing a particular cost.
 
+## Supabase production setup
+
+Before deploying planr for real users, create a Supabase project and run the SQL in `supabase/migrations/001_planr.sql` in **SQL Editor**. This creates persistent trip storage and the `planr-media` image bucket.
+
+Copy `.env.example` to `.env` and add your project URL plus keys from **Supabase → Connect**. Keep `SUPABASE_SECRET_KEY` server-only: it must never begin with `VITE_`, be committed to Git, or be entered in a browser.
+
 ## How links work
 
 After creating a trip, planr opens its edit page. That page has a **Copy view link** button and a **Copy edit link** button. Send only the view link to guests. Anyone with the edit link can make changes, so save it somewhere private.

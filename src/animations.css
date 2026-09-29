@@ -1,0 +1,21 @@
+/* Lightweight motion layer. Remove this import from main.jsx to roll it back. */
+:root{--planr-motion:180ms;--planr-spring:cubic-bezier(.2,.8,.2,1)}
+button,a,.tabs button,.action-button,.participant-bubble,input,textarea,select{transition:transform var(--planr-motion) var(--planr-spring),background-color var(--planr-motion) ease,border-color var(--planr-motion) ease,box-shadow var(--planr-motion) ease,color var(--planr-motion) ease}
+button:not(:disabled):active,.action-button:active,.tabs button:active{transform:scale(.97)}
+.tabs button.active{animation:tab-settle 260ms var(--planr-spring)}
+.cal-grid button.picked{animation:date-pop 220ms var(--planr-spring)}
+.activity-summary,.public-card{animation:card-arrive 320ms var(--planr-spring) both}
+.activity-summary:hover,.public-card:hover{transform:translateY(-1px)}
+.rsvp,.payment,.comments,.attendee-list{animation:panel-open 220ms var(--planr-spring) both;transform-origin:top center}
+.participant-bubble{animation:chip-in 190ms var(--planr-spring) both}
+.response-avatar i,.status-dot{animation:status-pop 260ms var(--planr-spring) both}
+.saved{animation:message-in 180ms var(--planr-spring) both}
+.primary:not(:disabled):hover,.payment-buttons button:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(26,81,108,.15)}
+@keyframes card-arrive{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@keyframes panel-open{from{opacity:0;transform:translateY(-4px);max-height:0}to{opacity:1;transform:translateY(0);max-height:900px}}
+@keyframes chip-in{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)}}
+@keyframes tab-settle{0%{transform:scale(.94)}100%{transform:scale(1)}}
+@keyframes date-pop{0%{transform:scale(.78)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
+@keyframes status-pop{0%{transform:scale(.65)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes message-in{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
