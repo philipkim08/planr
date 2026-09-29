@@ -81,9 +81,9 @@
 .payment .payment-form>input,.payment .payment-form>.amount-input{grid-row:auto;height:40px;min-height:40px;margin:0;font-size:.72rem}
 .payment .payment-form>input:nth-child(3){grid-column:3;width:100%}
 .payment .upload,.payment .payment-buttons button,.payment .settle-tools>button{position:relative;height:40px;min-height:40px;margin:0;border:0;border-radius:7px;background:#6BAED6!important;color:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0 5px;font-size:0;font-weight:700;line-height:1;white-space:nowrap;text-align:center}
-.payment .upload{grid-column:1}
-.payment .settle-tools>button{grid-column:2}
-.payment .payment-buttons button{grid-column:3;background:#327ba4!important}
+.payment .upload{grid-column:1;grid-row:5}
+.payment .settle-tools>button{grid-column:2;grid-row:5}
+.payment .payment-buttons button{grid-column:3;grid-row:5;background:#327ba4!important}
 .payment .upload::before,.payment .payment-buttons button::before,.payment .settle-tools>button::before{content:'';width:14px;height:14px;flex:0 0 14px;background:#fff;mask:center/contain no-repeat;-webkit-mask:center/contain no-repeat}
 .payment .upload::before,.payment .payment-buttons button::before,.payment .settle-tools>button::before{position:absolute;top:50%;transform:translateY(-50%)}
 .payment .upload::before{left:calc(50% - 39px)}
@@ -94,7 +94,7 @@
 .payment .settle-tools>button::before{mask-image:url('../icons/calculator.png');-webkit-mask-image:url('../icons/calculator.png')}
 .payment .upload::after,.payment .payment-buttons button::after,.payment .settle-tools>button::after{position:relative;top:1px;font-size:.74rem;line-height:1}
 .payment .upload::after{content:'Upload'}
-.payment .payment-buttons button::after{content:'Add payment'}
+.payment .payment-buttons button::after{content:'Add'}
 .payment .settle-tools>button::after{content:'Settle up'}
 .payment .settlement{margin:0}
 .activity-summary .edit-btn{font-size:0!important;width:34px;height:31px;display:grid;place-items:center}
