@@ -1,0 +1,72 @@
+/*
+  Mobile visual refresh. This is intentionally a final-layer stylesheet so the
+  prior visual system remains intact underneath and this pass is easy to revert.
+*/
+:root,body,.home,.viewer,.editor{background:#fff!important;color:#193147}
+.home,.viewer,.editor{max-width:760px;padding:22px 20px 64px}
+
+/* Type: fewer styles, more deliberate contrast. */
+.hero h1,.viewer header h1,.edit-header input{
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  font-weight:700!important;
+  color:#193147!important;
+  letter-spacing:-.025em!important;
+}
+.hero h1::before{letter-spacing:-.025em!important}
+.eyebrow,.agenda-label{color:#628194!important;font-weight:700!important;letter-spacing:.12em!important}
+.viewer header{padding:48px 3px 27px!important}
+.viewer header>p:last-child,.hero>p:last-child{color:#68808e!important;line-height:1.55!important}
+
+/* Reserve blue for selected states and primary actions, not every surface. */
+.create,.calendar,.public-card,.activity-summary,.activity-form,.payment,.rsvp,.attendee-list,.comments,.settlement,.day-payment-details{
+  background:#fff!important;
+  border:1px solid #dce6ec!important;
+  box-shadow:0 4px 14px rgba(24,55,73,.075)!important;
+}
+.create{border-radius:16px!important;padding:21px!important}
+.calendar{background:#f8fbfd!important;box-shadow:none!important}
+.public-card{border-radius:15px!important;border-left:3px solid #d7edf8!important;padding:16px!important;box-shadow:0 5px 16px rgba(24,55,73,.075)!important}
+.public-card h2{font-size:1.03rem!important;letter-spacing:-.02em!important}
+.public-card p{color:#68808e!important}
+.location{color:#347fa9!important;font-weight:600}
+.activity-summary{border-radius:13px!important;background:#fff!important;padding:15px!important}
+.activity-summary>div:first-child>b{color:#347fa9!important}
+.activity-form{border-radius:13px!important}
+
+/* Controls are touch-friendly, with a single clear primary treatment. */
+input,textarea,select{border-color:#cfdee6!important;background:#fff!important;box-shadow:none!important}
+input:focus,textarea:focus,select:focus{border-color:#6BAED6!important;box-shadow:0 0 0 3px rgba(107,174,214,.16)!important}
+.primary,.create .primary{min-height:46px;border-radius:10px;background:#347fa9!important;box-shadow:none!important;font-weight:700}
+.tabs{gap:8px!important;border:0!important;padding-bottom:18px!important}
+.tabs button{border-color:#d9e5eb!important;background:#fff!important;color:#597482!important;padding:9px 14px!important;font-weight:600}
+.tabs .active{background:#6BAED6!important;border-color:#6BAED6!important;color:#fff!important;box-shadow:0 3px 8px rgba(57,124,159,.18)}
+.action-button{border-color:#d5e5ec!important;background:#fff!important;color:#326e91!important;min-height:34px;font-weight:700!important}
+.link{background:#eef7fb!important;color:#28739d!important;font-weight:600}
+
+/* Editing stays calm and functional instead of reading as an admin dashboard. */
+.edit-header{padding:38px 0 24px!important}
+.share{background:transparent!important;border:0!important;box-shadow:none!important;padding:4px 0 16px!important}
+.share button{border-color:#cfe0e8!important;background:#fff!important;color:#347fa9!important}
+.day-tools{margin-top:4px}
+.add-activity{border-color:#bcddea!important;background:#f8fbfd!important;color:#347fa9!important}
+
+/* Payment-related disclosure stays secondary until a guest asks for it. */
+.public-card .payment,.public-card .rsvp,.public-card .attendee-list,.public-card .comments{box-shadow:none!important}
+.day-payment-details{box-shadow:0 7px 18px rgba(24,55,73,.08)!important}
+
+@media(max-width:540px){
+  .home,.viewer,.editor{padding:18px 16px 54px}
+  .hero{padding:58px 2px 34px!important}
+  .hero h1::before{font-size:clamp(2rem,9vw,2.55rem)!important}
+  .viewer header{padding:40px 2px 23px!important}
+  .viewer header h1{font-size:clamp(2.35rem,11vw,3.25rem)!important;line-height:.98!important}
+  .public-slot{grid-template-columns:68px minmax(0,1fr)!important;min-height:0!important}
+  .public-slot>time{padding-top:16px!important;font-size:.78rem!important;letter-spacing:.025em!important}
+  .public-card{padding:15px!important;margin-bottom:13px!important}
+  .public-card h2{font-size:1rem!important}
+  .activity-summary{padding:14px!important}
+  .tabs{margin-left:-1px;margin-right:-1px;overflow-x:auto}
+  .tabs button{padding:9px 13px!important}
+  .create{padding:18px!important}
+  .day-payment-summary{width:calc(100% - 68px)!important;margin-left:68px!important}
+}
