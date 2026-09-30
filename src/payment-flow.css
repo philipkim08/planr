@@ -1,0 +1,132 @@
+/*
+  Payment flow v2 — intentionally isolated so it can be rolled back by removing
+  the import in main.jsx. It favors clear, touch-friendly rows over fitting every
+  control into one narrow mobile line.
+*/
+.payment{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px!important;
+  padding:14px!important;
+}
+.payment>b,.payment .split-participants,.payment .payment-lines,.payment .receipt-preview,.payment>.saved,.payment .settlement{
+  grid-column:1/-1!important;
+}
+.payment>b{
+  font-size:0!important;
+  line-height:1.2;
+  color:#193147;
+}
+.payment>b::after{content:'Expenses';font-size:.92rem;font-weight:700}
+
+/* “Split with” is a choice, not a separate form to save. */
+.payment .split-participants{margin:0 0 4px!important;padding:0 0 11px!important}
+.payment .split-participants>label{font-size:0!important}
+.payment .split-participants>label::after{content:'Split with';font-size:.76rem;font-weight:700;color:#355468}
+.payment .split-participants .add-going{font-size:0!important;min-height:30px}
+.payment .split-participants .add-going::after{content:'Add going guests';font-size:.72rem}
+.payment .participant-bubbles{margin-top:7px!important}
+.payment .add-person{margin-top:8px!important}
+
+/* Desktop: one compact expense row, then three equal actions. */
+.payment .payment-form,.payment .payment-buttons,.payment .settle-tools{display:contents!important}
+.payment .payment-form>input,.payment .payment-form>.amount-input{
+  min-width:0;
+  height:42px!important;
+  min-height:42px!important;
+  margin:0!important;
+  font-family:inherit!important;
+  font-size:.72rem!important;
+  font-weight:400!important;
+  color:#193147!important;
+}
+.payment .payment-form>.amount-input input{font:inherit!important;color:inherit!important}
+.payment .payment-form>input:first-child{grid-column:1;grid-row:5}
+.payment .payment-form>.amount-input{grid-column:2;grid-row:5}
+.payment .payment-form>input:nth-child(3){grid-column:3;grid-row:5}
+.payment .upload,.payment .payment-buttons button,.payment .settle-tools>button{
+  min-width:0!important;
+  height:42px!important;
+  min-height:42px!important;
+  padding:0 8px!important;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.payment .upload{grid-column:1;grid-row:6}
+.payment .settle-tools>button{grid-column:2;grid-row:6}
+.payment .payment-buttons button{grid-column:3;grid-row:6}
+.payment .upload::after{content:'Upload receipt'!important}
+.payment .payment-buttons button::after{content:'Add expense'!important}
+.payment .settle-tools>button::after{content:'Calculate balances'!important}
+.payment .upload::before,.payment .payment-buttons button::before,.payment .settle-tools>button::before{
+  position:static!important;
+  transform:none!important;
+  margin-right:6px;
+}
+.payment .settlement{grid-column:1/-1;grid-row:7;margin-top:0!important}
+
+/* Phone portrait: name + amount belong together; description and calculation get room. */
+@media(max-width:540px){
+  .payment{grid-template-columns:minmax(0,1fr) minmax(96px,.72fr);gap:8px!important;padding:12px!important}
+  .payment .payment-form>input:first-child{grid-column:1;grid-row:5}
+  .payment .payment-form>.amount-input{grid-column:2;grid-row:5}
+  .payment .payment-form>input:nth-child(3){grid-column:1/-1;grid-row:6}
+  .payment .upload{grid-column:1;grid-row:7}
+  .payment .payment-buttons button{grid-column:2;grid-row:7}
+  .payment .settle-tools>button{grid-column:1/-1;grid-row:8}
+  .payment .settlement{grid-row:9}
+  .payment .upload::after{content:'Upload'!important}
+  .payment .payment-buttons button::after{content:'Add expense'!important}
+  .payment .settle-tools>button::after{content:'Calculate balances'!important}
+  .payment .upload,.payment .payment-buttons button,.payment .settle-tools>button{font-size:0!important}
+  .payment .upload::after,.payment .payment-buttons button::after,.payment .settle-tools>button::after{font-size:.76rem!important}
+}
+
+/* Activity hierarchy: time anchors the left edge; the details sit just inside it. */
+.activity-summary>div:first-child>h3,
+.activity-summary>div:first-child>p{margin-left:14px}
+
+/* Explicit action classes prevent an icon from changing when a button is shown or hidden. */
+.activity-actions .action-button.attendees-action::before{
+  mask-image:url('../icons/users-round.png')!important;
+  -webkit-mask-image:url('../icons/users-round.png')!important;
+}
+.activity-actions .action-button.payments-action::before{
+  mask-image:url('../icons/credit-card.png')!important;
+  -webkit-mask-image:url('../icons/credit-card.png')!important;
+}
+.activity-actions .action-button.comments-action::before{
+  mask-image:url('../icons/message-circle.png')!important;
+  -webkit-mask-image:url('../icons/message-circle.png')!important;
+}
+
+/* A read-only wrap-up sits after the final activity for the selected day. */
+.day-payment-summary{
+  width:calc(100% - 105px);
+  margin:20px 0 4px 105px;
+  color:#193147;
+}
+.day-payment-toggle{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;min-height:44px;border:0;border-radius:9px;background:#6BAED6;color:#fff;padding:10px 13px;font-size:.92rem;font-weight:700;text-align:center}
+.day-payment-toggle i{font-style:normal;font-size:.9rem}
+.day-payment-details{padding:18px 14px;border:1px solid #9fb3bf;border-top:0;border-radius:0 0 12px 12px;background:linear-gradient(180deg,#f5fbff 0%,#eef8fc 100%)}
+.day-payment-toggle[aria-expanded="true"]{border-radius:9px 9px 0 0}
+.day-payment-heading{display:flex;align-items:end;justify-content:space-between;gap:12px;padding-bottom:11px;border-bottom:1px solid #c1d2db}
+.day-payment-heading p{margin:0 0 3px;color:#53707f;font-size:.65rem;font-weight:700;letter-spacing:.08em}
+.day-payment-heading h2{margin:0;font-size:1rem;line-height:1.15}
+.day-payment-heading>strong{font-size:1.05rem;white-space:nowrap}
+.day-payment-list{padding:4px 0 10px;border-bottom:1px solid #c1d2db}
+.day-payment-list p{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;margin:8px 0;font-size:.75rem;line-height:1.35}
+.day-payment-list span{color:#597482;min-width:0}
+.day-payment-list b{text-align:right;font-weight:600}
+.day-payment-balances{text-align:center}
+.day-payment-balances p{margin:8px 0;padding:11px 10px;border:1px solid #c8dde7;border-radius:9px;background:#fff;color:#31566b;font-size:.93rem;line-height:1.35}
+.day-payment-balances p b{color:#193147;font-weight:700}
+.day-payment-balances small{display:block;margin:0 0 10px;color:#7c6234;font-size:.82rem;line-height:1.4}
+.day-payment-balances .settled{display:flex;align-items:center;justify-content:center;min-height:58px;margin:0;border-color:#b9dfc7;background:#f4fcf6;color:#2c7650;font-size:.92rem;font-weight:600}
+.day-payment-balances .settled::before{content:'✓';display:grid;place-items:center;width:21px;height:21px;margin-right:7px;border-radius:50%;background:#4ca96d;color:#fff;font-size:.76rem}
+@media(max-width:540px){
+  .day-payment-summary{width:calc(100% - 82px);margin:17px 0 4px 82px}
+  .day-payment-details{padding:13px}
+  .day-payment-list p{grid-template-columns:1fr;gap:1px;margin:9px 0}
+  .day-payment-list b{text-align:left}
+}
