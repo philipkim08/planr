@@ -58,7 +58,7 @@
 }
 .public-card .expense-entry>input:first-child{grid-column:1!important}
 .public-card .expense-entry>.amount-input{grid-column:2!important}
-.public-card .expense-entry>input:nth-child(3){grid-column:3!important}
+.public-card .expense-entry>input[placeholder="For?"]{grid-column:3!important}
 .public-card .expense-entry-actions{display:flex;grid-column:4/-1!important;grid-row:1!important;gap:5px}
 .public-card .expense-entry-actions button{min-width:0;border-radius:7px;padding:7px 8px;font-size:.74rem;font-weight:700}
 .public-card .save-expense{border:0;background:#347fa9;color:#fff}
@@ -109,8 +109,8 @@
   .public-card .expense-entry{grid-template-columns:minmax(42px,.85fr) 52px minmax(34px,.65fr) auto auto;gap:4px}
   .public-card .expense-entry>input:first-child{grid-column:1!important;grid-row:1!important}
   .public-card .expense-entry>.amount-input{grid-column:2!important;grid-row:1!important}
-  .public-card .expense-entry>input:nth-child(3){grid-column:3!important;grid-row:1!important}
-  .public-card .expense-entry-actions{grid-column:4/-1!important;grid-row:1!important;gap:3px}
+  .public-card .expense-entry>input[placeholder="For?"]{grid-column:1!important;grid-row:2!important}
+  .public-card .expense-entry-actions{grid-column:2!important;grid-row:2!important;gap:3px}
   .public-card .expense-entry-actions button{padding:7px 5px;font-size:.68rem}
   .public-card>.rsvp,.public-card>.payment,.public-card>.attendee-list,.public-card>.comments{margin-top:13px!important;padding-top:13px!important}
 }
