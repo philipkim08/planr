@@ -122,17 +122,18 @@
   .public-card>.rsvp,.public-card>.payment,.public-card>.attendee-list,.public-card>.comments{margin-top:13px!important;padding-top:13px!important}
 
   /* Keep the edit screen's title, sharing controls, and day switcher in one compact flow. */
-  .editor .edit-header{padding:29px 0 14px!important}
-  .editor .share{display:flex!important;flex-wrap:nowrap!important;align-items:center!important;gap:5px!important;padding:8px 0!important}
+  .editor .edit-header{padding:31px 0 19px!important}
+  .editor .share{display:flex!important;flex-wrap:nowrap!important;align-items:center!important;gap:7px!important;padding:12px 0!important}
   .editor .share>div{width:auto!important;min-width:0;margin-right:auto!important}
   .editor .share p{display:none!important}
   .editor .share b{font-size:.76rem}
   .editor .share button{min-height:29px!important;margin:0!important;padding:6px 7px!important;font-size:.64rem!important;line-height:1!important}
-  .editor>.tabs{margin-top:8px!important;padding-bottom:10px!important}
-  .editor .edit-day{padding:12px 0!important}
-  .editor .day-tools{margin-bottom:9px!important}
-  .editor .add-new-day{display:block;margin:5px auto 0;border:0;background:transparent;color:#347fa9;padding:7px;font-size:.78rem;font-weight:700}
-  .editor .day-name-form{margin-top:8px;padding-top:12px}
+  .editor>.tabs{margin-top:15px!important;padding-bottom:15px!important}
+  .editor .edit-day{padding:18px 0!important}
+  .editor .day-tools{margin-bottom:13px!important}
+  .editor .activity-summary,.editor .activity-form{margin-bottom:14px!important}
+  .editor .add-new-day{display:block;margin:13px auto 0;border:0;background:transparent;color:#347fa9;padding:7px;font-size:.78rem;font-weight:700}
+  .editor .day-name-form{margin-top:14px;padding-top:14px}
   .editor .day-name-form input{min-width:0}
   .editor .day-name-form button{padding:7px;font-size:.72rem}
 }
