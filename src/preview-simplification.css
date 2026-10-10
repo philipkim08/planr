@@ -1,0 +1,68 @@
+/* Preview simplification: one activity card, with calm inline detail areas. */
+.public-card{
+  border-color:#e0e8ed!important;
+  box-shadow:0 3px 11px rgba(24,55,73,.055)!important;
+}
+
+/* Actions should feel like lightweight controls, not another row of containers. */
+.public-card .activity-actions{gap:4px;margin-top:15px}
+.public-card .action-button{
+  min-height:32px;
+  border:0!important;
+  background:transparent!important;
+  padding:6px 8px!important;
+  color:#49758d!important;
+}
+.public-card:has(> .rsvp) .rsvp-action,
+.public-card:has(> .attendee-list) .attendees-action,
+.public-card:has(> .payment) .payments-action,
+.public-card:has(> .comments) .comments-action{
+  background:#e6f3f8!important;
+  color:#1f6288!important;
+}
+.public-card:has(> .rsvp) .rsvp-action .response-avatar,
+.public-card:has(> .attendee-list) .attendees-action::after,
+.public-card:has(> .payment) .payments-action::after,
+.public-card:has(> .comments) .comments-action::after{background:#e6f3f8!important}
+
+/* Expanded content belongs to the activity instead of becoming a nested card. */
+.public-card>.rsvp,
+.public-card>.payment,
+.public-card>.attendee-list,
+.public-card>.comments{
+  margin-top:15px!important;
+  padding:15px 0 0!important;
+  border:0!important;
+  border-top:1px solid #e2e9ed!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.public-card>.rsvp>b{font-size:.82rem;color:#193147}
+.public-card>.rsvp .response{margin-top:9px}
+.public-card>.attendee-list>div{padding:5px 0;font-size:.8rem}
+
+/* Payments become a small ledger instead of a stack of panels. */
+.public-card>.payment{gap:10px!important;padding-bottom:1px!important}
+.public-card>.payment>b::after{font-size:.82rem!important;color:#193147}
+.public-card .split-participants{padding-bottom:12px!important;border-bottom:1px solid #e2e9ed!important}
+.public-card .participant-bubble{background:#eef6f9!important;color:#39799a!important}
+.public-card .payment-lines{margin:2px 0!important;padding:0!important;border:0!important}
+.public-card .payment-record{padding:9px 0;border-bottom:1px solid #edf1f3;font-size:.78rem}
+.public-card .payment-record:last-child{border-bottom:0}
+.public-card .payment-form>input,.public-card .payment-form>.amount-input{border-color:#d9e5ea!important;background:#fff!important}
+.public-card .settle-tools>button{box-shadow:none!important}
+.public-card .settlement{padding:10px 0 0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+.public-card .settlement p{margin:6px 0;padding:9px 10px;border-radius:8px;background:#eef7fb;color:#31566b}
+.public-card .receipt-preview{margin-top:0}
+
+/* Comments read as a simple conversation, not a bordered sub-card. */
+.public-card>.comments p{margin:8px 0;padding:0;font-size:.8rem}
+.public-card>.comments .comment-form{margin-top:11px}
+.public-card>.comments .comment-form input{border-color:#d9e5ea!important}
+
+@media(max-width:540px){
+  .public-card .activity-actions{gap:2px}
+  .public-card .action-button{padding:6px 7px!important;font-size:.73rem!important}
+  .public-card>.rsvp,.public-card>.payment,.public-card>.attendee-list,.public-card>.comments{margin-top:13px!important;padding-top:13px!important}
+}

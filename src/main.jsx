@@ -25,6 +25,7 @@ import './v1-polish.css'
 import './animations.css'
 import './payment-flow.css'
 import './mobile-refresh.css'
+import './preview-simplification.css'
 const API = import.meta.env.VITE_API_URL || '/api'
 const blankSlot = { time:'', title:'', location_text:'', links:[''], notes:'', attendance_required:false, splitting_payments:false }
 if (typeof window !== 'undefined') new MutationObserver(() => {document.querySelectorAll('input[type="url"]').forEach((input) => { if (input.placeholder.includes('link')) input.placeholder = 'https://' });document.querySelectorAll('.payment-form input[placeholder="What was paid for? (optional)"]').forEach(input=>{input.placeholder='For?'})}).observe(document.documentElement, { childList: true, subtree: true })
