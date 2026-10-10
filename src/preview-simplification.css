@@ -56,7 +56,12 @@
   border-color:#d9e5ea!important;
   background:#fff!important;
 }
-.public-card .expense-entry>input:first-child{grid-column:1!important}
+.public-card .expense-entry>.name-picker{position:relative;z-index:4;grid-column:1!important;grid-row:1!important;min-width:0}
+.public-card .expense-entry>.name-picker input{height:40px!important;min-height:40px!important;border-color:#d9e5ea!important;background:#fff!important}
+.public-card .name-options{position:absolute;z-index:10;top:calc(100% + 4px);left:0;right:0;max-height:156px;overflow-y:auto;border:1px solid #c9dbe4;border-radius:8px;background:#fff;box-shadow:0 8px 18px rgba(24,55,73,.14)}
+.public-card .name-options button{display:block;width:100%;border:0;background:#fff;color:#31566b;padding:9px 10px;text-align:left;font-size:.76rem}
+.public-card .name-options button+button{border-top:1px solid #edf2f4}
+.public-card .name-options button:active{background:#eaf5fa}
 .public-card .expense-entry>.amount-input{grid-column:2!important}
 .public-card .expense-entry>input[placeholder="For?"]{grid-column:3!important}
 .public-card .expense-entry-actions{display:flex;grid-column:4/-1!important;grid-row:1!important;min-width:0;gap:5px}
@@ -109,7 +114,7 @@
 
 @media(max-width:540px){
   .public-card .expense-entry{grid-template-columns:minmax(42px,.85fr) 52px minmax(34px,.65fr) auto auto;gap:4px}
-  .public-card .expense-entry>input:first-child{grid-column:1!important;grid-row:1!important}
+  .public-card .expense-entry>.name-picker{grid-column:1!important;grid-row:1!important}
   .public-card .expense-entry>.amount-input{grid-column:2!important;grid-row:1!important}
   .public-card .expense-entry>input[placeholder="For?"]{grid-column:1!important;grid-row:2!important}
   .public-card .expense-entry-actions{grid-column:2!important;grid-row:2!important;gap:3px}
