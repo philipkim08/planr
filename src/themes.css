@@ -55,13 +55,14 @@
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .split-participants .add-going,
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .receipt-preview{color:var(--theme-strong)!important}
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .public-card>.payment .add-expense-pill{color:var(--theme-strong)!important}
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .split-participants>button,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .split-participants>button:not(.add-going),
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .add-person button,
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .cancel-expense,
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .add-day button:not([type="button"]){border-color:var(--theme-border)!important;background:var(--theme-soft)!important;color:var(--theme-strong)!important}
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .response button,
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .comment-form button{background:var(--theme-primary)!important;border-color:var(--theme-primary)!important;color:#fff!important}
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment-lines{border-left-color:var(--theme-pale)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .split-participants .add-going{border:0!important;background:transparent!important;box-shadow:none!important}
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment-form .amount-input{border-color:var(--theme-border)!important;color:var(--theme-strong)!important}
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment>b,
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment>b::after,
