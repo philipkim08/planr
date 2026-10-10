@@ -1,17 +1,27 @@
 /* Per-plan palettes. Blue stays the familiar default; the other themes use the
    same calm contrast and saturation so they feel like one product. */
 .theme-blue{--theme-primary:#6baed6;--theme-strong:#347fa9;--theme-soft:#e6f3f8;--theme-pale:#d7edf8;--theme-border:#cfe0e8;--theme-text:#193147}
-.theme-orange{--theme-primary:#e89a62;--theme-strong:#b86530;--theme-soft:#fff0e5;--theme-pale:#f9d8c0;--theme-border:#efd2bc;--theme-text:#3b2a20}
-.theme-red{--theme-primary:#d87878;--theme-strong:#a84343;--theme-soft:#fcebeb;--theme-pale:#f1caca;--theme-border:#e9caca;--theme-text:#3d2528}
-.theme-green{--theme-primary:#6faf8b;--theme-strong:#39815b;--theme-soft:#e7f5ec;--theme-pale:#c8e7d3;--theme-border:#cbe2d4;--theme-text:#17372a}
-.theme-muted{--theme-primary:#8e9aa5;--theme-strong:#586572;--theme-soft:#eff1f3;--theme-pale:#d7dce0;--theme-border:#d0d6da;--theme-text:#28353f}
+.theme-orange{--theme-primary:#e89a62;--theme-strong:#b86530;--theme-soft:#fff0e5;--theme-pale:#f9d8c0;--theme-border:#efd2bc;--theme-text:#25272b}
+.theme-red{--theme-primary:#d87878;--theme-strong:#a84343;--theme-soft:#fcebeb;--theme-pale:#f1caca;--theme-border:#e9caca;--theme-text:#25272b}
+.theme-green{--theme-primary:#6faf8b;--theme-strong:#39815b;--theme-soft:#e7f5ec;--theme-pale:#c8e7d3;--theme-border:#cbe2d4;--theme-text:#25272b}
+.theme-muted{--theme-primary:#8e9aa5;--theme-strong:#586572;--theme-soft:#eff1f3;--theme-pale:#d7dce0;--theme-border:#d0d6da;--theme-text:#25272b}
 
-.theme-picker{display:flex;align-items:center;gap:12px;padding:0 0 16px;color:#5e7483;font-size:.74rem;font-weight:700}
+.theme-picker{display:flex;align-items:center;gap:12px;padding:22px 0 18px;color:#5e7483;font-size:.74rem;font-weight:700}
 .theme-picker>div{display:flex;gap:7px;align-items:flex-start}
-.theme-swatch{display:grid;justify-items:center;gap:4px;padding:0;border:0;background:transparent;color:#667985;font-size:.59rem;line-height:1;min-width:31px}
+.theme-swatch{display:grid;justify-items:center;padding:0;border:0;background:transparent;color:#667985;font-size:.59rem;line-height:1;min-width:24px}
 .theme-swatch i{display:block;width:22px;height:22px;border-radius:50%;background:var(--swatch);border:2px solid transparent;box-shadow:inset 0 0 0 1px rgba(25,49,71,.08)}
 .theme-swatch.blue{--swatch:#6baed6}.theme-swatch.orange{--swatch:#e89a62}.theme-swatch.red{--swatch:#d87878}.theme-swatch.green{--swatch:#6faf8b}.theme-swatch.muted{--swatch:#8e9aa5}
 .theme-swatch.selected{color:var(--theme-text);font-weight:800}.theme-swatch.selected i{border-color:#fff;box-shadow:0 0 0 2px var(--theme-strong),inset 0 0 0 1px rgba(25,49,71,.08)}
+
+/* The header wash is part of the plan's identity, not a permanent blue effect. */
+.theme-blue:before{background:radial-gradient(ellipse 95% 74% at 50% -5%,#ccecff 0%,#e9f7ff 46%,rgba(255,255,255,.82) 73%,rgba(255,255,255,0) 100%)!important}
+.theme-orange:before{background:radial-gradient(ellipse 95% 74% at 50% -5%,#ffd9bd 0%,#fff0e3 46%,rgba(255,255,255,.82) 73%,rgba(255,255,255,0) 100%)!important}
+.theme-red:before{background:radial-gradient(ellipse 95% 74% at 50% -5%,#f5d0d0 0%,#fff0f0 46%,rgba(255,255,255,.82) 73%,rgba(255,255,255,0) 100%)!important}
+.theme-green:before{background:radial-gradient(ellipse 95% 74% at 50% -5%,#d0ead9 0%,#edf8f0 46%,rgba(255,255,255,.82) 73%,rgba(255,255,255,0) 100%)!important}
+.theme-muted:before{background:radial-gradient(ellipse 95% 74% at 50% -5%,#dce2e6 0%,#f0f3f5 46%,rgba(255,255,255,.82) 73%,rgba(255,255,255,0) 100%)!important}
+
+.theme-orange,.theme-red,.theme-green,.theme-muted{color:var(--theme-text)!important}
+.theme-orange .viewer header h1,.theme-red .viewer header h1,.theme-green .viewer header h1,.theme-muted .viewer header h1,.theme-orange .edit-header input,.theme-red .edit-header input,.theme-green .edit-header input,.theme-muted .edit-header input,.theme-orange .public-card h2,.theme-red .public-card h2,.theme-green .public-card h2,.theme-muted .public-card h2,.theme-orange .public-slot>time,.theme-red .public-slot>time,.theme-green .public-slot>time,.theme-muted .public-slot>time,.theme-orange .activity-summary h3,.theme-red .activity-summary h3,.theme-green .activity-summary h3,.theme-muted .activity-summary h3{color:var(--theme-text)!important}
 
 /* Shared accent points across the creator and public views. */
 .theme-blue .logo b,.theme-orange .logo b,.theme-red .logo b,.theme-green .logo b,.theme-muted .logo b{color:var(--theme-primary)!important}
@@ -35,5 +45,6 @@
 .theme-blue .add-going,.theme-orange .add-going,.theme-red .add-going,.theme-green .add-going,.theme-muted .add-going,.theme-blue .add-expense-pill,.theme-orange .add-expense-pill,.theme-red .add-expense-pill,.theme-green .add-expense-pill,.theme-muted .add-expense-pill{color:var(--theme-strong)!important}
 .theme-blue .save-expense,.theme-orange .save-expense,.theme-red .save-expense,.theme-green .save-expense,.theme-muted .save-expense,.theme-blue .settle-tools>button,.theme-orange .settle-tools>button,.theme-red .settle-tools>button,.theme-green .settle-tools>button,.theme-muted .settle-tools>button,.theme-blue .day-payment-toggle,.theme-orange .day-payment-toggle,.theme-red .day-payment-toggle,.theme-green .day-payment-toggle,.theme-muted .day-payment-toggle{background:var(--theme-primary)!important;border-color:var(--theme-primary)!important}
 .theme-blue .settlement p,.theme-orange .settlement p,.theme-red .settlement p,.theme-green .settlement p,.theme-muted .settlement p{background:var(--theme-soft)!important;color:var(--theme-text)!important}
+.editor .add-new-day{display:block;margin:13px auto 0!important;border:0!important;background:transparent!important;color:var(--theme-strong,#347fa9)!important;padding:7px!important;font-size:.78rem!important;font-weight:700!important;box-shadow:none!important}
 
-@media(max-width:540px){.theme-picker{padding:0 0 13px;gap:10px}.theme-picker>div{gap:6px}.theme-swatch i{width:21px;height:21px}.theme-swatch small{font-size:.56rem}}
+@media(max-width:540px){.theme-picker{padding:20px 0 15px;gap:10px}.theme-picker>div{gap:8px}.theme-swatch i{width:21px;height:21px}}
