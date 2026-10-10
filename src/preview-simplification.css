@@ -4,27 +4,6 @@
   box-shadow:0 3px 11px rgba(24,55,73,.055)!important;
 }
 
-/* Actions should feel like lightweight controls, not another row of containers. */
-.public-card .activity-actions{gap:4px;margin-top:15px}
-.public-card .action-button{
-  min-height:32px;
-  border:0!important;
-  background:transparent!important;
-  padding:6px 8px!important;
-  color:#49758d!important;
-}
-.public-card:has(> .rsvp) .rsvp-action,
-.public-card:has(> .attendee-list) .attendees-action,
-.public-card:has(> .payment) .payments-action,
-.public-card:has(> .comments) .comments-action{
-  background:#e6f3f8!important;
-  color:#1f6288!important;
-}
-.public-card:has(> .rsvp) .rsvp-action .response-avatar,
-.public-card:has(> .attendee-list) .attendees-action::after,
-.public-card:has(> .payment) .payments-action::after,
-.public-card:has(> .comments) .comments-action::after{background:#e6f3f8!important}
-
 /* Expanded content belongs to the activity instead of becoming a nested card. */
 .public-card>.rsvp,
 .public-card>.payment,
@@ -50,8 +29,42 @@
 .public-card .payment-lines{margin:2px 0!important;padding:0!important;border:0!important}
 .public-card .payment-record{padding:9px 0;border-bottom:1px solid #edf1f3;font-size:.78rem}
 .public-card .payment-record:last-child{border-bottom:0}
-.public-card .payment-form>input,.public-card .payment-form>.amount-input{border-color:#d9e5ea!important;background:#fff!important}
-.public-card .settle-tools>button{box-shadow:none!important}
+.public-card .add-expense-pill{
+  grid-column:1/-1!important;
+  margin:3px 0 0;
+  justify-self:start;
+  border:1px solid #c9dde7;
+  border-radius:999px;
+  background:#fff;
+  color:#347fa9;
+  padding:7px 11px;
+  font-size:.76rem;
+  font-weight:700;
+}
+.public-card .expense-entry{
+  display:grid!important;
+  grid-column:1/-1!important;
+  grid-template-columns:minmax(0,.9fr) 74px minmax(0,1.15fr);
+  gap:7px;
+  margin:2px 0 0;
+}
+.public-card .expense-entry>input,.public-card .expense-entry>.amount-input{
+  grid-row:1!important;
+  min-width:0;
+  height:40px!important;
+  min-height:40px!important;
+  border-color:#d9e5ea!important;
+  background:#fff!important;
+}
+.public-card .expense-entry>input:first-child{grid-column:1!important}
+.public-card .expense-entry>.amount-input{grid-column:2!important}
+.public-card .expense-entry>input:nth-child(3){grid-column:3!important}
+.public-card .expense-entry .upload{grid-column:1!important;grid-row:2!important;height:37px!important;min-height:37px!important}
+.public-card .expense-entry-actions{display:flex;grid-column:2/-1!important;grid-row:2!important;gap:7px}
+.public-card .expense-entry-actions button{flex:1;border-radius:7px;padding:7px 9px;font-size:.75rem;font-weight:700}
+.public-card .save-expense{border:0;background:#347fa9;color:#fff}
+.public-card .cancel-expense{border:1px solid #d2e0e7;background:#fff;color:#617987}
+.public-card .settle-tools>button{grid-column:1/-1!important;grid-row:auto!important;box-shadow:none!important}
 .public-card .settlement{padding:10px 0 0!important;border:0!important;background:transparent!important;box-shadow:none!important}
 .public-card .settlement p{margin:6px 0;padding:9px 10px;border-radius:8px;background:#eef7fb;color:#31566b}
 .public-card .receipt-preview{margin-top:0}
@@ -62,7 +75,11 @@
 .public-card>.comments .comment-form input{border-color:#d9e5ea!important}
 
 @media(max-width:540px){
-  .public-card .activity-actions{gap:2px}
-  .public-card .action-button{padding:6px 7px!important;font-size:.73rem!important}
+  .public-card .expense-entry{grid-template-columns:minmax(0,1fr) 92px}
+  .public-card .expense-entry>input:first-child{grid-column:1!important;grid-row:1!important}
+  .public-card .expense-entry>.amount-input{grid-column:2!important;grid-row:1!important}
+  .public-card .expense-entry>input:nth-child(3){grid-column:1/-1!important;grid-row:2!important}
+  .public-card .expense-entry .upload{grid-column:1!important;grid-row:3!important}
+  .public-card .expense-entry-actions{grid-column:2!important;grid-row:3!important}
   .public-card>.rsvp,.public-card>.payment,.public-card>.attendee-list,.public-card>.comments{margin-top:13px!important;padding-top:13px!important}
 }
