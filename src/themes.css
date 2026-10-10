@@ -47,4 +47,34 @@
 .theme-blue .settlement p,.theme-orange .settlement p,.theme-red .settlement p,.theme-green .settlement p,.theme-muted .settlement p{background:var(--theme-soft)!important;color:var(--theme-text)!important}
 .editor .add-new-day{display:block;margin:13px auto 0!important;border:0!important;background:transparent!important;color:var(--theme-strong,#347fa9)!important;padding:7px!important;font-size:.78rem!important;font-weight:700!important;box-shadow:none!important}
 
+/* Final accent audit: these controls originally lived in earlier blue-only CSS. */
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .editor nav a,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .add-link,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .link-row button,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment-record button,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .split-participants .add-going,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .receipt-preview{color:var(--theme-strong)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .split-participants>button,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .add-person button,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .cancel-expense,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .add-day button:not([type="button"]){border-color:var(--theme-border)!important;background:var(--theme-soft)!important;color:var(--theme-strong)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .response button,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .comment-form button{background:var(--theme-primary)!important;border-color:var(--theme-primary)!important;color:#fff!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment-lines{border-left-color:var(--theme-pale)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment-form .amount-input{border-color:var(--theme-border)!important;color:var(--theme-strong)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment>b,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment>b::after,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment .split-participants>label::after,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .public-card>.rsvp>b{color:var(--theme-text)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .settle-tools{border-top-color:var(--theme-border)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .day-payment-details{border-color:var(--theme-border)!important;background:linear-gradient(180deg,var(--theme-soft) 0%,#fff 100%)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .day-payment-heading,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .day-payment-list{border-color:var(--theme-border)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .day-payment-heading p,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .day-payment-list span{color:var(--theme-strong)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .day-payment-balances p{border-color:var(--theme-border)!important;background:var(--theme-soft)!important;color:var(--theme-text)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .day-payment-balances p b{color:var(--theme-text)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .name-options button{color:var(--theme-text)!important}
+:is(.theme-orange,.theme-red,.theme-green,.theme-muted) :is(input,textarea,select,label,.payment-record span,.payment-record strong,.day-payment-summary,.day-payment-heading h2){color:var(--theme-text)!important}
+
 @media(max-width:540px){.theme-picker{padding:20px 0 15px;gap:10px}.theme-picker>div{gap:8px}.theme-swatch i{width:21px;height:21px}}
