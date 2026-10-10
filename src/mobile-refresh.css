@@ -4,6 +4,9 @@
 */
 :root,body,.home,.viewer,.editor{background:#fff!important;color:#193147}
 .home,.viewer,.editor{max-width:760px;padding:22px 20px 64px}
+.home-nav{margin:10px 0 44px}
+.home-nav .logo{font-size:2.15rem;letter-spacing:-.065em}
+.home-nav .logo b{font-size:.72em;margin-right:7px}
 
 /* Type: fewer styles, more deliberate contrast. */
 .hero h1,.viewer header h1,.edit-header input{
@@ -41,6 +44,18 @@ input:focus,textarea:focus,select:focus{border-color:#6BAED6!important;box-shado
 .tabs button{border-color:#d9e5eb!important;background:#fff!important;color:#597482!important;padding:9px 14px!important;font-weight:600}
 .tabs .active{background:#6BAED6!important;border-color:#6BAED6!important;color:#fff!important;box-shadow:0 3px 8px rgba(57,124,159,.18)}
 .action-button{border-color:#d5e5ec!important;background:#fff!important;color:#326e91!important;min-height:34px;font-weight:700!important}
+.public-card:has(> .rsvp) .rsvp-action,
+.public-card:has(> .attendee-list) .attendees-action,
+.public-card:has(> .payment) .payments-action,
+.public-card:has(> .comments) .comments-action{
+  background:#e3f2f8!important;
+  border-color:#9dcee2!important;
+  color:#1f6288!important;
+}
+.public-card:has(> .rsvp) .rsvp-action .response-avatar,
+.public-card:has(> .attendee-list) .attendees-action::after,
+.public-card:has(> .payment) .payments-action::after,
+.public-card:has(> .comments) .comments-action::after{background:#e3f2f8!important}
 .link{background:#eef7fb!important;color:#28739d!important;font-weight:600}
 
 /* Editing stays calm and functional instead of reading as an admin dashboard. */
@@ -56,6 +71,8 @@ input:focus,textarea:focus,select:focus{border-color:#6BAED6!important;box-shado
 
 @media(max-width:540px){
   .home,.viewer,.editor{padding:18px 16px 54px}
+  .home-nav{margin:8px 0 36px}
+  .home-nav .logo{font-size:2rem}
   .hero{padding:58px 2px 34px!important}
   .hero h1::before{font-size:clamp(2rem,9vw,2.55rem)!important}
   .viewer header{padding:40px 2px 23px!important}
