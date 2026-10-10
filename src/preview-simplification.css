@@ -32,7 +32,7 @@
 .public-card .add-expense-pill{
   grid-column:1/-1!important;
   margin:3px 0 0;
-  justify-self:start;
+  justify-self:end;
   border:1px solid #c9dde7;
   border-radius:999px;
   background:#fff;
@@ -44,8 +44,8 @@
 .public-card .expense-entry{
   display:grid!important;
   grid-column:1/-1!important;
-  grid-template-columns:minmax(0,.9fr) 74px minmax(0,1.15fr);
-  gap:7px;
+  grid-template-columns:minmax(48px,.85fr) 58px minmax(40px,.7fr) auto auto;
+  gap:5px;
   margin:2px 0 0;
 }
 .public-card .expense-entry>input,.public-card .expense-entry>.amount-input{
@@ -59,15 +59,13 @@
 .public-card .expense-entry>input:first-child{grid-column:1!important}
 .public-card .expense-entry>.amount-input{grid-column:2!important}
 .public-card .expense-entry>input:nth-child(3){grid-column:3!important}
-.public-card .expense-entry .upload{grid-column:1!important;grid-row:2!important;height:37px!important;min-height:37px!important}
-.public-card .expense-entry-actions{display:flex;grid-column:2/-1!important;grid-row:2!important;gap:7px}
-.public-card .expense-entry-actions button{flex:1;border-radius:7px;padding:7px 9px;font-size:.75rem;font-weight:700}
+.public-card .expense-entry-actions{display:flex;grid-column:4/-1!important;grid-row:1!important;gap:5px}
+.public-card .expense-entry-actions button{min-width:0;border-radius:7px;padding:7px 8px;font-size:.74rem;font-weight:700}
 .public-card .save-expense{border:0;background:#347fa9;color:#fff}
 .public-card .cancel-expense{border:1px solid #d2e0e7;background:#fff;color:#617987}
 .public-card .settle-tools>button{grid-column:1/-1!important;grid-row:auto!important;box-shadow:none!important}
 .public-card .settlement{padding:10px 0 0!important;border:0!important;background:transparent!important;box-shadow:none!important}
 .public-card .settlement p{margin:6px 0;padding:9px 10px;border-radius:8px;background:#eef7fb;color:#31566b}
-.public-card .receipt-preview{margin-top:0}
 
 /* Comments read as a simple conversation, not a bordered sub-card. */
 .public-card>.comments p{margin:8px 0;padding:0;font-size:.8rem}
@@ -75,11 +73,11 @@
 .public-card>.comments .comment-form input{border-color:#d9e5ea!important}
 
 @media(max-width:540px){
-  .public-card .expense-entry{grid-template-columns:minmax(0,1fr) 92px}
+  .public-card .expense-entry{grid-template-columns:minmax(42px,.85fr) 52px minmax(34px,.65fr) auto auto;gap:4px}
   .public-card .expense-entry>input:first-child{grid-column:1!important;grid-row:1!important}
   .public-card .expense-entry>.amount-input{grid-column:2!important;grid-row:1!important}
-  .public-card .expense-entry>input:nth-child(3){grid-column:1/-1!important;grid-row:2!important}
-  .public-card .expense-entry .upload{grid-column:1!important;grid-row:3!important}
-  .public-card .expense-entry-actions{grid-column:2!important;grid-row:3!important}
+  .public-card .expense-entry>input:nth-child(3){grid-column:3!important;grid-row:1!important}
+  .public-card .expense-entry-actions{grid-column:4/-1!important;grid-row:1!important;gap:3px}
+  .public-card .expense-entry-actions button{padding:7px 5px;font-size:.68rem}
   .public-card>.rsvp,.public-card>.payment,.public-card>.attendee-list,.public-card>.comments{margin-top:13px!important;padding-top:13px!important}
 }
