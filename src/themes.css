@@ -79,4 +79,62 @@
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .name-options button{color:var(--theme-text)!important}
 :is(.theme-orange,.theme-red,.theme-green,.theme-muted) :is(input,textarea,select,label,.payment-record span,.payment-record strong,.day-payment-summary,.day-payment-heading h2){color:var(--theme-text)!important}
 
+/*
+  Completion layer: earlier prototype styles used blue literals. Keep those
+  layout rules, but funnel every plan-coloured surface through the active
+  palette so a non-blue plan cannot inherit a stray blue accent.
+*/
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted){
+  --theme-shadow:color-mix(in srgb,var(--theme-strong) 13%,transparent);
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.public-card,.activity-summary,.activity-form,.payment,.rsvp,.attendee-list,.comments,.settlement,.day-payment-details){
+  border-color:var(--theme-border)!important;
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.public-card,.activity-summary,.activity-form){
+  box-shadow:0 4px 14px var(--theme-shadow)!important;
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(input,textarea,select){
+  border-color:var(--theme-border)!important;
+  color:var(--theme-text)!important;
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.tabs button,.action-button,.share button,.add-activity,.add-day button,.activity-summary button,.split-participants>button,.add-person button){
+  border-color:var(--theme-border)!important;
+  color:var(--theme-strong)!important;
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.tabs button,.action-button,.share button,.activity-summary button,.split-participants>button,.add-person button){
+  background:#fff!important;
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.link,.participant-bubble,.add-activity,.link-row button){
+  background:var(--theme-soft)!important;
+  color:var(--theme-strong)!important;
+  border-color:var(--theme-border)!important;
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.range-note,.date-range span,.location,.comment-button,.add-link,.receipt-preview,.payment-record button,.add-going,.add-expense-pill){
+  color:var(--theme-strong)!important;
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.split-participants,.comments,.switch,.add-day){
+  border-color:var(--theme-border)!important;
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .participant-bubble button{
+  border-color:var(--theme-border)!important;
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .activity-summary .edit-btn,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .primary,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .create .primary{
+  background:var(--theme-strong)!important;
+  border-color:var(--theme-strong)!important;
+  color:#fff!important;
+}
+
+/* The amount is a compound control. Its focus ring belongs on the visible
+   wrapper, not the borderless nested input, so it reads as an outside glow. */
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment-form .amount-input:focus-within{
+  border-color:var(--theme-primary)!important;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--theme-primary) 22%,transparent)!important;
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment-form .amount-input input:focus{
+  border-color:transparent!important;
+  box-shadow:none!important;
+}
+
 @media(max-width:540px){.theme-picker{padding:20px 0 15px;gap:10px}.theme-picker>div{gap:8px}.theme-swatch i{width:21px;height:21px}}
