@@ -54,6 +54,7 @@
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment-record button,
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .split-participants .add-going,
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .receipt-preview{color:var(--theme-strong)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .public-card>.payment .add-expense-pill{color:var(--theme-strong)!important}
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .split-participants>button,
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .add-person button,
 :is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .cancel-expense,
