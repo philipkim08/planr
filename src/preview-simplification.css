@@ -120,4 +120,15 @@
   .public-card .expense-entry-actions{grid-column:2!important;grid-row:2!important;gap:3px}
   .public-card .expense-entry-actions button{padding:7px 5px;font-size:.68rem}
   .public-card>.rsvp,.public-card>.payment,.public-card>.attendee-list,.public-card>.comments{margin-top:13px!important;padding-top:13px!important}
+
+  /* Keep the edit screen's title, sharing controls, and day switcher in one compact flow. */
+  .editor .edit-header{padding:29px 0 8px!important}
+  .editor .share{display:flex!important;flex-wrap:nowrap!important;align-items:center!important;gap:5px!important;padding:8px 0!important}
+  .editor .share>div{width:auto!important;min-width:0;margin-right:auto!important}
+  .editor .share p{display:none!important}
+  .editor .share b{font-size:.76rem}
+  .editor .share button{min-height:29px!important;margin:0!important;padding:6px 7px!important;font-size:.64rem!important;line-height:1!important}
+  .editor>.tabs{margin-top:8px!important;padding-bottom:10px!important}
+  .editor .edit-day{padding:12px 0!important}
+  .editor .day-tools{margin-bottom:9px!important}
 }
