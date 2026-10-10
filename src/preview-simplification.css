@@ -93,6 +93,8 @@
   width:100%;
   border-radius:10px!important;
 }
+.public-card>.payment .settle-tools>button::after{content:'Calculate balances  ▾'!important}
+.public-card>.payment:has(.settlement) .settle-tools>button::after{content:'Calculate balances  ▴'!important}
 .public-card>.payment .settlement{grid-column:1/-1!important;grid-row:6!important}
 .public-card>.payment .expense-entry{grid-row:4!important}
 .public-card>.payment:has(.expense-entry) .settle-tools>button{grid-row:5!important}
