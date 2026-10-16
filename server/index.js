@@ -14,6 +14,8 @@ app.delete('/api/me/trips/:id',wrap(async(req,res)=>{
   if(!data.length)return res.status(404).json({error:'Plan not found or you do not own it.'})
   res.json({deleted:true})
 }))
+app.set('trust proxy', 1)
+registerAccounts(app, { sb, authUser, wrap })
 app.get('/api/trips/:id',wrap(async(req,res)=>{const t=await get(req.params.id);t?res.json({trip:pub(t)}):res.status(404).json({error:'Trip not found.'})}))
 app.get('/api/trips/:id/edit',wrap(async(req,res)=>{const t=await editable(req,res);if(t)res.json({trip:pub(t)})}))
 app.post('/api/trips/:id/claim',wrap(async(req,res)=>{const u=await authUser(req);if(!u)return res.status(401).json({error:'Please sign in before saving this plan.'});const t=await editable(req,res);if(!t)return;if(t.owner_id&&t.owner_id!==u.id)return res.status(409).json({error:'This plan is already saved to another account.'});t.owner_id=u.id;await save(t);res.json({trip:pub(t)})}))
@@ -34,3 +36,4 @@ app.post('/api/trips/:id/days/:dayId/timeslots/:slotId/payments',publicSlot((t,s
 app.put('/api/trips/:id/days/:dayId/timeslots/:slotId/payments/:paymentId',publicSlot((t,s,r)=>{const p=s.payments?.find(x=>x.id===r.params.paymentId);if(!p)return'Payment entry not found.';if(r.body.delete)s.payments=s.payments.filter(x=>x.id!==p.id);else{if(!r.body.paid_by?.trim())return'Please say who paid.';Object.assign(p,{paid_by:r.body.paid_by.trim(),amount:r.body.amount?.trim()||'',note:r.body.note?.trim()||''})}}))
 app.get('/api/trips/:id/days/:dayId/timeslots/:slotId/settlement',wrap(async(req,res)=>{const t=await get(req.params.id),s=t&&slot(t,req.params.dayId,req.params.slotId);s?res.json({settlement:calc(s)}):res.status(404).json({error:'Activity not found.'})}))
 app.get('/api/health',(_q,r)=>r.json({ok:true,storage:enabled?'supabase':'local'}));app.use('/api',(_q,r)=>r.status(404).json({error:'This API endpoint does not exist.'}));const dist=path.join(root,'dist');if(fs.existsSync(dist)){app.use(express.static(dist));app.get('*',(_q,r)=>r.sendFile(path.join(dist,'index.html')))}app.listen(port,()=>console.log(`planr API (${enabled?'Supabase':'local'} storage) on ${port}`))
+import { registerAccounts } from './accounts.js'
