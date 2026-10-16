@@ -89,7 +89,7 @@ function PaymentSplit({slot,trip,day,visitor,refresh}){
     {adding?<div className="payment-form expense-entry">
       <div className="name-picker" ref={payerPicker} onKeyDown={e=>{if(e.key==='Escape'){setShowNameOptions(false);nameInput.current?.blur()}}}>
         <input ref={nameInput} aria-label="Who paid" autoComplete="off" placeholder="Name" value={paid_by} onFocus={()=>setShowNameOptions(true)} onClick={()=>setShowNameOptions(true)} onChange={e=>{setPaidBy(e.target.value);setShowNameOptions(true)}}/>
-        {showNameOptions&&participants.length>0&&<div className="name-options" aria-label="People splitting this activity">{participants.map(name=><button type="button" key={name} onClick={()=>choosePayer(name)}>{name}</button>)}</div>}
+        {participants.length>0&&<div className={`name-options ${showNameOptions?'is-open':''}`} aria-hidden={!showNameOptions} inert={showNameOptions?undefined:''} aria-label="People splitting this activity">{participants.map(name=><button type="button" key={name} tabIndex={showNameOptions?0:-1} onClick={()=>choosePayer(name)}>{name}</button>)}</div>}
       </div>
       <label className="amount-input">$<input inputMode="decimal" placeholder="Amount" value={amount} onChange={e=>setAmount(e.target.value.replace('$',''))}/></label>
       <input placeholder="For?" value={note} onChange={e=>setNote(e.target.value)}/>

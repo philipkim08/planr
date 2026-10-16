@@ -66,6 +66,25 @@
 .public-card .name-options{touch-action:pan-y pinch-zoom;scrollbar-gutter:stable;max-height:min(220px,35dvh)}
 .public-card .name-options button{min-height:44px;white-space:normal;overflow-wrap:anywhere;touch-action:pan-y pinch-zoom}
 .public-card .name-options button:active{transform:none}
+/* Cards animate with transforms, creating separate stacking contexts. Raise
+   the whole activity while its payer picker is present, including its exit. */
+.public-slot:has(.name-picker){position:relative;z-index:20}
+.public-card:has(.name-picker){position:relative;z-index:20}
+.public-card .name-options{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transform:translateY(-8px) scaleY(.96);
+  transform-origin:top center;
+  transition:opacity 180ms ease,transform 180ms var(--planr-spring),visibility 0s linear 180ms;
+}
+.public-card .name-options.is-open{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transform:translateY(0) scaleY(1);
+  transition-delay:0s;
+}
 .public-card .expense-entry>.amount-input{grid-column:2!important}
 .public-card .expense-entry>input[placeholder="For?"]{grid-column:3!important}
 .public-card .expense-entry-actions{display:flex;grid-column:4/-1!important;grid-row:1!important;min-width:0;gap:5px}
