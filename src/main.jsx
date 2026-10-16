@@ -56,9 +56,17 @@ function DayPaymentSummary({day}){
   return <section className="day-payment-summary"><button type="button" className="day-payment-toggle" aria-expanded={open} onClick={()=>setOpen(!open)}>Day expenses <i>{open?'⌃':'⌄'}</i></button>{open&&<div className="day-payment-details"><div className="day-payment-balances">{incomplete.length>0&&<small>{incomplete.length===1?`${incomplete[0]} needs people added before it can be included.`:`${incomplete.length} activities need people added before they can be included.`}</small>}{transfers.length?transfers.map((transfer,index)=><p key={index}><b>{transfer.from}</b> should pay <b>{transfer.to}</b> {money(transfer.amount)}</p>):<p className="settled">Everyone is settled up for the included expenses.</p>}</div></div>}</section>
 }
 function PaymentSplit({slot,trip,day,visitor,refresh}){
+  const payerPicker=useRef(null)
   const goingNames=uniqueNames((slot.attendance||[]).filter(response=>response.status==='going').map(response=>response.name)),savedParticipants=slot.payment_participants||[],initialParticipants=savedParticipants.length||slot.payment_participants_configured?savedParticipants:goingNames
   const[paid_by,setPaidBy]=useState(visitor),[amount,setAmount]=useState(''),[note,setNote]=useState(''),[message,setMessage]=useState(''),[editing,setEditing]=useState(''),[settlement,setSettlement]=useState(null),[participants,setParticipants]=useState(initialParticipants),[newPerson,setNewPerson]=useState(''),[adding,setAdding]=useState(false),[showNameOptions,setShowNameOptions]=useState(false),pendingPeople=useRef(Promise.resolve()),nameInput=useRef(null)
   useEffect(()=>{if(!paid_by)setPaidBy(visitor)},[visitor])
+  useEffect(()=>{
+    if(!showNameOptions)return
+    const dismissOutside=event=>{if(!payerPicker.current?.contains(event.target))setShowNameOptions(false)}
+    document.addEventListener('pointerdown',dismissOutside)
+    document.addEventListener('focusin',dismissOutside)
+    return()=>{document.removeEventListener('pointerdown',dismissOutside);document.removeEventListener('focusin',dismissOutside)}
+  },[showNameOptions])
   useEffect(()=>setParticipants(savedParticipants.length||slot.payment_participants_configured?savedParticipants:goingNames),[slot.id,slot.payment_participants,slot.payment_participants_configured,slot.attendance])
   const money=x=>`$${Number(x||0).toFixed(2)}`
   const persistPeople=next=>{setParticipants(next);pendingPeople.current=api(`/trips/${trip}/days/${day}/timeslots/${slot.id}/payment-participants`,{method:'PUT',body:JSON.stringify({participants:next})}).then(r=>{refresh(r.trip);setSettlement(null);setMessage(next.length?'People splitting saved':'People splitting cleared')}).catch(e=>setMessage(e.message));return pendingPeople.current}
@@ -79,9 +87,9 @@ function PaymentSplit({slot,trip,day,visitor,refresh}){
     </div>
     <div className="payment-lines">{slot.payments?.map(p=>editing===p.id?<PaymentEditor key={p.id} payment={p} save={change} cancel={()=>setEditing('')}/>:<div className="payment-record" key={p.id}><span><strong>{p.paid_by} paid {p.amount?money(p.amount):''}{p.note?` for ${p.note}`:''}</strong></span><span className="payment-controls"><button type="button" onClick={()=>setEditing(p.id)}>Edit</button></span></div>)}</div>
     {adding?<div className="payment-form expense-entry">
-      <div className="name-picker">
-        <input ref={nameInput} placeholder="Name" value={paid_by} onFocus={()=>setShowNameOptions(true)} onChange={e=>{setPaidBy(e.target.value);setShowNameOptions(true)}} onBlur={()=>setTimeout(()=>setShowNameOptions(false),120)}/>
-        {showNameOptions&&participants.length>0&&<div className="name-options" role="listbox" aria-label="People splitting this activity">{participants.map(name=><button type="button" role="option" key={name} onMouseDown={e=>e.preventDefault()} onClick={()=>choosePayer(name)}>{name}</button>)}</div>}
+      <div className="name-picker" ref={payerPicker} onKeyDown={e=>{if(e.key==='Escape'){setShowNameOptions(false);nameInput.current?.blur()}}}>
+        <input ref={nameInput} aria-label="Who paid" autoComplete="off" placeholder="Name" value={paid_by} onFocus={()=>setShowNameOptions(true)} onClick={()=>setShowNameOptions(true)} onChange={e=>{setPaidBy(e.target.value);setShowNameOptions(true)}}/>
+        {showNameOptions&&participants.length>0&&<div className="name-options" aria-label="People splitting this activity">{participants.map(name=><button type="button" key={name} onClick={()=>choosePayer(name)}>{name}</button>)}</div>}
       </div>
       <label className="amount-input">$<input inputMode="decimal" placeholder="Amount" value={amount} onChange={e=>setAmount(e.target.value.replace('$',''))}/></label>
       <input placeholder="For?" value={note} onChange={e=>setNote(e.target.value)}/>

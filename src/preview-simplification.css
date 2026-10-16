@@ -62,6 +62,10 @@
 .public-card .name-options button{display:block;width:100%;border:0;background:#fff;color:#31566b;padding:9px 10px;text-align:left;font-size:.76rem}
 .public-card .name-options button+button{border-top:1px solid #edf2f4}
 .public-card .name-options button:active{background:#eaf5fa}
+/* Keep native touch scrolling alive while focus moves into the menu. */
+.public-card .name-options{touch-action:pan-y pinch-zoom;scrollbar-gutter:stable;max-height:min(220px,35dvh)}
+.public-card .name-options button{min-height:44px;white-space:normal;overflow-wrap:anywhere;touch-action:pan-y pinch-zoom}
+.public-card .name-options button:active{transform:none}
 .public-card .expense-entry>.amount-input{grid-column:2!important}
 .public-card .expense-entry>input[placeholder="For?"]{grid-column:3!important}
 .public-card .expense-entry-actions{display:flex;grid-column:4/-1!important;grid-row:1!important;min-width:0;gap:5px}
