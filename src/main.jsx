@@ -116,7 +116,6 @@ function PaymentSplit({slot,trip,day,visitor,refresh,allDays=[]}){
   const copyPeople=async id=>{
     const source=copySources.find(s=>s.id===id)
     if(!source||copying)return
-    if(participants.length&&!confirm('Replace this activity’s split group with the people from '+source.label+'?'))return
     setCopying(true)
     if(await persistPeople([...source.people])){setCopyOpen(false);setMessage('People copied. Changes here only affect this activity.')}
     setCopying(false)
