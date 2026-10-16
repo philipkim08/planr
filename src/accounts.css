@@ -29,3 +29,5 @@
 .landing-signin:hover{text-decoration:underline}
 .landing-intro>small{display:block;margin-top:52px;max-width:310px;font-size:.78rem;line-height:1.65;color:#6b7882}
 @media(max-width:380px){.account-names{grid-template-columns:1fr;gap:0}}
+.account-card h1.welcome-back-title{font-size:clamp(2rem,6.5vw,3rem);line-height:1.05}
+.plan-row small{line-height:1.5;overflow-wrap:anywhere}

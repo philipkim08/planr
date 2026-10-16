@@ -38,7 +38,7 @@ export function SignIn({ auth, api }) {
       setPassword('')
     }catch(e){setError(e.message)}finally{setBusy(false)}
   }
-  return <section className="account-card account-form"><h1>{({login:'Welcome back',signup:'Join planr',reset:'Reset password',magic:'Email sign-in'})[mode]}</h1><p>{mode==='signup'?'Save your plans with a username and password. Friends can still view shared plans without an account.':mode==='login'?'Sign in to your saved plans.':mode==='reset'?'Enter the email you used to create your account.':'Already have an account? Use your existing email to get back in.'}</p>
+  return <section className="account-card account-form"><h1 className={mode==='login'?'welcome-back-title':undefined}>{({login:'welcome back',signup:'Join planr',reset:'Reset password',magic:'Email sign-in'})[mode]}</h1><p>{mode==='signup'?'Save your plans with a username and password. Friends can still view shared plans without an account.':mode==='login'?'Sign in to your saved plans.':mode==='reset'?'Enter the email you used to create your account.':'Already have an account? Use your existing email to get back in.'}</p>
     <form onSubmit={submit}><fieldset disabled={busy}>
       {mode==='signup'&&<Names {...{firstName,lastName,setFirstName,setLastName}}/>}
       {(mode==='login'||mode==='signup')&&<Username value={username} onChange={setUsername}/>}
