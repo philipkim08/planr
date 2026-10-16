@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react'
 
 const normalize = name => name.trim().toLowerCase()
+function Names({firstName,lastName,setFirstName,setLastName}) {
+  return <div className="account-names"><label>First name<input required maxLength={80} autoComplete="given-name" value={firstName} onChange={e=>setFirstName(e.target.value)}/></label><label>Last name<input required maxLength={80} autoComplete="family-name" value={lastName} onChange={e=>setLastName(e.target.value)}/></label></div>
+}
 function Username({ value, onChange }) {
   return <label>Username<input required autoComplete="username" autoCapitalize="none" spellCheck={false} minLength={3} maxLength={24} pattern="[A-Za-z0-9_]{3,24}" value={value} onChange={e=>onChange(e.target.value)} /><small>3–24 letters, numbers, or underscores. Not case sensitive.</small></label>
 }
-function Password({ value, onChange, current=false }) {
-  return <label>{current?'Password':'New password'}<input required type="password" minLength={current?1:8} maxLength={1024} autoComplete={current?'current-password':'new-password'} value={value} onChange={e=>onChange(e.target.value)}/>{!current&&<small>Use at least 8 characters.</small>}</label>
+function Password({ value, onChange, current=false, required=true }) {
+  return <label>{current?'Password':'New password'}<input required={required} type="password" minLength={current?1:8} maxLength={1024} autoComplete={current?'current-password':'new-password'} value={value} onChange={e=>onChange(e.target.value)}/>{!current&&<small>{required?'Use at least 8 characters.':'Leave blank to keep your current password. Use at least 8 characters when changing it.'}</small>}</label>
 }
 export function SignIn({ auth, api }) {
-  const [mode,setMode]=useState('login'),[username,setUsername]=useState(''),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState('')
+  const [mode,setMode]=useState(()=>new URLSearchParams(location.search).get('mode')==='signup'?'signup':'login'),[username,setUsername]=useState(''),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState(''),[firstName,setFirstName]=useState(''),[lastName,setLastName]=useState('')
   const switchMode=next=>{setMode(next);setError('');setMessage('');setPassword('')}
   const submit=async e=>{
     e.preventDefault();setError('');setMessage('');setBusy(true)
@@ -19,7 +22,8 @@ export function SignIn({ auth, api }) {
         const result=await auth.auth.setSession(tokens)
         if(result.error)throw result.error
       }else if(mode==='signup'){
-        const result=await auth.auth.signUp({email:email.trim(),password,options:{data:{username:normalize(username)},emailRedirectTo:`${location.origin}/plans`}})
+        if(!firstName.trim()||!lastName.trim())throw new Error('Please enter your first and last name.')
+        const result=await auth.auth.signUp({email:email.trim(),password,options:{data:{username:normalize(username),first_name:firstName.trim(),last_name:lastName.trim()},emailRedirectTo:`${location.origin}/plans`}})
         if(result.error)throw new Error(result.error.message.includes('Database error')?'Could not create this account. The username may already be taken; try another, or sign in if you have an account.':result.error.message)
         setMessage('Check your email to confirm your account. After confirmation, sign in with your username and password.')
       }else if(mode==='reset'){
@@ -36,6 +40,7 @@ export function SignIn({ auth, api }) {
   }
   return <section className="account-card account-form"><h1>{({login:'Welcome back',signup:'Join planr',reset:'Reset password',magic:'Email sign-in'})[mode]}</h1><p>{mode==='signup'?'Save your plans with a username and password. Friends can still view shared plans without an account.':mode==='login'?'Sign in to your saved plans.':mode==='reset'?'Enter the email you used to create your account.':'Already have an account? Use your existing email to get back in.'}</p>
     <form onSubmit={submit}><fieldset disabled={busy}>
+      {mode==='signup'&&<Names {...{firstName,lastName,setFirstName,setLastName}}/>}
       {(mode==='login'||mode==='signup')&&<Username value={username} onChange={setUsername}/>}
       {mode!=='login'&&<label>Email address<input required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)}/></label>}
       {(mode==='login'||mode==='signup')&&<Password value={password} onChange={setPassword} current={mode==='login'}/>}
@@ -46,21 +51,23 @@ export function SignIn({ auth, api }) {
   </section>
 }
 
-export function AccountSettings({ auth, api }) {
+export function AccountSettings({ auth, api, user }) {
+  const [firstName,setFirstName]=useState(user.user_metadata?.first_name||''),[lastName,setLastName]=useState(user.user_metadata?.last_name||'')
   const [username,setUsername]=useState(''),[password,setPassword]=useState(''),[busy,setBusy]=useState(false),[loaded,setLoaded]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState('')
   useEffect(()=>{let live=true;api('/me/username').then(data=>{if(live){setUsername(data.username);setLoaded(true)}}).catch(e=>{if(live)setError(e.message)});return()=>{live=false}},[])
   const save=async e=>{
     e.preventDefault();setBusy(true);setError('');setMessage('')
     let saved=false
     try{
+      if(!firstName.trim()||!lastName.trim())throw new Error('Please enter your first and last name.')
       const result=await api('/me/username',{method:'PUT',body:JSON.stringify({username:normalize(username)})})
       saved=true;setUsername(result.username)
-      const {error}=await auth.auth.updateUser({password})
+      const {error}=await auth.auth.updateUser({data:{first_name:firstName.trim(),last_name:lastName.trim()},...(password?{password}:{})})
       if(error)throw error
-      setPassword('');setMessage('Saved. You can now sign in with your username and password.')
-    }catch(e){setError(`${saved?'Username saved, but the password was not changed. ':''}${e.message}`)}finally{setBusy(false)}
+      setPassword('');setMessage(password?'Saved. You can now sign in with your username and password.':'Profile saved. Your password is unchanged.')
+    }catch(e){setError(`${saved?'Username saved, but the other account changes could not be saved. ':''}${e.message}`)}finally{setBusy(false)}
   }
-  return <details className="account-settings"><summary>Account settings · username & password</summary><p>Already using email links? Set your username and password here. Your saved plans stay with this account.</p>{error&&<p className="error" role="alert">{error}</p>}{message&&<p className="saved" role="status">{message}</p>}<form onSubmit={save}><fieldset disabled={busy||!loaded}><Username value={username} onChange={setUsername}/><Password value={password} onChange={setPassword}/><button className="primary">{busy?'Saving…':'Save username & password'}</button></fieldset></form></details>
+  return <section className="account-settings" id="account-settings" aria-label="Account settings"><h2>Account settings</h2><p>Update your name and username, or set a new password.</p>{error&&<p className="error" role="alert">{error}</p>}{message&&<p className="saved" role="status">{message}</p>}<form onSubmit={save}><fieldset disabled={busy||!loaded}><Names {...{firstName,lastName,setFirstName,setLastName}}/><Username value={username} onChange={setUsername}/><Password value={password} onChange={setPassword} required={false}/><button className="primary">{busy?'Saving…':'Save changes'}</button></fieldset></form></section>
 }
 
 export function PasswordReset({ auth }) {

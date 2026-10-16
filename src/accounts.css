@@ -12,3 +12,18 @@
 .account-settings summary{cursor:pointer;font-size:.85rem;font-weight:600}
 .account-settings p{font-size:.84rem;line-height:1.5}
 .account-settings form{max-width:440px}
+.account-names{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.account-names input{min-width:0}
+.account-identity{display:inline-flex;align-items:center;max-width:100%;gap:3px;margin-top:12px;color:#647b89;font-size:.83rem}
+.account-identity>span{min-width:0;overflow-wrap:anywhere}
+.account-gear{display:inline-flex;align-items:center;justify-content:center;flex:0 0 36px;width:36px;height:40px;padding:0;border:0;border-radius:10px;background:transparent;color:#347fa9}
+.account-gear:hover,.account-gear[aria-expanded="true"]{background:#e6f3f8}
+.account-settings h2{font-size:1.1rem;margin:0}
+.account-page .personal-plan-title{overflow-wrap:anywhere}
+.landing-intro{padding:44px 0 64px;max-width:560px}
+.landing-intro h1{font:700 clamp(2.8rem,10vw,4.6rem)/1.05 "Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:-.04em;margin:16px 0 24px;color:#193147}
+.landing-intro>p:not(.eyebrow){font-size:1.05rem;line-height:1.65;color:#526c7b}
+.landing-cta{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;margin:20px 0 16px}
+.landing-signin{display:block;color:#347fa9;font-size:.9rem}
+.landing-intro>small{display:block;margin-top:36px;max-width:360px;line-height:1.6}
+@media(max-width:380px){.account-names{grid-template-columns:1fr;gap:0}}
