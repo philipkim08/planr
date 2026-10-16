@@ -32,6 +32,7 @@ import './mobile-refresh.css'
 import './preview-simplification.css'
 import './themes.css'
 import './accounts.css'
+import './fluid-motion.css'
 const API = import.meta.env.VITE_API_URL || '/api'
 const supabaseUrl=import.meta.env.VITE_SUPABASE_URL,publicKey=import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
 const auth=supabaseUrl&&publicKey?createClient(supabaseUrl,publicKey):null
@@ -133,7 +134,7 @@ function PaymentSplit({slot,trip,day,visitor,refresh,allDays=[]}){
       <div className="participant-bubbles">{participants.map(name=><span className="participant-bubble" key={name}>{name}<button type="button" aria-label={`Remove ${name}`} onClick={()=>persistPeople(participants.filter(person=>person.toLowerCase()!==name.toLowerCase()))}>×</button></span>)}{!participants.length&&<small>No one added yet.</small>}</div>
       {goingNames.length>0&&<button type="button" className="add-going" onClick={()=>persistPeople(uniqueNames([...participants,...goingNames]))}>Add going attendees</button>}
       <div className="add-person"><input placeholder="Add person" value={newPerson} onChange={e=>setNewPerson(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addPerson()}}}/><button type="button" onClick={addPerson}>Add person</button></div>
-      <div className="copy-people"><button type="button" aria-expanded={copyOpen} disabled={copying} onClick={()=>setCopyOpen(!copyOpen)}>Copy people from…</button>{copyOpen&&(copySources.length?<div className="copy-people-options" role="group" aria-label="Copy people from an activity" aria-busy={copying}>{copySources.map(source=><button type="button" key={source.id} disabled={copying} onClick={()=>copyPeople(source.id)}><span>{source.label}</span><small>{source.people.length} {source.people.length===1?'person':'people'}</small></button>)}</div>:<p>Add people to another payment activity on this day first, then copy them here.</p>)}</div>
+      <div className="copy-people"><button type="button" aria-expanded={copyOpen} disabled={copying} onClick={()=>setCopyOpen(!copyOpen)}>Copy people from…</button>{copySources.length?<div className={`copy-people-options ${copyOpen?'is-open':''}`} aria-hidden={!copyOpen} inert={copyOpen?undefined:''} role="group" aria-label="Copy people from an activity" aria-busy={copying}>{copySources.map(source=><button type="button" key={source.id} tabIndex={copyOpen?0:-1} disabled={copying} onClick={()=>copyPeople(source.id)}><span>{source.label}</span><small>{source.people.length} {source.people.length===1?'person':'people'}</small></button>)}</div>:copyOpen&&<p>Add people to another payment activity on this day first, then copy them here.</p>}</div>
       <small>Going attendees are suggested automatically. Add or remove anyone as needed.</small>
     </div>
     <div className="payment-lines">{slot.payments?.map(p=>editing===p.id?<PaymentEditor key={p.id} payment={p} save={change} cancel={()=>setEditing('')}/>:<div className="payment-record" key={p.id}><span><strong>{p.paid_by} paid {p.amount?money(p.amount):''}{p.note?` for ${p.note}`:''}</strong></span><span className="payment-controls"><button type="button" onClick={()=>setEditing(p.id)}>Edit</button></span></div>)}</div>

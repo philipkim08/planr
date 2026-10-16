@@ -1,0 +1,47 @@
+/* First motion pass: remove this import to restore the previous motion. */
+:root{--planr-motion:220ms;--planr-spring:cubic-bezier(.22,1,.36,1)}
+button,a,input,textarea,select,summary{
+  -webkit-tap-highlight-color:transparent;
+  transition:transform 180ms var(--planr-spring),background-color 220ms ease,color 220ms ease,border-color 220ms ease,box-shadow 220ms ease,opacity 180ms ease;
+}
+button:not(:disabled):active,a.landing-cta:active,.plan-open:active{transform:scale(.98);transition-duration:80ms}
+button:disabled{cursor:not-allowed}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--theme-strong,#347fa9);outline-offset:3px}
+
+/* Resting cards should not lift whenever a user touches their contents. */
+.activity-summary:hover,.public-card:hover{transform:none}
+.activity-summary,.public-card{animation:fluid-card-in 280ms var(--planr-spring) backwards}
+.public-card>.payment,.public-card>.rsvp,.public-card>.comments,.public-card>.attendee-list{animation:fluid-section-in 240ms var(--planr-spring) backwards;max-height:none}
+.day-payment-details,.account-settings,.expense-entry,.payment-editor,.activity-form,.day-name-form{animation:fluid-section-in 240ms var(--planr-spring) backwards}
+.tabs button.active{animation:fluid-tab-in 220ms var(--planr-spring)}
+.participant-bubble{animation:fluid-chip-in 200ms var(--planr-spring) backwards}
+.saved{animation:fluid-section-in 180ms var(--planr-spring) backwards}
+.switch i{transition:background-color 220ms ease}
+.switch i:after{transition:left 220ms var(--planr-spring)}
+
+/* Menus stay mounted long enough for the closing transition, but are inert. */
+.public-card .name-options{transition:opacity 200ms ease,transform 240ms var(--planr-spring),visibility 0s linear 240ms}
+.public-card .name-options.is-open{transition-delay:0s}
+.public-card .copy-people-options{
+  max-height:0;margin-top:0;border-width:0;opacity:0;visibility:hidden;pointer-events:none;
+  transform:translateY(-5px);
+  transition:max-height 260ms var(--planr-spring),margin-top 260ms var(--planr-spring),opacity 180ms ease,transform 260ms var(--planr-spring),visibility 0s linear 260ms;
+}
+.public-card .copy-people-options.is-open{
+  max-height:240px;margin-top:8px;border-width:1px;opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0);transition-delay:0s;
+}
+.public-card .copy-people-options button:active,.public-card .name-options button:active{transform:none;background:var(--theme-soft,#e6f3f8)}
+.public-card .name-options button:focus-visible{outline-offset:-3px}
+
+@media(hover:hover) and (pointer:fine){
+  .landing-cta:hover,.account-gear:hover{transform:translateY(-1px)}
+  .plan-open:hover{opacity:.8}
+}
+@keyframes fluid-card-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fluid-section-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fluid-tab-in{from{transform:scale(.97)}to{transform:scale(1)}}
+@keyframes fluid-chip-in{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  button:active,.plan-open:active,.landing-cta:hover,.account-gear:hover{transform:none!important}
+}
