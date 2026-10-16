@@ -137,4 +137,39 @@
   box-shadow:none!important;
 }
 
+/* Final controls that live in the public payment flow and editor. */
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .tabs button.active{
+  background:var(--theme-primary)!important;
+  border-color:var(--theme-primary)!important;
+  color:#fff!important;
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.public-card>.rsvp,.public-card>.payment,.public-card>.attendee-list,.public-card>.comments,.public-card .split-participants,.public-card .payment-record,.public-card .name-options button+button){
+  border-color:var(--theme-border)!important;
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.public-card .participant-bubble,.public-card .settlement p,.public-card .name-options button:active){
+  background:var(--theme-soft)!important;
+  color:var(--theme-text)!important;
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.public-card .add-expense-pill,.public-card>.payment .add-expense-pill){
+  color:var(--theme-strong)!important;
+  border-color:var(--theme-border)!important;
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.public-card .save-expense,.public-card .settle-tools>button,.public-card .day-payment-toggle){
+  background:var(--theme-primary)!important;
+  border-color:var(--theme-primary)!important;
+  color:#fff!important;
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.public-card .cancel-expense,.public-card .name-options,.public-card .expense-entry>input,.public-card .expense-entry>.amount-input,.public-card .expense-entry>.name-picker input,.public-card>.comments .comment-form input){
+  border-color:var(--theme-border)!important;
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.public-card .payment-record,.public-card .payment-record span,.public-card .payment-record strong,.public-card>.rsvp>b,.public-card .name-options button){
+  color:var(--theme-text)!important;
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .activity-actions .action-button::before{
+  background:var(--theme-text)!important;
+}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .activity-actions .action-button::after{
+  background:#fff!important;
+}
+
 @media(max-width:540px){.theme-picker{padding:20px 0 15px;gap:10px}.theme-picker>div{gap:8px}.theme-swatch i{width:21px;height:21px}}
