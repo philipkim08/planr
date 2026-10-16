@@ -38,6 +38,10 @@
 .next-day-switch input:checked+i{background:var(--theme-strong,#347fa9)}
 .public-card .copy-people{grid-column:1/-1;grid-row:4;min-width:0;margin-top:8px}
 .public-card .copy-people>button{border:0;background:transparent;color:var(--theme-strong,#347fa9);padding:5px 0;font-size:.76rem;font-weight:600}
-.public-card .copy-people label{margin:9px 0 0;font-size:.76rem}
-.public-card .copy-people select{display:block;max-width:100%;margin-top:6px;font-size:16px}
+.public-card .copy-people-options{margin-top:8px;max-height:240px;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y pinch-zoom;border:1px solid var(--theme-border,#cfe0e8);border-radius:10px;background:#fff}
+.public-card .copy-people-options>button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:48px;border:0;border-radius:0;padding:11px 12px;background:transparent;color:var(--theme-text,#193147);font-size:.8rem;text-align:left}
+.public-card .copy-people-options>button+button{border-top:1px solid var(--theme-border,#cfe0e8)}
+.public-card .copy-people-options>button>span{min-width:0;overflow-wrap:anywhere}
+.public-card .copy-people-options small{flex-shrink:0;color:var(--theme-strong,#347fa9)}
+.public-card .copy-people-options>button:hover,.public-card .copy-people-options>button:focus-visible{background:var(--theme-soft,#e6f3f8)}
 .public-card .copy-people p{font-size:.76rem}
