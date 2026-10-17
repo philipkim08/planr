@@ -26,7 +26,9 @@ export function itineraryPeople(days) {
 }
 export function splitPeople(slot) {
   const saved=slot.payment_participants||[]
-  const names=saved.length||slot.payment_participants_configured?saved:(slot.attendance||[]).filter(r=>r.status==='going').map(r=>r.name)
+  const excluded=new Set((slot.payment_excluded_participants||[]).map(name=>name.trim().toLowerCase()))
+  const going=(slot.attendance||[]).filter(r=>r.status==='going'&&!excluded.has(r.name.trim().toLowerCase())).map(r=>r.name)
+  const names=[...(slot.payment_manual_participants||saved),...going]
   const seen=new Set()
   return names.map(name=>String(name).trim()).filter(name=>{const key=name.toLowerCase();if(!key||seen.has(key))return false;seen.add(key);return true})
 }

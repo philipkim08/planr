@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { outOfOrder, splitPeople, expenseTotal, itineraryPeople } from './activity-helpers.js'
+import { outOfOrder, splitPeople, expenseTotal } from './activity-helpers.js'
 import { calendarDates, planDateRange } from './plan-dates.js'
 import { SignIn, AccountSettings, PasswordReset } from './account-forms.jsx'
 import { createRoot } from 'react-dom/client'
@@ -96,7 +96,7 @@ function PublicSlot({slot,trip,day,visitor,refresh,allDays}){
     </div>}
     {payments&&<PaymentSplit allDays={allDays} slot={slot} trip={trip} day={day} visitor={visitor} refresh={refresh}/>}
     {comments&&<div className="comments">
-      {slot.comments?.map(c=><p key={c.id}><b>{c.name}</b> {c.body}{c.name.toLowerCase()===visitor.trim().toLowerCase()&&<button type="button" className="delete-comment" onClick={()=>send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/comments/${c.id}`,{name:visitor},'DELETE')}>Delete</button>}</p>)}
+      {slot.comments?.map(c=><p key={c.id}><b className="comment-author">{c.name};</b> {c.body}{c.name.toLowerCase()===visitor.trim().toLowerCase()&&<button type="button" className="delete-comment" onClick={()=>send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/comments/${c.id}`,{name:visitor},'DELETE')}>Delete</button>}</p>)}
       <form className="comment-form" onSubmit={async e=>{e.preventDefault();if(sending)return;setSending(true);if(await send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/comments`,{name:visitor,body}))setBody('');setSending(false)}}>
         <input aria-label="Leave a comment" placeholder="Leave a comment" value={body} onChange={e=>setBody(e.target.value)}/>
         <button type="submit" disabled={sending||!body.trim()}>{sending?'Sending…':'Send'}</button>
@@ -133,10 +133,9 @@ function PlanList({trips,onDeleted}){
   </section>
 }
 function PaymentSplit({slot,trip,day,visitor,refresh,allDays=[]}){
-  const [peopleOpen,setPeopleOpen]=useState(false),[selectedPeople,setSelectedPeople]=useState([]),[savingPeople,setSavingPeople]=useState(false)
-  const knownPeople=itineraryPeople(allDays)
+  const [savingPeople,setSavingPeople]=useState(false)
   const payerPicker=useRef(null)
-  const goingNames=uniqueNames((slot.attendance||[]).filter(response=>response.status==='going').map(response=>response.name)),initialParticipants=splitPeople(slot)
+  const initialParticipants=splitPeople(slot)
   const[paid_by,setPaidBy]=useState(visitor),[amount,setAmount]=useState(''),[note,setNote]=useState(''),[message,setMessage]=useState(''),[editing,setEditing]=useState(''),[participants,setParticipants]=useState(initialParticipants),[newPerson,setNewPerson]=useState(''),[addingPerson,setAddingPerson]=useState(false),[adding,setAdding]=useState(false),[showNameOptions,setShowNameOptions]=useState(false),pendingPeople=useRef(Promise.resolve()),nameInput=useRef(null)
   useEffect(()=>{if(!paid_by)setPaidBy(visitor)},[visitor])
   useEffect(()=>{
@@ -146,7 +145,7 @@ function PaymentSplit({slot,trip,day,visitor,refresh,allDays=[]}){
     document.addEventListener('focusin',dismissOutside)
     return()=>{document.removeEventListener('pointerdown',dismissOutside);document.removeEventListener('focusin',dismissOutside)}
   },[showNameOptions])
-  useEffect(()=>setParticipants(splitPeople(slot)),[slot.id,slot.payment_participants,slot.payment_participants_configured,slot.attendance])
+  useEffect(()=>setParticipants(splitPeople(slot)),[slot.id,slot.payment_participants,slot.payment_participants_configured,slot.payment_manual_participants,slot.payment_excluded_participants,slot.attendance])
   const money=x=>`$${Number(x||0).toFixed(2)}`
   const persistPeople=next=>{setParticipants(next);pendingPeople.current=pendingPeople.current.then(()=>api(`/trips/${trip}/days/${day}/timeslots/${slot.id}/payment-participants`,{method:'PUT',body:JSON.stringify({participants:next})})).then(r=>{refresh(r.trip);setMessage(next.length?'People splitting saved':'People splitting cleared');return true}).catch(e=>{setMessage(e.message);return false});return pendingPeople.current}
   const clearEntry=()=>{setPaidBy(visitor);setAmount('');setNote('');setShowNameOptions(false);setAdding(false)}
@@ -154,9 +153,9 @@ function PaymentSplit({slot,trip,day,visitor,refresh,allDays=[]}){
   const change=async p=>{try{const r=await api(`/trips/${trip}/days/${day}/timeslots/${slot.id}/payments/${p.id}`,{method:'PUT',body:JSON.stringify(p)});refresh(r.trip);setEditing('')}catch(e){setMessage(e.message)}}
   const addPeople=async names=>{
     if(savingPeople)return
-    if(!names.length)return setMessage('Select someone or enter a name.')
+    if(!names.length)return setMessage('Enter a name.')
     setSavingPeople(true)
-    if(await persistPeople(uniqueNames([...participants,...names]))){setNewPerson('');setSelectedPeople([]);setPeopleOpen(false);setAddingPerson(false)}
+    if(await persistPeople(uniqueNames([...participants,...names]))){setNewPerson('');setAddingPerson(false)}
     setSavingPeople(false)
   }
   const addPerson=()=>addPeople(newPerson.trim()?[newPerson]:[])
@@ -174,21 +173,9 @@ function PaymentSplit({slot,trip,day,visitor,refresh,allDays=[]}){
     </div>:<button type="button" className="add-expense-pill" onClick={()=>setAdding(true)}>+ Add expense</button>}
     <div className="split-participants">
       <label>Split with</label>
-      <div className="participant-bubbles">{participants.map(name=><span className="participant-bubble" key={name}>{name}<button type="button" aria-label={`Remove ${name}`} onClick={()=>persistPeople(participants.filter(person=>person.toLowerCase()!==name.toLowerCase()))}>×</button></span>)}{!participants.length&&<small>No one added yet.</small>}</div>
-      {goingNames.length>0&&<button type="button" className="add-going" onClick={()=>persistPeople(uniqueNames([...participants,...goingNames]))}>Add going attendees</button>}
-      <button type="button" className="toggle-add-person" aria-expanded={addingPerson} disabled={savingPeople} onClick={()=>{setAddingPerson(!addingPerson);setPeopleOpen(false);setSelectedPeople([])}}>{addingPerson?'Cancel':'+ Add person'}</button>
+      <div className="participant-bubbles">{participants.map(name=><span className="participant-bubble" key={name}>{name}<button type="button" disabled={savingPeople} aria-label={`Remove ${name}`} onClick={()=>persistPeople(participants.filter(person=>person.toLowerCase()!==name.toLowerCase()))}>×</button></span>)}<button type="button" className="add-person-circle" aria-label="Add a person" aria-expanded={addingPerson} disabled={savingPeople} onClick={()=>setAddingPerson(!addingPerson)}>+</button></div>
       {addingPerson&&<div className="people-adder">
-        <button type="button" className="choose-itinerary-people" aria-expanded={peopleOpen} onClick={()=>setPeopleOpen(!peopleOpen)}>Choose from itinerary <span aria-hidden="true">{peopleOpen?'⌃':'⌄'}</span></button>
-        {peopleOpen&&<div className="itinerary-people-menu">
-          <div className="itinerary-people-options" role="group" aria-label="People from this itinerary">
-            {knownPeople.length?knownPeople.map(name=>{
-              const included=participants.some(p=>p.toLowerCase()===name.toLowerCase())
-              return <label key={name}><input type="checkbox" checked={included||selectedPeople.includes(name)} disabled={included||savingPeople} onChange={e=>setSelectedPeople(current=>e.target.checked?[...current,name]:current.filter(p=>p!==name))}/><span>{name}</span>{included&&<small>Added</small>}</label>
-            }):<small>No other names yet. Type a name below.</small>}
-          </div>
-          {knownPeople.length>0&&<button type="button" className="add-selected-people" disabled={!selectedPeople.length||savingPeople} onClick={()=>addPeople(selectedPeople)}>{savingPeople?'Adding…':`Add selected${selectedPeople.length?' ('+selectedPeople.length+')':''}`}</button>}
-        </div>}
-        <form className="add-person" onSubmit={e=>{e.preventDefault();addPerson()}}><input aria-label="New person's name" placeholder="Or type a name" value={newPerson} disabled={savingPeople} onChange={e=>setNewPerson(e.target.value)}/><button type="submit" disabled={savingPeople||!newPerson.trim()}>{savingPeople?'Adding…':'Add'}</button></form>
+        <form className="add-person" onSubmit={e=>{e.preventDefault();addPerson()}}><input autoFocus aria-label="New person's name" placeholder="Name" value={newPerson} disabled={savingPeople} onChange={e=>setNewPerson(e.target.value)}/><button type="submit" disabled={savingPeople||!newPerson.trim()}>{savingPeople?'Adding…':'Add'}</button><button type="button" className="cancel-person" disabled={savingPeople} onClick={()=>{setAddingPerson(false);setNewPerson('')}}>Cancel</button></form>
       </div>}
     </div>
     {message&&<small className="saved">{message}</small>}

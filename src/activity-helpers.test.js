@@ -15,9 +15,9 @@ test('warnings reflect edited times and order immediately',()=>{
  data[1].time='23:00';assert.equal(outOfOrder(data).size,0)
  data[1].order=-1;assert.equal(outOfOrder(data).has('0'),true)
 })
-test('copy respects saved group, explicit empty groups, and name capitalization',()=>{
+test('split respects manual exclusions and name capitalization',()=>{
  assert.deepEqual(splitPeople({payment_participants:[' Jake ','JAKE','Sarah']}),['Jake','Sarah'])
- assert.deepEqual(splitPeople({payment_participants_configured:true,payment_participants:[],attendance:[{name:'Jake',status:'going'}]}),[])
+ assert.deepEqual(splitPeople({payment_excluded_participants:['jake'],payment_participants:[],attendance:[{name:'Jake',status:'going'}]}),[])
  assert.deepEqual(splitPeople({attendance:[{name:'Jake',status:'going'},{name:'Sarah',status:'maybe'}]}),['Jake'])
 })
 test('expense chip totals reflect additions, edits, and removal',()=>{
@@ -26,13 +26,14 @@ test('expense chip totals reflect additions, edits, and removal',()=>{
  slot.payments[0].amount='20';assert.equal(expenseTotal(slot),25.5)
  slot.payments.splice(1,1);assert.equal(expenseTotal(slot),20)
 })
-test('automatic split follows going guests until explicitly customized',()=>{
+test('automatic split follows RSVP changes alongside manual additions and exclusions',()=>{
  const slot={attendance:[{name:'Jake',status:'going'},{name:'JAKE',status:'going'},{name:'Sarah',status:'maybe'}]}
  assert.deepEqual(splitPeople(slot),['Jake'])
  slot.attendance[2].status='going';assert.deepEqual(splitPeople(slot),['Jake','Sarah'])
- slot.payment_participants_configured=true;slot.payment_participants=['Sarah']
- assert.deepEqual(splitPeople(slot),['Sarah'])
- slot.payment_participants=[];assert.deepEqual(splitPeople(slot),[])
+ slot.payment_manual_participants=['Bonnie'];slot.payment_excluded_participants=['jake']
+ assert.deepEqual(splitPeople(slot),['Bonnie','Sarah'])
+ slot.attendance[2].status='not-going';assert.deepEqual(splitPeople(slot),['Bonnie'])
+ slot.attendance.push({name:'Philip',status:'going'});assert.deepEqual(splitPeople(slot),['Bonnie','Philip'])
 })
 test('itinerary picker collects unique names across all days and sources',()=>{
  const days=[{timeslots:[{payment_participants:[' Jake ',''],attendance:[{name:'JAKE',status:'going'},{name:'Sarah',status:'maybe'}],payments:[{paid_by:'Bonnie'}],comments:[{name:'Philip'}]}]},{timeslots:[{payments:[{paid_by:'Kevin'},{paid_by:'jake'}],attendance:[{name:null}]}]},{}]
