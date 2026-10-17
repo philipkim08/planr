@@ -10,6 +10,9 @@ export function outOfOrder(slots) {
   }
   return warnings
 }
+export function expenseTotal(slot) {
+  return Math.round((slot.payments||[]).reduce((total,payment)=>total+(parseFloat(String(payment.amount||'').replace(/[^0-9.]/g,''))||0),0)*100)/100
+}
 export function splitPeople(slot) {
   const saved=slot.payment_participants||[]
   const names=saved.length||slot.payment_participants_configured?saved:(slot.attendance||[]).filter(r=>r.status==='going').map(r=>r.name)

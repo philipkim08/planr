@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {outOfOrder,splitPeople} from './activity-helpers.js'
+import {outOfOrder,splitPeople,expenseTotal} from './activity-helpers.js'
 const slots=items=>items.map(([time,next_day=false],order)=>({id:String(order),order,time,next_day}))
 test('midnight must be explicitly next day',()=>{
  assert.deepEqual([...outOfOrder(slots([['22:00'],['00:00',true]]))],[])
@@ -19,4 +19,18 @@ test('copy respects saved group, explicit empty groups, and name capitalization'
  assert.deepEqual(splitPeople({payment_participants:[' Jake ','JAKE','Sarah']}),['Jake','Sarah'])
  assert.deepEqual(splitPeople({payment_participants_configured:true,payment_participants:[],attendance:[{name:'Jake',status:'going'}]}),[])
  assert.deepEqual(splitPeople({attendance:[{name:'Jake',status:'going'},{name:'Sarah',status:'maybe'}]}),['Jake'])
+})
+test('expense chip totals reflect additions, edits, and removal',()=>{
+ const slot={payments:[]};assert.equal(expenseTotal(slot),0)
+ slot.payments=[{amount:'10.25'},{amount:'$5.50'}];assert.equal(expenseTotal(slot),15.75)
+ slot.payments[0].amount='20';assert.equal(expenseTotal(slot),25.5)
+ slot.payments.splice(1,1);assert.equal(expenseTotal(slot),20)
+})
+test('automatic split follows going guests until explicitly customized',()=>{
+ const slot={attendance:[{name:'Jake',status:'going'},{name:'JAKE',status:'going'},{name:'Sarah',status:'maybe'}]}
+ assert.deepEqual(splitPeople(slot),['Jake'])
+ slot.attendance[2].status='going';assert.deepEqual(splitPeople(slot),['Jake','Sarah'])
+ slot.payment_participants_configured=true;slot.payment_participants=['Sarah']
+ assert.deepEqual(splitPeople(slot),['Sarah'])
+ slot.payment_participants=[];assert.deepEqual(splitPeople(slot),[])
 })
