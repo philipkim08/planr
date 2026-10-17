@@ -84,7 +84,7 @@ function PublicSlot({slot,trip,day,visitor,refresh,allDays}){
     {links.map((link,i)=><a key={i} className="link" href={link} target="_blank" rel="noreferrer">↗ Link {links.length>1?i+1:''}</a>)}
     <div className="activity-actions compact-actions">
       {slot.attendance_required&&<button type="button" className="action-button rsvp-action" aria-expanded={rsvp} onClick={()=>{setStatus(response?.status||'going');setRsvp(!rsvp)}}>{response&&<span className={`response-avatar ${markerClass}`}>{initials(visitor)}<i>{marker}</i></span>}<span>RSVP</span></button>}
-      {slot.splitting_payments&&<button type="button" className="action-button payments-action" aria-label={`Expenses: ${totalLabel}`} aria-expanded={payments} onClick={()=>setPayments(!payments)}>{totalLabel}</button>}
+      {slot.splitting_payments&&<button type="button" className="action-button payments-action" aria-label={`Expenses: ${totalLabel}`} aria-expanded={payments} onClick={()=>setPayments(!payments)}><span className="payment-chip-icon" aria-hidden="true"/><span>{totalLabel}</span></button>}
       <button type="button" className="action-button comments-action" aria-label={`Comments (${slot.comments?.length||0})`} aria-expanded={comments} onClick={()=>setComments(!comments)}><span className="comment-chip-icon" aria-hidden="true"/><span>({slot.comments?.length||0})</span></button>
     </div>
     {rsvp&&<div className="rsvp">
@@ -162,7 +162,6 @@ function PaymentSplit({slot,trip,day,visitor,refresh,allDays=[]}){
   const addPerson=()=>{if(!newPerson.trim())return setMessage('Enter a name to add someone.');persistPeople(uniqueNames([...participants,newPerson])).then(ok=>{if(ok){setNewPerson('');setAddingPerson(false)}})}
   const choosePayer=name=>{setPaidBy(name);setShowNameOptions(false);nameInput.current?.blur()}
   return <div className="payment ledger-flow">
-    <b>Expenses</b>
     <div className="payment-lines">{!slot.payments?.length&&<p className="no-expenses">No expenses yet.</p>}{slot.payments?.map(p=>editing===p.id?<PaymentEditor key={p.id} payment={p} save={change} cancel={()=>setEditing('')}/>:<div className="payment-record" key={p.id}><span><strong className="expense-description"><span>{p.paid_by} paid {money(p.amount)}{p.note?' for':''}</span>{p.note&&<span className="expense-item">{p.note}</span>}</strong></span><span className="payment-controls"><button type="button" onClick={()=>setEditing(p.id)}>Edit</button></span></div>)}</div>
     {adding?<div className="payment-form expense-entry">
       <div className="name-picker" ref={payerPicker} onKeyDown={e=>{if(e.key==='Escape'){setShowNameOptions(false);nameInput.current?.blur()}}}>

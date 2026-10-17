@@ -10,6 +10,8 @@
 .compact-actions .payments-action{font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;flex-shrink:1}
 .compact-actions .rsvp-action,.compact-actions .comments-action{flex-shrink:0}
 .compact-actions .comment-chip-icon{display:block;flex:0 0 16px;width:16px;height:16px;background:currentColor;mask:url('../icons/message-circle.png') center/contain no-repeat;-webkit-mask:url('../icons/message-circle.png') center/contain no-repeat}
+.compact-actions .payment-chip-icon{display:block;flex:0 0 16px;width:16px;height:16px;background:currentColor;mask:url('../icons/credit-card.png') center/contain no-repeat;-webkit-mask:url('../icons/credit-card.png') center/contain no-repeat}
+.public-card .activity-actions.compact-actions .comments-action>span:last-child{font-size:.68rem;font-weight:500;line-height:1}
 .compact-actions .response-avatar{flex-shrink:0;width:23px;height:23px}
 .public-card .show-attendees{display:block;border:0;background:transparent;color:var(--theme-strong);padding:12px 0 4px;font-size:.8rem;text-align:left}
 .public-card .rsvp .attendee-list{border:0;border-radius:0;box-shadow:none;background:transparent;padding:10px 0 0;margin:0;max-height:none}
@@ -20,17 +22,16 @@
 .public-card>.comments .comment-form button{flex:0 0 auto;width:auto;min-height:44px}
 
 /* Remove inherited row numbers: visual order now follows the actual DOM. */
-.public-card>.payment.ledger-flow{display:flex!important;flex-direction:column;gap:8px!important;min-width:0}
-.public-card>.payment.ledger-flow>b{font-size:.85rem!important;color:var(--theme-text)}
-.public-card>.payment.ledger-flow>b::after{content:none!important}
+.public-card>.payment.ledger-flow{display:flex!important;flex-direction:column;gap:4px!important;min-width:0}
 .public-card>.payment.ledger-flow .payment-lines{width:100%;margin:0!important}
-.ledger-flow .payment-record{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.ledger-flow .payment-record{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.public-card .ledger-flow .payment-record:last-child{padding-bottom:2px}
 .ledger-flow .payment-record>span:first-child{min-width:0;flex:1}
 .ledger-flow .expense-description{display:block;overflow-wrap:anywhere;line-height:1.6}
 .ledger-flow .expense-description .expense-item{margin-left:5px;font-weight:400}
 .ledger-flow .payment-controls{flex-shrink:0}
 .ledger-flow .payment-controls button{min-height:32px}
-.public-card>.payment.ledger-flow .add-expense-pill{align-self:center;margin:0;padding:8px;min-height:40px}
+.public-card>.payment.ledger-flow .add-expense-pill{align-self:center;margin:0;padding:4px 8px;min-height:36px}
 .public-card>.payment.ledger-flow .split-participants{display:flex!important;flex-wrap:wrap;align-items:center;gap:8px;margin:6px 0 0!important;padding:14px 0 0!important;border-bottom:0!important;border-top:1px solid var(--theme-border)}
 .public-card>.payment.ledger-flow .split-participants>label{font-size:.8rem!important;margin:0;color:var(--theme-text)}
 .public-card>.payment.ledger-flow .split-participants>label::after{content:none!important}
