@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { outOfOrder, splitPeople, expenseTotal } from './activity-helpers.js'
+import { outOfOrder, splitPeople, expenseTotal, itineraryPeople } from './activity-helpers.js'
 import { calendarDates, planDateRange } from './plan-dates.js'
 import { SignIn, AccountSettings, PasswordReset } from './account-forms.jsx'
 import { createRoot } from 'react-dom/client'
@@ -133,10 +133,10 @@ function PlanList({trips,onDeleted}){
   </section>
 }
 function PaymentSplit({slot,trip,day,visitor,refresh,allDays=[]}){
-  const [copyOpen,setCopyOpen]=useState(false),[copying,setCopying]=useState(false)
-  const copySources=allDays.filter(d=>d.id===day).flatMap(d=>ordered(d).filter(s=>s.id!==slot.id&&s.splitting_payments&&splitPeople(s).length).map(s=>({id:s.id,label:s.title,people:splitPeople(s)})))
+  const [peopleOpen,setPeopleOpen]=useState(false),[selectedPeople,setSelectedPeople]=useState([]),[savingPeople,setSavingPeople]=useState(false)
+  const knownPeople=itineraryPeople(allDays)
   const payerPicker=useRef(null)
-  const goingNames=uniqueNames((slot.attendance||[]).filter(response=>response.status==='going').map(response=>response.name)),savedParticipants=slot.payment_participants||[],initialParticipants=splitPeople(slot)
+  const goingNames=uniqueNames((slot.attendance||[]).filter(response=>response.status==='going').map(response=>response.name)),initialParticipants=splitPeople(slot)
   const[paid_by,setPaidBy]=useState(visitor),[amount,setAmount]=useState(''),[note,setNote]=useState(''),[message,setMessage]=useState(''),[editing,setEditing]=useState(''),[participants,setParticipants]=useState(initialParticipants),[newPerson,setNewPerson]=useState(''),[addingPerson,setAddingPerson]=useState(false),[adding,setAdding]=useState(false),[showNameOptions,setShowNameOptions]=useState(false),pendingPeople=useRef(Promise.resolve()),nameInput=useRef(null)
   useEffect(()=>{if(!paid_by)setPaidBy(visitor)},[visitor])
   useEffect(()=>{
@@ -149,17 +149,17 @@ function PaymentSplit({slot,trip,day,visitor,refresh,allDays=[]}){
   useEffect(()=>setParticipants(splitPeople(slot)),[slot.id,slot.payment_participants,slot.payment_participants_configured,slot.attendance])
   const money=x=>`$${Number(x||0).toFixed(2)}`
   const persistPeople=next=>{setParticipants(next);pendingPeople.current=pendingPeople.current.then(()=>api(`/trips/${trip}/days/${day}/timeslots/${slot.id}/payment-participants`,{method:'PUT',body:JSON.stringify({participants:next})})).then(r=>{refresh(r.trip);setMessage(next.length?'People splitting saved':'People splitting cleared');return true}).catch(e=>{setMessage(e.message);return false});return pendingPeople.current}
-  const copyPeople=async id=>{
-    const source=copySources.find(s=>s.id===id)
-    if(!source||copying)return
-    setCopying(true)
-    if(await persistPeople([...source.people])){setCopyOpen(false);setMessage('People copied. Changes here only affect this activity.')}
-    setCopying(false)
-  }
   const clearEntry=()=>{setPaidBy(visitor);setAmount('');setNote('');setShowNameOptions(false);setAdding(false)}
   const save=async()=>{try{const r=await api(`/trips/${trip}/days/${day}/timeslots/${slot.id}/payments`,{method:'POST',body:JSON.stringify({paid_by,amount,note})});refresh(r.trip);clearEntry();setMessage('Payment added')}catch(e){setMessage(e.message)}}
   const change=async p=>{try{const r=await api(`/trips/${trip}/days/${day}/timeslots/${slot.id}/payments/${p.id}`,{method:'PUT',body:JSON.stringify(p)});refresh(r.trip);setEditing('')}catch(e){setMessage(e.message)}}
-  const addPerson=()=>{if(!newPerson.trim())return setMessage('Enter a name to add someone.');persistPeople(uniqueNames([...participants,newPerson])).then(ok=>{if(ok){setNewPerson('');setAddingPerson(false)}})}
+  const addPeople=async names=>{
+    if(savingPeople)return
+    if(!names.length)return setMessage('Select someone or enter a name.')
+    setSavingPeople(true)
+    if(await persistPeople(uniqueNames([...participants,...names]))){setNewPerson('');setSelectedPeople([]);setPeopleOpen(false);setAddingPerson(false)}
+    setSavingPeople(false)
+  }
+  const addPerson=()=>addPeople(newPerson.trim()?[newPerson]:[])
   const choosePayer=name=>{setPaidBy(name);setShowNameOptions(false);nameInput.current?.blur()}
   return <div className="payment ledger-flow">
     <div className="payment-lines">{!slot.payments?.length&&<p className="no-expenses">No expenses yet.</p>}{slot.payments?.map(p=>editing===p.id?<PaymentEditor key={p.id} payment={p} save={change} cancel={()=>setEditing('')}/>:<div className="payment-record" key={p.id}><span><strong className="expense-description"><span>{p.paid_by} paid {money(p.amount)}{p.note?' for':''}</span>{p.note&&<span className="expense-item">{p.note}</span>}</strong></span><span className="payment-controls"><button type="button" onClick={()=>setEditing(p.id)}>Edit</button></span></div>)}</div>
@@ -176,9 +176,20 @@ function PaymentSplit({slot,trip,day,visitor,refresh,allDays=[]}){
       <label>Split with</label>
       <div className="participant-bubbles">{participants.map(name=><span className="participant-bubble" key={name}>{name}<button type="button" aria-label={`Remove ${name}`} onClick={()=>persistPeople(participants.filter(person=>person.toLowerCase()!==name.toLowerCase()))}>×</button></span>)}{!participants.length&&<small>No one added yet.</small>}</div>
       {goingNames.length>0&&<button type="button" className="add-going" onClick={()=>persistPeople(uniqueNames([...participants,...goingNames]))}>Add going attendees</button>}
-      <button type="button" className="toggle-add-person" aria-expanded={addingPerson} onClick={()=>setAddingPerson(!addingPerson)}>{addingPerson?'Cancel':'+ Add person'}</button>
-      {addingPerson&&<div className="add-person"><input placeholder="Add person" value={newPerson} onChange={e=>setNewPerson(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addPerson()}}}/><button type="button" onClick={addPerson}>Add</button></div>}
-      <div className="copy-people"><button type="button" aria-expanded={copyOpen} disabled={copying} onClick={()=>setCopyOpen(!copyOpen)}>Copy people from…</button>{copySources.length?<div className={`copy-people-options ${copyOpen?'is-open':''}`} aria-hidden={!copyOpen} inert={copyOpen?undefined:''} role="group" aria-label="Copy people from an activity" aria-busy={copying}>{copySources.map(source=><button type="button" key={source.id} tabIndex={copyOpen?0:-1} disabled={copying} onClick={()=>copyPeople(source.id)}><span>{source.label}</span><small>{source.people.length} {source.people.length===1?'person':'people'}</small></button>)}</div>:copyOpen&&<p>Add people to another payment activity on this day first, then copy them here.</p>}</div>
+      <button type="button" className="toggle-add-person" aria-expanded={addingPerson} disabled={savingPeople} onClick={()=>{setAddingPerson(!addingPerson);setPeopleOpen(false);setSelectedPeople([])}}>{addingPerson?'Cancel':'+ Add person'}</button>
+      {addingPerson&&<div className="people-adder">
+        <button type="button" className="choose-itinerary-people" aria-expanded={peopleOpen} onClick={()=>setPeopleOpen(!peopleOpen)}>Choose from itinerary <span aria-hidden="true">{peopleOpen?'⌃':'⌄'}</span></button>
+        {peopleOpen&&<div className="itinerary-people-menu">
+          <div className="itinerary-people-options" role="group" aria-label="People from this itinerary">
+            {knownPeople.length?knownPeople.map(name=>{
+              const included=participants.some(p=>p.toLowerCase()===name.toLowerCase())
+              return <label key={name}><input type="checkbox" checked={included||selectedPeople.includes(name)} disabled={included||savingPeople} onChange={e=>setSelectedPeople(current=>e.target.checked?[...current,name]:current.filter(p=>p!==name))}/><span>{name}</span>{included&&<small>Added</small>}</label>
+            }):<small>No other names yet. Type a name below.</small>}
+          </div>
+          {knownPeople.length>0&&<button type="button" className="add-selected-people" disabled={!selectedPeople.length||savingPeople} onClick={()=>addPeople(selectedPeople)}>{savingPeople?'Adding…':`Add selected${selectedPeople.length?' ('+selectedPeople.length+')':''}`}</button>}
+        </div>}
+        <form className="add-person" onSubmit={e=>{e.preventDefault();addPerson()}}><input aria-label="New person's name" placeholder="Or type a name" value={newPerson} disabled={savingPeople} onChange={e=>setNewPerson(e.target.value)}/><button type="submit" disabled={savingPeople||!newPerson.trim()}>{savingPeople?'Adding…':'Add'}</button></form>
+      </div>}
     </div>
     {message&&<small className="saved">{message}</small>}
   </div>

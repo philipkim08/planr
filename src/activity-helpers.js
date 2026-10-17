@@ -13,6 +13,17 @@ export function outOfOrder(slots) {
 export function expenseTotal(slot) {
   return Math.round((slot.payments||[]).reduce((total,payment)=>total+(parseFloat(String(payment.amount||'').replace(/[^0-9.]/g,''))||0),0)*100)/100
 }
+export function itineraryPeople(days) {
+  const seen=new Map()
+  for(const day of days||[])for(const slot of day.timeslots||[]){
+    const names=[...(slot.payment_participants||[]),...(slot.attendance||[]).map(r=>r.name),...(slot.payments||[]).map(p=>p.paid_by),...(slot.comments||[]).map(c=>c.name)]
+    for(const name of names){
+      const display=String(name||'').trim(),key=display.toLowerCase()
+      if(key&&!seen.has(key))seen.set(key,display)
+    }
+  }
+  return [...seen.values()].sort((a,b)=>a.localeCompare(b))
+}
 export function splitPeople(slot) {
   const saved=slot.payment_participants||[]
   const names=saved.length||slot.payment_participants_configured?saved:(slot.attendance||[]).filter(r=>r.status==='going').map(r=>r.name)

@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {outOfOrder,splitPeople,expenseTotal} from './activity-helpers.js'
+import {outOfOrder,splitPeople,expenseTotal,itineraryPeople} from './activity-helpers.js'
 const slots=items=>items.map(([time,next_day=false],order)=>({id:String(order),order,time,next_day}))
 test('midnight must be explicitly next day',()=>{
  assert.deepEqual([...outOfOrder(slots([['22:00'],['00:00',true]]))],[])
@@ -33,4 +33,9 @@ test('automatic split follows going guests until explicitly customized',()=>{
  slot.payment_participants_configured=true;slot.payment_participants=['Sarah']
  assert.deepEqual(splitPeople(slot),['Sarah'])
  slot.payment_participants=[];assert.deepEqual(splitPeople(slot),[])
+})
+test('itinerary picker collects unique names across all days and sources',()=>{
+ const days=[{timeslots:[{payment_participants:[' Jake ',''],attendance:[{name:'JAKE',status:'going'},{name:'Sarah',status:'maybe'}],payments:[{paid_by:'Bonnie'}],comments:[{name:'Philip'}]}]},{timeslots:[{payments:[{paid_by:'Kevin'},{paid_by:'jake'}],attendance:[{name:null}]}]},{}]
+ assert.deepEqual(itineraryPeople(days),['Bonnie','Jake','Kevin','Philip','Sarah'])
+ assert.deepEqual(itineraryPeople([]),[])
 })
