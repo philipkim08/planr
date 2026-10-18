@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"node --env-file-if-exists=.env server/index.js\" \"vite\"",
+    "dev": "concurrently \"node --watch --env-file-if-exists=.env server/index.js\" \"vite\"",
     "server": "node --env-file-if-exists=.env server/index.js",
     "client": "vite",
     "build": "vite build",

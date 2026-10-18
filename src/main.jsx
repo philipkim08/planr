@@ -1,3 +1,4 @@
+import {themeOptions} from './plan-themes.js'
 import React, { useEffect, useRef, useState } from 'react'
 import { outOfOrder, splitPeople, expenseTotal, itineraryPeople } from './activity-helpers.js'
 import { calendarDates, planDateRange } from './plan-dates.js'
@@ -151,12 +152,11 @@ function PlanList({trips,onDeleted}){
     </article>)}
   </section>
 }
-const themeOptions=[['blue','Blue'],['purple','Purple'],['orange','Orange'],['red','Red'],['green','Green'],['muted','Muted']]
 function ThemePicker({theme,onChange}){return <section className="theme-picker" aria-label="Plan theme"><span>Theme</span><div>{themeOptions.map(([value,label])=><button type="button" key={value} className={`theme-swatch ${value} ${theme===value?'selected':''}`} title={label} aria-label={`${label} theme`} aria-pressed={theme===value} onClick={()=>onChange(value)}><i/></button>)}</div></section>}
 function Edit({id,token}){
   const[trip,setTrip]=useState(),[active,setActive]=useState(),[error,setError]=useState(''),[notice,setNotice]=useState(''),{user,ready}=useCurrentUser()
   useEffect(()=>{if(!token&&!ready)return;api(`/trips/${id}/edit`,{},token).then(({trip})=>{setTrip(trip);setActive(trip.days[0]?.id)}).catch(e=>setError(e.message))},[id,token,ready,user?.id])
-  const mutate=async(path,options)=>{try{const r=await api(path,options,token);setTrip(r.trip);setNotice('Saved');setTimeout(()=>setNotice(''),1400);return r.trip}catch(e){setError(e.message);return null}}
+  const mutate=async(path,options)=>{setError('');try{const r=await api(path,options,token);setTrip(r.trip);setNotice('Saved');setTimeout(()=>setNotice(''),1400);return r.trip}catch(e){setError(e.message);return null}}
   if(error&&!trip)return <Missing message={error}/>
   if(!trip)return <Loading/>
   const day=trip.days.find(d=>d.id===active)||trip.days[0],view=`${location.origin}/trip/${id}`,edit=token?`${location.origin}/edit/${id}/${token}`:'',copy=(x,l)=>navigator.clipboard.writeText(x).then(()=>setNotice(`${l} copied`)),claim=async()=>{if(await mutate(`/trips/${id}/claim`,{method:'POST'}))setNotice('Saved to My plans')}
