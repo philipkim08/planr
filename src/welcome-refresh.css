@@ -1,5 +1,5 @@
 /* Welcome / library / new plan. Local checkpoint: backup/pre-welcome-refresh-2026-10-17. */
-.editor.creator-refresh .creator-card-actions .creator-edit{background:#194f91!important;color:#fff!important}
+.editor.creator-refresh .creator-card-actions .creator-edit{background:var(--theme-strong)!important;color:#fff!important}
 .welcome-refresh{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;color:#222632;--welcome-accent:#194f91;--welcome-muted:#737587}
 .home.welcome-refresh,.account-page.welcome-refresh{max-width:760px;min-height:100svh;padding:30px 24px 50px;background:#f7f7fb!important}
 .home.welcome-refresh::before,.account-page.welcome-refresh::before{position:fixed;inset:0;width:100%;height:100%;background:#f7f7fb!important;pointer-events:none;z-index:-1}
