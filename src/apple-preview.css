@@ -126,3 +126,17 @@
 .rsvp-sheet .rsvp-confirmation{color:var(--rsvp-going);font-size:.85rem;margin:10px 0 0}
 .planr-sheet .sheet-add-person>button{background:#4b535f}
 .apple-preview.theme-muted,.planr-sheet.theme-muted{--theme-primary:#707b88;--theme-strong:#424c59}
+
+/* Keep the balance content mounted so opening AND closing can interpolate. */
+.apple-preview .balance-disclosure{display:grid;grid-template-rows:0fr;opacity:0;visibility:hidden;transition:grid-template-rows 300ms cubic-bezier(.22,1,.36,1),opacity 220ms ease,visibility 0s linear 300ms}
+.apple-preview .balance-disclosure.is-open{grid-template-rows:1fr;opacity:1;visibility:visible;transition-delay:0s}
+.apple-preview .balance-disclosure-inner{min-height:0;overflow:hidden}
+.viewer.apple-preview .balance-disclosure .day-payment-details{animation:none!important;margin:10px 0 0;padding:16px 18px;border:0!important;border-radius:20px;background:#fff!important;box-shadow:none!important}
+/* Override inherited itinerary-header and activity-card typography inside dialogs. */
+.viewer.apple-preview .public-card .planr-sheet:not(.is-entry) header{padding:0 38px 0 0!important;margin:0 0 6px!important}
+.viewer.apple-preview .public-card .planr-sheet header h2{font-size:2rem!important;line-height:1.1;letter-spacing:-.035em;margin:0 0 3px!important}
+.viewer.apple-preview .public-card .planr-sheet header p{margin:0!important;font-size:.9rem;line-height:1.3;max-width:none}
+.planr-sheet:not(.is-entry) .sheet-handle{margin-bottom:7px}
+.planr-sheet:not(.is-entry):not(.rsvp-sheet) .sheet-ledger .sheet-transaction:first-child{padding-top:12px}
+.viewer.apple-preview .public-card .planr-sheet .sheet-transaction p{margin:4px 0 0 12px!important}
+@media(prefers-reduced-motion:reduce){.apple-preview .balance-disclosure{transition:none}}
