@@ -151,7 +151,7 @@ function PlanList({trips,onDeleted}){
     </article>)}
   </section>
 }
-const themeOptions=[['blue','Blue'],['orange','Orange'],['red','Red'],['green','Green'],['muted','Muted']]
+const themeOptions=[['blue','Blue'],['purple','Purple'],['orange','Orange'],['red','Red'],['green','Green'],['muted','Muted']]
 function ThemePicker({theme,onChange}){return <section className="theme-picker" aria-label="Plan theme"><span>Theme</span><div>{themeOptions.map(([value,label])=><button type="button" key={value} className={`theme-swatch ${value} ${theme===value?'selected':''}`} title={label} aria-label={`${label} theme`} aria-pressed={theme===value} onClick={()=>onChange(value)}><i/></button>)}</div></section>}
 function Edit({id,token}){
   const[trip,setTrip]=useState(),[active,setActive]=useState(),[error,setError]=useState(''),[notice,setNotice]=useState(''),{user,ready}=useCurrentUser()

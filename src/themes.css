@@ -20,107 +20,107 @@
 .theme-green:before{background:radial-gradient(ellipse 95% 74% at 50% -5%,#d0ead9 0%,#edf8f0 46%,rgba(255,255,255,.82) 73%,rgba(255,255,255,0) 100%)!important}
 .theme-muted:before{background:radial-gradient(ellipse 95% 74% at 50% -5%,#dce2e6 0%,#f0f3f5 46%,rgba(255,255,255,.82) 73%,rgba(255,255,255,0) 100%)!important}
 
-.theme-orange,.theme-red,.theme-green,.theme-muted{color:var(--theme-text)!important}
-.theme-orange .viewer header h1,.theme-red .viewer header h1,.theme-green .viewer header h1,.theme-muted .viewer header h1,.theme-orange .edit-header input,.theme-red .edit-header input,.theme-green .edit-header input,.theme-muted .edit-header input,.theme-orange .public-card h2,.theme-red .public-card h2,.theme-green .public-card h2,.theme-muted .public-card h2,.theme-orange .public-slot>time,.theme-red .public-slot>time,.theme-green .public-slot>time,.theme-muted .public-slot>time,.theme-orange .activity-summary h3,.theme-red .activity-summary h3,.theme-green .activity-summary h3,.theme-muted .activity-summary h3{color:var(--theme-text)!important}
+.theme-orange,.theme-red,.theme-green,:is(.theme-muted,.theme-purple){color:var(--theme-text)!important}
+.theme-orange .viewer header h1,.theme-red .viewer header h1,.theme-green .viewer header h1,:is(.theme-muted,.theme-purple) .viewer header h1,.theme-orange .edit-header input,.theme-red .edit-header input,.theme-green .edit-header input,:is(.theme-muted,.theme-purple) .edit-header input,.theme-orange .public-card h2,.theme-red .public-card h2,.theme-green .public-card h2,:is(.theme-muted,.theme-purple) .public-card h2,.theme-orange .public-slot>time,.theme-red .public-slot>time,.theme-green .public-slot>time,:is(.theme-muted,.theme-purple) .public-slot>time,.theme-orange .activity-summary h3,.theme-red .activity-summary h3,.theme-green .activity-summary h3,:is(.theme-muted,.theme-purple) .activity-summary h3{color:var(--theme-text)!important}
 
 /* Shared accent points across the creator and public views. */
-.theme-blue .logo b,.theme-orange .logo b,.theme-red .logo b,.theme-green .logo b,.theme-muted .logo b{color:var(--theme-primary)!important}
-.theme-blue .badge,.theme-orange .badge,.theme-red .badge,.theme-green .badge,.theme-muted .badge{background:var(--theme-soft)!important;color:var(--theme-strong)!important}
-.theme-blue .eyebrow,.theme-orange .eyebrow,.theme-red .eyebrow,.theme-green .eyebrow,.theme-muted .eyebrow,.theme-blue .agenda-label,.theme-orange .agenda-label,.theme-red .agenda-label,.theme-green .agenda-label,.theme-muted .agenda-label{color:var(--theme-strong)!important}
-.theme-blue input:focus,.theme-blue textarea:focus,.theme-orange input:focus,.theme-orange textarea:focus,.theme-red input:focus,.theme-red textarea:focus,.theme-green input:focus,.theme-green textarea:focus,.theme-muted input:focus,.theme-muted textarea:focus{border-color:var(--theme-primary)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--theme-primary) 20%,transparent)!important}
-.theme-blue .primary,.theme-orange .primary,.theme-red .primary,.theme-green .primary,.theme-muted .primary{background:var(--theme-strong)!important}
-.theme-blue .tabs .active,.theme-orange .tabs .active,.theme-red .tabs .active,.theme-green .tabs .active,.theme-muted .tabs .active{background:var(--theme-primary)!important;border-color:var(--theme-primary)!important}
-.theme-blue .public-card,.theme-orange .public-card,.theme-red .public-card,.theme-green .public-card,.theme-muted .public-card{border-left-color:var(--theme-pale)!important}
-.theme-blue .public-card p,.theme-orange .public-card p,.theme-red .public-card p,.theme-green .public-card p,.theme-muted .public-card p{color:color-mix(in srgb,var(--theme-text) 66%,#fff)!important}
-.theme-blue .location,.theme-orange .location,.theme-red .location,.theme-green .location,.theme-muted .location{color:var(--theme-strong)!important}
-.theme-blue .link,.theme-orange .link,.theme-red .link,.theme-green .link,.theme-muted .link{background:var(--theme-soft)!important;color:var(--theme-strong)!important}
-.theme-blue .activity-summary,.theme-orange .activity-summary,.theme-red .activity-summary,.theme-green .activity-summary,.theme-muted .activity-summary{background:var(--theme-soft)!important;border-color:var(--theme-border)!important}
-.theme-blue .activity-summary>div:first-child>b,.theme-orange .activity-summary>div:first-child>b,.theme-red .activity-summary>div:first-child>b,.theme-green .activity-summary>div:first-child>b,.theme-muted .activity-summary>div:first-child>b{color:var(--theme-strong)!important}
-.theme-blue .activity-summary .edit-btn,.theme-orange .activity-summary .edit-btn,.theme-red .activity-summary .edit-btn,.theme-green .activity-summary .edit-btn,.theme-muted .activity-summary .edit-btn{background:var(--theme-strong)!important;border-color:var(--theme-strong)!important}
-.theme-blue .share button,.theme-orange .share button,.theme-red .share button,.theme-green .share button,.theme-muted .share button,.theme-blue .add-activity,.theme-orange .add-activity,.theme-red .add-activity,.theme-green .add-activity,.theme-muted .add-activity{border-color:var(--theme-border)!important;color:var(--theme-strong)!important;background:var(--theme-soft)!important}
-.theme-blue .action-button,.theme-orange .action-button,.theme-red .action-button,.theme-green .action-button,.theme-muted .action-button{border-color:var(--theme-border)!important;color:var(--theme-strong)!important}
-.theme-blue .public-card:has(> .rsvp) .rsvp-action,.theme-blue .public-card:has(> .attendee-list) .attendees-action,.theme-blue .public-card:has(> .payment) .payments-action,.theme-blue .public-card:has(> .comments) .comments-action,.theme-orange .public-card:has(> .rsvp) .rsvp-action,.theme-orange .public-card:has(> .attendee-list) .attendees-action,.theme-orange .public-card:has(> .payment) .payments-action,.theme-orange .public-card:has(> .comments) .comments-action,.theme-red .public-card:has(> .rsvp) .rsvp-action,.theme-red .public-card:has(> .attendee-list) .attendees-action,.theme-red .public-card:has(> .payment) .payments-action,.theme-red .public-card:has(> .comments) .comments-action,.theme-green .public-card:has(> .rsvp) .rsvp-action,.theme-green .public-card:has(> .attendee-list) .attendees-action,.theme-green .public-card:has(> .payment) .payments-action,.theme-green .public-card:has(> .comments) .comments-action,.theme-muted .public-card:has(> .rsvp) .rsvp-action,.theme-muted .public-card:has(> .attendee-list) .attendees-action,.theme-muted .public-card:has(> .payment) .payments-action,.theme-muted .public-card:has(> .comments) .comments-action{background:var(--theme-soft)!important;border-color:var(--theme-primary)!important;color:var(--theme-strong)!important}
-.theme-blue .public-card:has(> .rsvp) .rsvp-action .response-avatar,.theme-blue .public-card:has(> .attendee-list) .attendees-action::after,.theme-blue .public-card:has(> .payment) .payments-action::after,.theme-blue .public-card:has(> .comments) .comments-action::after,.theme-orange .public-card:has(> .rsvp) .rsvp-action .response-avatar,.theme-orange .public-card:has(> .attendee-list) .attendees-action::after,.theme-orange .public-card:has(> .payment) .payments-action::after,.theme-orange .public-card:has(> .comments) .comments-action::after,.theme-red .public-card:has(> .rsvp) .rsvp-action .response-avatar,.theme-red .public-card:has(> .attendee-list) .attendees-action::after,.theme-red .public-card:has(> .payment) .payments-action::after,.theme-red .public-card:has(> .comments) .comments-action::after,.theme-green .public-card:has(> .rsvp) .rsvp-action .response-avatar,.theme-green .public-card:has(> .attendee-list) .attendees-action::after,.theme-green .public-card:has(> .payment) .payments-action::after,.theme-green .public-card:has(> .comments) .comments-action::after,.theme-muted .public-card:has(> .rsvp) .rsvp-action .response-avatar,.theme-muted .public-card:has(> .attendee-list) .attendees-action::after,.theme-muted .public-card:has(> .payment) .payments-action::after,.theme-muted .public-card:has(> .comments) .comments-action::after{background:var(--theme-soft)!important}
-.theme-blue .participant-bubble,.theme-orange .participant-bubble,.theme-red .participant-bubble,.theme-green .participant-bubble,.theme-muted .participant-bubble{background:var(--theme-soft)!important;color:var(--theme-strong)!important}
-.theme-blue .add-going,.theme-orange .add-going,.theme-red .add-going,.theme-green .add-going,.theme-muted .add-going,.theme-blue .add-expense-pill,.theme-orange .add-expense-pill,.theme-red .add-expense-pill,.theme-green .add-expense-pill,.theme-muted .add-expense-pill{color:var(--theme-strong)!important}
-.theme-blue .save-expense,.theme-orange .save-expense,.theme-red .save-expense,.theme-green .save-expense,.theme-muted .save-expense,.theme-blue .settle-tools>button,.theme-orange .settle-tools>button,.theme-red .settle-tools>button,.theme-green .settle-tools>button,.theme-muted .settle-tools>button,.theme-blue .day-payment-toggle,.theme-orange .day-payment-toggle,.theme-red .day-payment-toggle,.theme-green .day-payment-toggle,.theme-muted .day-payment-toggle{background:var(--theme-primary)!important;border-color:var(--theme-primary)!important}
-.theme-blue .settlement p,.theme-orange .settlement p,.theme-red .settlement p,.theme-green .settlement p,.theme-muted .settlement p{background:var(--theme-soft)!important;color:var(--theme-text)!important}
+.theme-blue .logo b,.theme-orange .logo b,.theme-red .logo b,.theme-green .logo b,:is(.theme-muted,.theme-purple) .logo b{color:var(--theme-primary)!important}
+.theme-blue .badge,.theme-orange .badge,.theme-red .badge,.theme-green .badge,:is(.theme-muted,.theme-purple) .badge{background:var(--theme-soft)!important;color:var(--theme-strong)!important}
+.theme-blue .eyebrow,.theme-orange .eyebrow,.theme-red .eyebrow,.theme-green .eyebrow,:is(.theme-muted,.theme-purple) .eyebrow,.theme-blue .agenda-label,.theme-orange .agenda-label,.theme-red .agenda-label,.theme-green .agenda-label,:is(.theme-muted,.theme-purple) .agenda-label{color:var(--theme-strong)!important}
+.theme-blue input:focus,.theme-blue textarea:focus,.theme-orange input:focus,.theme-orange textarea:focus,.theme-red input:focus,.theme-red textarea:focus,.theme-green input:focus,.theme-green textarea:focus,:is(.theme-muted,.theme-purple) input:focus,:is(.theme-muted,.theme-purple) textarea:focus{border-color:var(--theme-primary)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--theme-primary) 20%,transparent)!important}
+.theme-blue .primary,.theme-orange .primary,.theme-red .primary,.theme-green .primary,:is(.theme-muted,.theme-purple) .primary{background:var(--theme-strong)!important}
+.theme-blue .tabs .active,.theme-orange .tabs .active,.theme-red .tabs .active,.theme-green .tabs .active,:is(.theme-muted,.theme-purple) .tabs .active{background:var(--theme-primary)!important;border-color:var(--theme-primary)!important}
+.theme-blue .public-card,.theme-orange .public-card,.theme-red .public-card,.theme-green .public-card,:is(.theme-muted,.theme-purple) .public-card{border-left-color:var(--theme-pale)!important}
+.theme-blue .public-card p,.theme-orange .public-card p,.theme-red .public-card p,.theme-green .public-card p,:is(.theme-muted,.theme-purple) .public-card p{color:color-mix(in srgb,var(--theme-text) 66%,#fff)!important}
+.theme-blue .location,.theme-orange .location,.theme-red .location,.theme-green .location,:is(.theme-muted,.theme-purple) .location{color:var(--theme-strong)!important}
+.theme-blue .link,.theme-orange .link,.theme-red .link,.theme-green .link,:is(.theme-muted,.theme-purple) .link{background:var(--theme-soft)!important;color:var(--theme-strong)!important}
+.theme-blue .activity-summary,.theme-orange .activity-summary,.theme-red .activity-summary,.theme-green .activity-summary,:is(.theme-muted,.theme-purple) .activity-summary{background:var(--theme-soft)!important;border-color:var(--theme-border)!important}
+.theme-blue .activity-summary>div:first-child>b,.theme-orange .activity-summary>div:first-child>b,.theme-red .activity-summary>div:first-child>b,.theme-green .activity-summary>div:first-child>b,:is(.theme-muted,.theme-purple) .activity-summary>div:first-child>b{color:var(--theme-strong)!important}
+.theme-blue .activity-summary .edit-btn,.theme-orange .activity-summary .edit-btn,.theme-red .activity-summary .edit-btn,.theme-green .activity-summary .edit-btn,:is(.theme-muted,.theme-purple) .activity-summary .edit-btn{background:var(--theme-strong)!important;border-color:var(--theme-strong)!important}
+.theme-blue .share button,.theme-orange .share button,.theme-red .share button,.theme-green .share button,:is(.theme-muted,.theme-purple) .share button,.theme-blue .add-activity,.theme-orange .add-activity,.theme-red .add-activity,.theme-green .add-activity,:is(.theme-muted,.theme-purple) .add-activity{border-color:var(--theme-border)!important;color:var(--theme-strong)!important;background:var(--theme-soft)!important}
+.theme-blue .action-button,.theme-orange .action-button,.theme-red .action-button,.theme-green .action-button,:is(.theme-muted,.theme-purple) .action-button{border-color:var(--theme-border)!important;color:var(--theme-strong)!important}
+.theme-blue .public-card:has(> .rsvp) .rsvp-action,.theme-blue .public-card:has(> .attendee-list) .attendees-action,.theme-blue .public-card:has(> .payment) .payments-action,.theme-blue .public-card:has(> .comments) .comments-action,.theme-orange .public-card:has(> .rsvp) .rsvp-action,.theme-orange .public-card:has(> .attendee-list) .attendees-action,.theme-orange .public-card:has(> .payment) .payments-action,.theme-orange .public-card:has(> .comments) .comments-action,.theme-red .public-card:has(> .rsvp) .rsvp-action,.theme-red .public-card:has(> .attendee-list) .attendees-action,.theme-red .public-card:has(> .payment) .payments-action,.theme-red .public-card:has(> .comments) .comments-action,.theme-green .public-card:has(> .rsvp) .rsvp-action,.theme-green .public-card:has(> .attendee-list) .attendees-action,.theme-green .public-card:has(> .payment) .payments-action,.theme-green .public-card:has(> .comments) .comments-action,:is(.theme-muted,.theme-purple) .public-card:has(> .rsvp) .rsvp-action,:is(.theme-muted,.theme-purple) .public-card:has(> .attendee-list) .attendees-action,:is(.theme-muted,.theme-purple) .public-card:has(> .payment) .payments-action,:is(.theme-muted,.theme-purple) .public-card:has(> .comments) .comments-action{background:var(--theme-soft)!important;border-color:var(--theme-primary)!important;color:var(--theme-strong)!important}
+.theme-blue .public-card:has(> .rsvp) .rsvp-action .response-avatar,.theme-blue .public-card:has(> .attendee-list) .attendees-action::after,.theme-blue .public-card:has(> .payment) .payments-action::after,.theme-blue .public-card:has(> .comments) .comments-action::after,.theme-orange .public-card:has(> .rsvp) .rsvp-action .response-avatar,.theme-orange .public-card:has(> .attendee-list) .attendees-action::after,.theme-orange .public-card:has(> .payment) .payments-action::after,.theme-orange .public-card:has(> .comments) .comments-action::after,.theme-red .public-card:has(> .rsvp) .rsvp-action .response-avatar,.theme-red .public-card:has(> .attendee-list) .attendees-action::after,.theme-red .public-card:has(> .payment) .payments-action::after,.theme-red .public-card:has(> .comments) .comments-action::after,.theme-green .public-card:has(> .rsvp) .rsvp-action .response-avatar,.theme-green .public-card:has(> .attendee-list) .attendees-action::after,.theme-green .public-card:has(> .payment) .payments-action::after,.theme-green .public-card:has(> .comments) .comments-action::after,:is(.theme-muted,.theme-purple) .public-card:has(> .rsvp) .rsvp-action .response-avatar,:is(.theme-muted,.theme-purple) .public-card:has(> .attendee-list) .attendees-action::after,:is(.theme-muted,.theme-purple) .public-card:has(> .payment) .payments-action::after,:is(.theme-muted,.theme-purple) .public-card:has(> .comments) .comments-action::after{background:var(--theme-soft)!important}
+.theme-blue .participant-bubble,.theme-orange .participant-bubble,.theme-red .participant-bubble,.theme-green .participant-bubble,:is(.theme-muted,.theme-purple) .participant-bubble{background:var(--theme-soft)!important;color:var(--theme-strong)!important}
+.theme-blue .add-going,.theme-orange .add-going,.theme-red .add-going,.theme-green .add-going,:is(.theme-muted,.theme-purple) .add-going,.theme-blue .add-expense-pill,.theme-orange .add-expense-pill,.theme-red .add-expense-pill,.theme-green .add-expense-pill,:is(.theme-muted,.theme-purple) .add-expense-pill{color:var(--theme-strong)!important}
+.theme-blue .save-expense,.theme-orange .save-expense,.theme-red .save-expense,.theme-green .save-expense,:is(.theme-muted,.theme-purple) .save-expense,.theme-blue .settle-tools>button,.theme-orange .settle-tools>button,.theme-red .settle-tools>button,.theme-green .settle-tools>button,:is(.theme-muted,.theme-purple) .settle-tools>button,.theme-blue .day-payment-toggle,.theme-orange .day-payment-toggle,.theme-red .day-payment-toggle,.theme-green .day-payment-toggle,:is(.theme-muted,.theme-purple) .day-payment-toggle{background:var(--theme-primary)!important;border-color:var(--theme-primary)!important}
+.theme-blue .settlement p,.theme-orange .settlement p,.theme-red .settlement p,.theme-green .settlement p,:is(.theme-muted,.theme-purple) .settlement p{background:var(--theme-soft)!important;color:var(--theme-text)!important}
 .editor .add-new-day{display:block;margin:13px auto 0!important;border:0!important;background:transparent!important;color:var(--theme-strong,#347fa9)!important;padding:7px!important;font-size:.78rem!important;font-weight:700!important;box-shadow:none!important}
 
 /* Final accent audit: these controls originally lived in earlier blue-only CSS. */
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .editor nav a,
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .add-link,
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .link-row button,
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment-record button,
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .split-participants .add-going,
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .receipt-preview{color:var(--theme-strong)!important}
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .public-card>.payment .add-expense-pill{color:var(--theme-strong)!important}
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .split-participants>button:not(.add-going),
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .add-person button,
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .cancel-expense,
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .add-day button:not([type="button"]){border-color:var(--theme-border)!important;background:var(--theme-soft)!important;color:var(--theme-strong)!important}
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .response button,
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .comment-form button{background:var(--theme-primary)!important;border-color:var(--theme-primary)!important;color:#fff!important}
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment-lines{border-left-color:var(--theme-pale)!important}
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .split-participants .add-going{border:0!important;background:transparent!important;box-shadow:none!important}
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment-form .amount-input{border-color:var(--theme-border)!important;color:var(--theme-strong)!important}
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment>b,
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment>b::after,
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment .split-participants>label::after,
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .public-card>.rsvp>b{color:var(--theme-text)!important}
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .settle-tools{border-top-color:var(--theme-border)!important}
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .day-payment-details{border-color:var(--theme-border)!important;background:linear-gradient(180deg,var(--theme-soft) 0%,#fff 100%)!important}
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .day-payment-heading,
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .day-payment-list{border-color:var(--theme-border)!important}
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .day-payment-heading p,
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .day-payment-list span{color:var(--theme-strong)!important}
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .day-payment-balances p{border-color:var(--theme-border)!important;background:var(--theme-soft)!important;color:var(--theme-text)!important}
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .day-payment-balances p b{color:var(--theme-text)!important}
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .name-options button{color:var(--theme-text)!important}
-:is(.theme-orange,.theme-red,.theme-green,.theme-muted) :is(input,textarea,select,label,.payment-record span,.payment-record strong,.day-payment-summary,.day-payment-heading h2){color:var(--theme-text)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .editor nav a,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .add-link,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .link-row button,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .payment-record button,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .split-participants .add-going,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .receipt-preview{color:var(--theme-strong)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .public-card>.payment .add-expense-pill{color:var(--theme-strong)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .split-participants>button:not(.add-going),
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .add-person button,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .cancel-expense,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .add-day button:not([type="button"]){border-color:var(--theme-border)!important;background:var(--theme-soft)!important;color:var(--theme-strong)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .response button,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .comment-form button{background:var(--theme-primary)!important;border-color:var(--theme-primary)!important;color:#fff!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .payment-lines{border-left-color:var(--theme-pale)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .split-participants .add-going{border:0!important;background:transparent!important;box-shadow:none!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .payment-form .amount-input{border-color:var(--theme-border)!important;color:var(--theme-strong)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .payment>b,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .payment>b::after,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .payment .split-participants>label::after,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .public-card>.rsvp>b{color:var(--theme-text)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .settle-tools{border-top-color:var(--theme-border)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .day-payment-details{border-color:var(--theme-border)!important;background:linear-gradient(180deg,var(--theme-soft) 0%,#fff 100%)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .day-payment-heading,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .day-payment-list{border-color:var(--theme-border)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .day-payment-heading p,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .day-payment-list span{color:var(--theme-strong)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .day-payment-balances p{border-color:var(--theme-border)!important;background:var(--theme-soft)!important;color:var(--theme-text)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .day-payment-balances p b{color:var(--theme-text)!important}
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .name-options button{color:var(--theme-text)!important}
+:is(.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) :is(input,textarea,select,label,.payment-record span,.payment-record strong,.day-payment-summary,.day-payment-heading h2){color:var(--theme-text)!important}
 
 /*
   Completion layer: earlier prototype styles used blue literals. Keep those
   layout rules, but funnel every plan-coloured surface through the active
   palette so a non-blue plan cannot inherit a stray blue accent.
 */
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted){
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple){
   --theme-shadow:color-mix(in srgb,var(--theme-strong) 13%,transparent);
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.public-card,.activity-summary,.activity-form,.payment,.rsvp,.attendee-list,.comments,.settlement,.day-payment-details){
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) :is(.public-card,.activity-summary,.activity-form,.payment,.rsvp,.attendee-list,.comments,.settlement,.day-payment-details){
   border-color:var(--theme-border)!important;
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.public-card,.activity-summary,.activity-form){
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) :is(.public-card,.activity-summary,.activity-form){
   box-shadow:0 4px 14px var(--theme-shadow)!important;
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(input,textarea,select){
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) :is(input,textarea,select){
   border-color:var(--theme-border)!important;
   color:var(--theme-text)!important;
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.tabs button,.action-button,.share button,.add-activity,.add-day button,.activity-summary button,.split-participants>button,.add-person button){
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) :is(.tabs button,.action-button,.share button,.add-activity,.add-day button,.activity-summary button,.split-participants>button,.add-person button){
   border-color:var(--theme-border)!important;
   color:var(--theme-strong)!important;
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.tabs button,.action-button,.share button,.activity-summary button,.split-participants>button,.add-person button){
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) :is(.tabs button,.action-button,.share button,.activity-summary button,.split-participants>button,.add-person button){
   background:#fff!important;
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.link,.participant-bubble,.add-activity,.link-row button){
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) :is(.link,.participant-bubble,.add-activity,.link-row button){
   background:var(--theme-soft)!important;
   color:var(--theme-strong)!important;
   border-color:var(--theme-border)!important;
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.range-note,.date-range span,.location,.comment-button,.add-link,.receipt-preview,.payment-record button,.add-going,.add-expense-pill){
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) :is(.range-note,.date-range span,.location,.comment-button,.add-link,.receipt-preview,.payment-record button,.add-going,.add-expense-pill){
   color:var(--theme-strong)!important;
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.split-participants,.comments,.switch,.add-day){
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) :is(.split-participants,.comments,.switch,.add-day){
   border-color:var(--theme-border)!important;
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .participant-bubble button{
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .participant-bubble button{
   border-color:var(--theme-border)!important;
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .activity-summary .edit-btn,
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .primary,
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .create .primary{
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .activity-summary .edit-btn,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .primary,
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .create .primary{
   background:var(--theme-strong)!important;
   border-color:var(--theme-strong)!important;
   color:#fff!important;
@@ -128,48 +128,53 @@
 
 /* The amount is a compound control. Its focus ring belongs on the visible
    wrapper, not the borderless nested input, so it reads as an outside glow. */
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment-form .amount-input:focus-within{
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .payment-form .amount-input:focus-within{
   border-color:var(--theme-primary)!important;
   box-shadow:0 0 0 3px color-mix(in srgb,var(--theme-primary) 22%,transparent)!important;
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .payment-form .amount-input input:focus{
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .payment-form .amount-input input:focus{
   border-color:transparent!important;
   box-shadow:none!important;
 }
 
 /* Final controls that live in the public payment flow and editor. */
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .tabs button.active{
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .tabs button.active{
   background:var(--theme-primary)!important;
   border-color:var(--theme-primary)!important;
   color:#fff!important;
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.public-card>.rsvp,.public-card>.payment,.public-card>.attendee-list,.public-card>.comments,.public-card .split-participants,.public-card .payment-record,.public-card .name-options button+button){
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) :is(.public-card>.rsvp,.public-card>.payment,.public-card>.attendee-list,.public-card>.comments,.public-card .split-participants,.public-card .payment-record,.public-card .name-options button+button){
   border-color:var(--theme-border)!important;
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.public-card .participant-bubble,.public-card .settlement p,.public-card .name-options button:active){
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) :is(.public-card .participant-bubble,.public-card .settlement p,.public-card .name-options button:active){
   background:var(--theme-soft)!important;
   color:var(--theme-text)!important;
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.public-card .add-expense-pill,.public-card>.payment .add-expense-pill){
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) :is(.public-card .add-expense-pill,.public-card>.payment .add-expense-pill){
   color:var(--theme-strong)!important;
   border-color:var(--theme-border)!important;
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.public-card .save-expense,.public-card .settle-tools>button,.public-card .day-payment-toggle){
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) :is(.public-card .save-expense,.public-card .settle-tools>button,.public-card .day-payment-toggle){
   background:var(--theme-primary)!important;
   border-color:var(--theme-primary)!important;
   color:#fff!important;
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.public-card .cancel-expense,.public-card .name-options,.public-card .expense-entry>input,.public-card .expense-entry>.amount-input,.public-card .expense-entry>.name-picker input,.public-card>.comments .comment-form input){
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) :is(.public-card .cancel-expense,.public-card .name-options,.public-card .expense-entry>input,.public-card .expense-entry>.amount-input,.public-card .expense-entry>.name-picker input,.public-card>.comments .comment-form input){
   border-color:var(--theme-border)!important;
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) :is(.public-card .payment-record,.public-card .payment-record span,.public-card .payment-record strong,.public-card>.rsvp>b,.public-card .name-options button){
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) :is(.public-card .payment-record,.public-card .payment-record span,.public-card .payment-record strong,.public-card>.rsvp>b,.public-card .name-options button){
   color:var(--theme-text)!important;
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .activity-actions .action-button::before{
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .activity-actions .action-button::before{
   background:var(--theme-text)!important;
 }
-:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted) .activity-actions .action-button::after{
+:is(.theme-blue,.theme-orange,.theme-red,.theme-green,.theme-muted,.theme-purple) .activity-actions .action-button::after{
   background:#fff!important;
 }
 
 @media(max-width:540px){.theme-picker{padding:20px 0 15px;gap:10px}.theme-picker>div{gap:8px}.theme-swatch i{width:21px;height:21px}}
+
+/* Purple is an independent palette; blue retains its original colors. */
+.theme-purple{--theme-primary:#6050d8;--theme-strong:#5341c4;--theme-soft:#eeebfc;--theme-pale:#e2dcfa;--theme-border:#dedbea;--theme-text:#222632}
+.theme-swatch.purple{--swatch:#6050d8}
+.theme-purple:before{background:radial-gradient(ellipse 95% 74% at 50% -5%,#ded7ff 0%,#f1edff 46%,rgba(255,255,255,.82) 73%,rgba(255,255,255,0) 100%)!important}

@@ -1,5 +1,4 @@
 /* Local reference-inspired experiment; rollback checkpoint: backup/pre-card-redesign-2026-10-17. */
-.apple-preview.theme-blue,.planr-sheet.theme-blue{--theme-primary:#6050d8;--theme-strong:#5341c4;--theme-soft:#eeebfc;--theme-border:#dedbea;--theme-text:#222632}
 .viewer.apple-preview{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;max-width:760px;padding:30px 22px 50px;color:#222632;background:#f7f7fb}
 .viewer.apple-preview::before{background:#f7f7fb!important;position:fixed;inset:0;width:100%;height:100%;z-index:-1}
 .apple-preview nav{gap:16px;align-items:center}
