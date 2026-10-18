@@ -110,7 +110,7 @@ function PublicSlot({slot,trip,day,visitor,refresh,allDays,theme}){
     {rsvp&&<RsvpSheet slot={slot} visitor={visitor} theme={theme} onClose={()=>setRsvp(false)} onSave={status=>send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/attendance`,{name:visitor,status})}/>}
     {payments&&<PaymentSheet slot={slot} trip={trip} day={day} visitor={visitor} refresh={refresh} api={api} theme={theme} onClose={()=>setPayments(false)}/>}
     {comments&&<div className="comments">
-      {slot.comments?.map(c=><p key={c.id}><b className="comment-author">{c.name};</b> {c.body}{c.name.toLowerCase()===visitor.trim().toLowerCase()&&<button type="button" className="delete-comment" onClick={()=>send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/comments/${c.id}`,{name:visitor},'DELETE')}>Delete</button>}</p>)}
+      {slot.comments?.map(c=><p key={c.id}><b className="comment-author">{c.name}:</b> {c.body}{c.name.toLowerCase()===visitor.trim().toLowerCase()&&<button type="button" className="delete-comment" onClick={()=>send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/comments/${c.id}`,{name:visitor},'DELETE')}>Delete</button>}</p>)}
       <form className="comment-form" onSubmit={async e=>{e.preventDefault();if(sending)return;setSending(true);if(await send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/comments`,{name:visitor,body}))setBody('');setSending(false)}}>
         <input aria-label="Leave a comment" placeholder="Leave a comment" value={body} onChange={e=>setBody(e.target.value)}/>
         <button type="submit" disabled={sending||!body.trim()}>{sending?'Sending…':'Send'}</button>

@@ -49,9 +49,9 @@
 .planr-sheet::backdrop{background:rgba(24,26,39,.38);backdrop-filter:blur(3px)}
 .planr-sheet .sheet-content{padding:11px 24px max(28px,env(safe-area-inset-bottom));min-height:420px}
 .planr-sheet .sheet-handle{width:36px;height:4px;border-radius:4px;background:#dcdbe5;margin:0 auto 10px}
-.planr-sheet .sheet-navigation{display:flex;align-items:center;justify-content:space-between;height:30px;margin-bottom:10px}
+.planr-sheet .sheet-navigation{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;height:44px;margin-bottom:10px}
 .planr-sheet .sheet-navigation button{border:0;background:transparent;color:var(--theme-strong);font-size:.9rem;padding:6px 0}
-.planr-sheet .sheet-navigation .sheet-close{display:grid;place-items:center;padding:0;background:#f1f1f6;color:#666875;width:30px;height:30px;border-radius:50%;font-size:1.4rem}
+.planr-sheet .sheet-navigation .sheet-close{position:relative;display:grid;place-items:center;flex:0 0 44px;padding:0;background:#f1f1f6;color:#666875;width:44px;height:44px;border-radius:50%;font-size:1.4rem;touch-action:manipulation}
 .planr-sheet header{padding:0;margin:0 0 24px}
 .planr-sheet h2{font-size:1.65rem;letter-spacing:-.035em;line-height:1.2;margin:0 0 6px;color:#222632}
 .planr-sheet header p{margin:0;color:#737587;font-size:.95rem}
@@ -133,10 +133,11 @@
 .apple-preview .balance-disclosure-inner{min-height:0;overflow:hidden}
 .viewer.apple-preview .balance-disclosure .day-payment-details{animation:none!important;margin:10px 0 0;padding:16px 18px;border:0!important;border-radius:20px;background:#fff!important;box-shadow:none!important}
 /* Override inherited itinerary-header and activity-card typography inside dialogs. */
-.viewer.apple-preview .public-card .planr-sheet:not(.is-entry) header{padding:0 38px 0 0!important;margin:0 0 6px!important}
+.viewer.apple-preview .public-card .planr-sheet header{padding:0!important;position:relative;z-index:0}
+.viewer.apple-preview .public-card .planr-sheet:not(.is-entry) header{padding:0 54px 0 0!important;margin:0 0 6px!important}
 .viewer.apple-preview .public-card .planr-sheet header h2{font-size:2rem!important;line-height:1.1;letter-spacing:-.035em;margin:0 0 3px!important}
-.viewer.apple-preview .public-card .planr-sheet header p{margin:0!important;font-size:.9rem;line-height:1.3;max-width:none}
-.planr-sheet:not(.is-entry) .sheet-handle{margin-bottom:7px}
+.viewer.apple-preview .public-card .planr-sheet header p{display:block;margin:0!important;font-size:.9rem;line-height:1.3;max-width:none}
+.planr-sheet:not(.is-entry) .sheet-handle{margin-bottom:15px}
 .planr-sheet:not(.is-entry):not(.rsvp-sheet) .sheet-ledger .sheet-transaction:first-child{padding-top:12px}
 .viewer.apple-preview .public-card .planr-sheet .sheet-transaction p{margin:4px 0 0 12px!important}
 @media(prefers-reduced-motion:reduce){.apple-preview .balance-disclosure{transition:none}}
