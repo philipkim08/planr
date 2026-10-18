@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { outOfOrder, splitPeople, expenseTotal } from './activity-helpers.js'
+import { outOfOrder, splitPeople, expenseTotal, itineraryPeople } from './activity-helpers.js'
 import { calendarDates, planDateRange } from './plan-dates.js'
 import { SignIn, AccountSettings, PasswordReset } from './account-forms.jsx'
 import { createRoot } from 'react-dom/client'
@@ -34,6 +34,8 @@ import './themes.css'
 import './accounts.css'
 import './fluid-motion.css'
 import './preview-flow.css'
+import './apple-preview.css'
+import {PaymentSheet} from './payment-sheet.jsx'
 const API = import.meta.env.VITE_API_URL || '/api'
 const supabaseUrl=import.meta.env.VITE_SUPABASE_URL,publicKey=import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
 const auth=supabaseUrl&&publicKey?createClient(supabaseUrl,publicKey):null
@@ -70,22 +72,39 @@ function Plans(){
 }
 function CalendarRange({start,end,setStart,setEnd}){const[month,setMonth]=useState(()=>new Date());const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,pretty=value=>value?new Date(`${value}T12:00:00`).toLocaleDateString(undefined,{month:'short',day:'numeric'}):'Select date',choose=value=>{if(!start||end||value<start){setStart(value);setEnd('')}else setEnd(value)};const days=Array.from({length:new Date(month.getFullYear(),month.getMonth()+1,0).getDate()},(_,i)=>new Date(month.getFullYear(),month.getMonth(),i+1));return <section className="range-picker"><p className="date-title">Choose your dates <small>{start&&!end?'Now select your end date':''}</small></p><div className="chosen-dates"><span>Start <b>{pretty(start)}</b></span><i>→</i><span>End <b>{pretty(end)}</b></span></div><div className="calendar"><div className="cal-head"><button type="button" onClick={()=>setMonth(new Date(month.getFullYear(),month.getMonth()-1,1))}>‹</button><b>{month.toLocaleDateString(undefined,{month:'long',year:'numeric'})}</b><button type="button" onClick={()=>setMonth(new Date(month.getFullYear(),month.getMonth()+1,1))}>›</button></div><div className="cal-grid">{['S','M','T','W','T','F','S'].map((d,i)=><i key={i}>{d}</i>)}{Array.from({length:days[0].getDay()}).map((_,i)=><span key={`x${i}`}/>)}{days.map(d=>{const v=iso(d),inRange=start&&end&&v>=start&&v<=end;return <button type="button" key={v} className={`${v===start||v===end?'picked':''} ${inRange?'in-range':''}`} onClick={()=>choose(v)}>{d.getDate()}</button>})}</div></div></section>}
 function Tabs({days,active,onChange}){const sorted=[...days].sort((a,b)=>a.order-b.order);return <div className="tabs">{sorted.map(d=><button key={d.id} className={d.id===active?'active':''} onClick={()=>onChange(d.id)}>{d.label}</button>)}</div>}
-function View({id}){const[trip,setTrip]=useState(),[active,setActive]=useState(),[error,setError]=useState(''),[visitor,setVisitor]=useState(()=>localStorage.getItem('planr-visitor-name')||'');useEffect(()=>api(`/trips/${id}`).then(({trip})=>{setTrip(trip);setActive(trip.days[0]?.id)}).catch(e=>setError(e.message)),[id]);const setName=value=>{setVisitor(value);localStorage.setItem('planr-visitor-name',value)};if(error)return <Missing message={error}/>;if(!trip)return <Loading/>;const day=trip.days.find(d=>d.id===active)||trip.days[0];return <main className={`viewer theme-${trip.theme||'blue'}`}><nav><Logo/><span className="nav-actions"><span className="badge">Shared plan</span><AccountNav/></span></nav><header><p className="eyebrow">YOUR ITINERARY</p><h1>{trip.title}</h1><p>{trip.days.length>1?'Choose a day below':'Here’s the plan'}</p><label className="visitor-name">Your name<input placeholder="So your replies show up correctly" value={visitor} onChange={e=>setName(e.target.value)}/></label></header>{trip.days.length>1&&<Tabs days={trip.days} active={day.id} onChange={setActive}/>}<section className="agenda"><p className="agenda-label">{day.label}</p>{ordered(day).map(slot=><PublicSlot key={slot.id} slot={slot} allDays={trip.days} trip={id} day={day.id} visitor={visitor} refresh={setTrip}/>)}{!day.timeslots.length&&<div className="empty">Nothing planned yet.</div>}<DayPaymentSummary day={day}/></section><footer>Made with <b>● planr</b></footer></main>}
-function PublicSlot({slot,trip,day,visitor,refresh,allDays}){
+function View({id}){
+  const[trip,setTrip]=useState(),[active,setActive]=useState(),[error,setError]=useState(''),[visitor,setVisitor]=useState(()=>localStorage.getItem('planr-visitor-name')||''),[changingName,setChangingName]=useState(()=>!localStorage.getItem('planr-visitor-name'))
+  useEffect(()=>api(`/trips/${id}`).then(({trip})=>{setTrip(trip);setActive(trip.days[0]?.id)}).catch(e=>setError(e.message)),[id])
+  const setName=value=>{setVisitor(value);localStorage.setItem('planr-visitor-name',value)}
+  if(error)return <Missing message={error}/>
+  if(!trip)return <Loading/>
+  const day=trip.days.find(d=>d.id===active)||trip.days[0],people=itineraryPeople(trip.days)
+  return <main className={`viewer apple-preview theme-${trip.theme||'blue'}`}>
+    <nav><Logo/><button className="visitor-greeting" type="button" onClick={()=>setChangingName(!changingName)}>{visitor?`Hi ${visitor} · change`:'Add your name'}</button></nav>
+    <header><h1>{trip.title}</h1><p className="plan-subtitle">{planDateRange(trip.days)}{people.length?` · ${people.length} ${people.length===1?'person':'people'}`:''}</p>
+      {(!visitor||changingName)&&<form className="visitor-editor" onSubmit={e=>{e.preventDefault();setChangingName(false)}}><label>Your name<input aria-label="Your name" placeholder="So friends know it’s you" value={visitor} onChange={e=>setName(e.target.value)}/></label><button type="submit">Done</button></form>}
+    </header>
+    <DayPaymentSummary key={day.id} day={day} visitor={visitor}/>
+    {trip.days.length>1&&<Tabs days={trip.days} active={day.id} onChange={setActive}/>}
+    <section className="agenda" aria-label={day.label}>{ordered(day).map(slot=><PublicSlot key={slot.id} slot={slot} allDays={trip.days} theme={trip.theme} trip={id} day={day.id} visitor={visitor} refresh={setTrip}/>)}{!day.timeslots.length&&<div className="empty">Nothing planned yet.</div>}</section>
+    <footer>Made with <b>● planr</b></footer>
+  </main>
+}
+function PublicSlot({slot,trip,day,visitor,refresh,allDays,theme}){
   const[status,setStatus]=useState('going'),[body,setBody]=useState(''),[rsvp,setRsvp]=useState(false),[payments,setPayments]=useState(false),[comments,setComments]=useState(false),[attendees,setAttendees]=useState(false),[message,setMessage]=useState(''),[sending,setSending]=useState(false)
   const send=async(path,payload,method='POST')=>{try{const r=await api(path,{method,body:JSON.stringify(payload)});refresh(r.trip);setMessage('Saved');setTimeout(()=>setMessage(''),1400);return true}catch(e){setMessage(e.message);return false}}
   const links=slot.links||(slot.link?[slot.link]:[]),responses=slot.attendance||[],goingResponses=responses.filter(x=>x.status==='going'),response=responses.find(x=>x.name.toLowerCase()===visitor.trim().toLowerCase())
   const marker={going:'✓','not-going':'×',maybe:'–'}[response?.status],markerClass=response?.status||''
   const total=expenseTotal(slot),totalLabel=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:total%1?2:0,maximumFractionDigits:2}).format(total)
-  return <article className="public-slot"><time>{fmt(slot.time)}</time><div className="public-card">
+  return <article className="public-slot"><div className="public-card"><time>{fmt(slot.time)}</time>
     <h2>{slot.title}</h2>
     {slot.location_text&&<p className="location">⌖ {slot.location_text}</p>}
     {slot.notes&&<p>{slot.notes}</p>}
     {links.map((link,i)=><a key={i} className="link" href={link} target="_blank" rel="noreferrer">↗ Link {links.length>1?i+1:''}</a>)}
     <div className="activity-actions compact-actions">
-      {slot.attendance_required&&<button type="button" className="action-button rsvp-action" aria-expanded={rsvp} onClick={()=>{setStatus(response?.status||'going');setRsvp(!rsvp)}}>{response&&<span className={`response-avatar ${markerClass}`}>{initials(visitor)}<i>{marker}</i></span>}<span>RSVP</span></button>}
-      {slot.splitting_payments&&<button type="button" className="action-button payments-action" aria-label={`Expenses: ${totalLabel}`} aria-expanded={payments} onClick={()=>setPayments(!payments)}><span className="payment-chip-icon" aria-hidden="true"/><span>{totalLabel}</span></button>}
-      <button type="button" className="action-button comments-action" aria-label={`Comments (${slot.comments?.length||0})`} aria-expanded={comments} onClick={()=>setComments(!comments)}><span className="comment-chip-icon" aria-hidden="true"/><span>({slot.comments?.length||0})</span></button>
+      {slot.attendance_required&&<button type="button" className={`action-button rsvp-action ${response?.status==='going'?'is-going':''}`} aria-expanded={rsvp} onClick={()=>{setStatus(response?.status||'going');setRsvp(!rsvp)}}>{response&&<span className="rsvp-status-mark" aria-hidden="true">{marker}</span>}<span>{response?({going:'Going',maybe:'Maybe','not-going':'Can’t go'})[response.status]:'RSVP'}</span></button>}
+      {slot.splitting_payments&&<button type="button" className="action-button payments-action" aria-label={`Expenses: ${totalLabel}`} aria-expanded={payments} onClick={()=>setPayments(!payments)}><span>{total?totalLabel:'+ Add cost'}</span>{total>0&&splitPeople(slot).length>0&&<span className="chip-people">· {splitPeople(slot).length} people</span>}</button>}
+      <button type="button" className="action-button comments-action" aria-label={`Comments (${slot.comments?.length||0})`} aria-expanded={comments} onClick={()=>setComments(!comments)}><span className="comment-chip-icon" aria-hidden="true"/>{slot.comments?.length>0&&<span>{slot.comments.length}</span>}</button>
     </div>
     {rsvp&&<div className="rsvp">
       <b>Will you be there?</b>
@@ -94,7 +113,7 @@ function PublicSlot({slot,trip,day,visitor,refresh,allDays}){
       <button className="show-attendees" type="button" aria-expanded={attendees} onClick={()=>setAttendees(!attendees)}>{attendees?'Hide attendees':`Show attendees · ${goingResponses.length} going`} <span aria-hidden="true">{attendees?'⌃':'⌄'}</span></button>
       {attendees&&<div className="attendee-list">{responses.length?responses.map(a=><div key={a.name}><span className={`status-dot ${a.status}`}>{({going:'✓',maybe:'–','not-going':'×'})[a.status]}</span><b>{a.name}</b><small>{a.status==='not-going'?'Can’t go':a.status[0].toUpperCase()+a.status.slice(1)}</small></div>):<small>No responses yet.</small>}</div>}
     </div>}
-    {payments&&<PaymentSplit allDays={allDays} slot={slot} trip={trip} day={day} visitor={visitor} refresh={refresh}/>}
+    {payments&&<PaymentSheet slot={slot} trip={trip} day={day} visitor={visitor} refresh={refresh} api={api} theme={theme} onClose={()=>setPayments(false)}/>}
     {comments&&<div className="comments">
       {slot.comments?.map(c=><p key={c.id}><b className="comment-author">{c.name};</b> {c.body}{c.name.toLowerCase()===visitor.trim().toLowerCase()&&<button type="button" className="delete-comment" onClick={()=>send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/comments/${c.id}`,{name:visitor},'DELETE')}>Delete</button>}</p>)}
       <form className="comment-form" onSubmit={async e=>{e.preventDefault();if(sending)return;setSending(true);if(await send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/comments`,{name:visitor,body}))setBody('');setSending(false)}}>
@@ -106,14 +125,19 @@ function PublicSlot({slot,trip,day,visitor,refresh,allDays}){
     {message&&<small className="saved" role="status">{message}</small>}
   </div></article>
 }
-function DayPaymentSummary({day}){
+function DayPaymentSummary({day,visitor}){
   const [open,setOpen]=useState(false),money=value=>`$${Number(value||0).toFixed(2)}`,amount=value=>parseFloat(String(value||'').replace(/[^0-9.]/g,''))||0,entries=ordered(day).flatMap(slot=>(slot.payments||[]).map(payment=>({...payment,slot}))).filter(payment=>amount(payment.amount)>0)
   if(!entries.length)return null
   const labels=new Map(),key=name=>String(name||'').trim().toLocaleLowerCase(),label=name=>{const cleaned=String(name||'').trim(),id=key(cleaned);if(!labels.has(id))labels.set(id,cleaned);return labels.get(id)},balances=new Map(),add=(name,value)=>{const display=label(name);balances.set(key(display),(balances.get(key(display))||0)+value)},incomplete=[]
   ordered(day).forEach(slot=>{const payments=(slot.payments||[]).filter(payment=>amount(payment.amount)>0),total=payments.reduce((sum,payment)=>sum+amount(payment.amount),0),people=splitPeople(slot);if(!total)return;if(!people.length){incomplete.push(slot.title);return}people.forEach(person=>add(person,-total/people.length));payments.forEach(payment=>add(payment.paid_by,amount(payment.amount)))});
   const creditors=[...balances].filter(([,value])=>value>.005).map(([id,value])=>({name:labels.get(id),value})),debtors=[...balances].filter(([,value])=>value<-.005).map(([id,value])=>({name:labels.get(id),value:-value})),transfers=[]
   debtors.forEach(debtor=>creditors.forEach(creditor=>{const value=Math.min(debtor.value,creditor.value);if(value>.005){transfers.push({from:debtor.name,to:creditor.name,amount:Math.round(value*100)/100});debtor.value-=value;creditor.value-=value}}))
-  return <section className="day-payment-summary"><button type="button" className="day-payment-toggle" aria-expanded={open} onClick={()=>setOpen(!open)}>Day expenses <i>{open?'⌃':'⌄'}</i></button>{open&&<div className="day-payment-details"><div className="day-payment-balances">{incomplete.length>0&&<small>{incomplete.length===1?`${incomplete[0]} needs people added before it can be included.`:`${incomplete.length} activities need people added before they can be included.`}</small>}{transfers.length?transfers.map((transfer,index)=><p key={index}><b>{transfer.from}</b> should pay <b>{transfer.to}</b> {money(transfer.amount)}</p>):<p className="settled">Everyone is settled up for the included expenses.</p>}</div></div>}</section>
+  const net=balances.get(key(visitor))||0,headline=incomplete.length?'Partial day balance':!visitor?'Day expenses':net<-.005?'You owe':net>.005?'You’re owed':'You’re settled up',displayAmount=visitor?Math.abs(net):entries.reduce((sum,p)=>sum+amount(p.amount),0)
+  return <section className="day-payment-summary">
+    <div className="balance-banner"><div><span>{headline}</span><strong>{money(displayAmount)}</strong></div><button type="button" className="day-payment-toggle" aria-expanded={open} onClick={()=>setOpen(!open)}>{open?'Hide balances':'View balances'} <i>{open?'⌃':'⌄'}</i></button></div>
+    {open&&<div className="day-payment-details"><p className="balance-day-label">{day.label} · Suggested repayments</p><div className="day-payment-balances">{incomplete.length>0&&<small>{incomplete.length===1?`${incomplete[0]} needs people added before it can be included.`:`${incomplete.length} activities need people added before they can be included.`}</small>}{transfers.length?transfers.map((transfer,index)=><p key={index}><b>{transfer.from}</b> should pay <b>{transfer.to}</b> {money(transfer.amount)}</p>):<p className="settled">Everyone is settled up for the included expenses.</p>}</div><small>No money is moved through planr.</small></div>}
+  </section>
+
 }
 function PlanList({trips,onDeleted}){
   const [deleting,setDeleting]=useState(null),[error,setError]=useState('')
@@ -132,56 +156,6 @@ function PlanList({trips,onDeleted}){
     </article>)}
   </section>
 }
-function PaymentSplit({slot,trip,day,visitor,refresh,allDays=[]}){
-  const [savingPeople,setSavingPeople]=useState(false)
-  const payerPicker=useRef(null)
-  const initialParticipants=splitPeople(slot)
-  const[paid_by,setPaidBy]=useState(visitor),[amount,setAmount]=useState(''),[note,setNote]=useState(''),[message,setMessage]=useState(''),[editing,setEditing]=useState(''),[participants,setParticipants]=useState(initialParticipants),[newPerson,setNewPerson]=useState(''),[addingPerson,setAddingPerson]=useState(false),[adding,setAdding]=useState(false),[showNameOptions,setShowNameOptions]=useState(false),pendingPeople=useRef(Promise.resolve()),nameInput=useRef(null)
-  useEffect(()=>{if(!paid_by)setPaidBy(visitor)},[visitor])
-  useEffect(()=>{
-    if(!showNameOptions)return
-    const dismissOutside=event=>{if(!payerPicker.current?.contains(event.target))setShowNameOptions(false)}
-    document.addEventListener('pointerdown',dismissOutside)
-    document.addEventListener('focusin',dismissOutside)
-    return()=>{document.removeEventListener('pointerdown',dismissOutside);document.removeEventListener('focusin',dismissOutside)}
-  },[showNameOptions])
-  useEffect(()=>setParticipants(splitPeople(slot)),[slot.id,slot.payment_participants,slot.payment_participants_configured,slot.payment_manual_participants,slot.payment_excluded_participants,slot.attendance])
-  const money=x=>`$${Number(x||0).toFixed(2)}`
-  const persistPeople=next=>{setParticipants(next);pendingPeople.current=pendingPeople.current.then(()=>api(`/trips/${trip}/days/${day}/timeslots/${slot.id}/payment-participants`,{method:'PUT',body:JSON.stringify({participants:next})})).then(r=>{refresh(r.trip);setMessage(next.length?'People splitting saved':'People splitting cleared');return true}).catch(e=>{setMessage(e.message);return false});return pendingPeople.current}
-  const clearEntry=()=>{setPaidBy(visitor);setAmount('');setNote('');setShowNameOptions(false);setAdding(false)}
-  const save=async()=>{try{const r=await api(`/trips/${trip}/days/${day}/timeslots/${slot.id}/payments`,{method:'POST',body:JSON.stringify({paid_by,amount,note})});refresh(r.trip);clearEntry();setMessage('Payment added')}catch(e){setMessage(e.message)}}
-  const change=async p=>{try{const r=await api(`/trips/${trip}/days/${day}/timeslots/${slot.id}/payments/${p.id}`,{method:'PUT',body:JSON.stringify(p)});refresh(r.trip);setEditing('')}catch(e){setMessage(e.message)}}
-  const addPeople=async names=>{
-    if(savingPeople)return
-    if(!names.length)return setMessage('Enter a name.')
-    setSavingPeople(true)
-    if(await persistPeople(uniqueNames([...participants,...names]))){setNewPerson('');setAddingPerson(false)}
-    setSavingPeople(false)
-  }
-  const addPerson=()=>addPeople(newPerson.trim()?[newPerson]:[])
-  const choosePayer=name=>{setPaidBy(name);setShowNameOptions(false);nameInput.current?.blur()}
-  return <div className="payment ledger-flow">
-    <div className="payment-lines">{!slot.payments?.length&&<p className="no-expenses">No expenses yet.</p>}{slot.payments?.map(p=>editing===p.id?<PaymentEditor key={p.id} payment={p} save={change} cancel={()=>setEditing('')}/>:<div className="payment-record" key={p.id}><span><strong className="expense-description"><span>{p.paid_by} paid {money(p.amount)}{p.note?' for':''}</span>{p.note&&<span className="expense-item">{p.note}</span>}</strong></span><span className="payment-controls"><button type="button" onClick={()=>setEditing(p.id)}>Edit</button></span></div>)}</div>
-    {adding?<div className="payment-form expense-entry">
-      <div className="name-picker" ref={payerPicker} onKeyDown={e=>{if(e.key==='Escape'){setShowNameOptions(false);nameInput.current?.blur()}}}>
-        <input ref={nameInput} aria-label="Who paid" autoComplete="off" placeholder="Name" value={paid_by} onFocus={()=>setShowNameOptions(true)} onClick={()=>setShowNameOptions(true)} onChange={e=>{setPaidBy(e.target.value);setShowNameOptions(true)}}/>
-        {participants.length>0&&<div className={`name-options ${showNameOptions?'is-open':''}`} aria-hidden={!showNameOptions} inert={showNameOptions?undefined:''} aria-label="People splitting this activity">{participants.map(name=><button type="button" key={name} tabIndex={showNameOptions?0:-1} onClick={()=>choosePayer(name)}>{name}</button>)}</div>}
-      </div>
-      <label className="amount-input">$<input inputMode="decimal" placeholder="Amount" value={amount} onChange={e=>setAmount(e.target.value.replace('$',''))}/></label>
-      <input placeholder="For?" value={note} onChange={e=>setNote(e.target.value)}/>
-      <div className="expense-entry-actions"><button type="button" className="save-expense" onClick={save}>Add</button><button type="button" className="cancel-expense" onClick={clearEntry}>Cancel</button></div>
-    </div>:<button type="button" className="add-expense-pill" onClick={()=>setAdding(true)}>+ Add expense</button>}
-    <div className="split-participants">
-      <label>Split with</label>
-      <div className="participant-bubbles">{participants.map(name=><span className="participant-bubble" key={name}>{name}<button type="button" disabled={savingPeople} aria-label={`Remove ${name}`} onClick={()=>persistPeople(participants.filter(person=>person.toLowerCase()!==name.toLowerCase()))}>×</button></span>)}<button type="button" className="add-person-circle" aria-label="Add a person" aria-expanded={addingPerson} disabled={savingPeople} onClick={()=>setAddingPerson(!addingPerson)}>+</button></div>
-      {addingPerson&&<div className="people-adder">
-        <form className="add-person" onSubmit={e=>{e.preventDefault();addPerson()}}><input autoFocus aria-label="New person's name" placeholder="Name" value={newPerson} disabled={savingPeople} onChange={e=>setNewPerson(e.target.value)}/><button type="submit" disabled={savingPeople||!newPerson.trim()}>{savingPeople?'Adding…':'Add'}</button><button type="button" className="cancel-person" disabled={savingPeople} onClick={()=>{setAddingPerson(false);setNewPerson('')}}>Cancel</button></form>
-      </div>}
-    </div>
-    {message&&<small className="saved">{message}</small>}
-  </div>
-}
-function PaymentEditor({payment,save,cancel}){const[p,setP]=useState(payment);return <div className="payment-editor"><input value={p.paid_by} onChange={e=>setP({...p,paid_by:e.target.value})}/><input placeholder="Amount" value={p.amount||''} onChange={e=>setP({...p,amount:e.target.value})}/><input placeholder="What was paid for" value={p.note||''} onChange={e=>setP({...p,note:e.target.value})}/><button type="button" onClick={()=>save(p)}>Save</button><button type="button" className="delete-payment" onClick={()=>save({...p,delete:true})}>Delete</button><button type="button" onClick={cancel}>Cancel</button></div>}
 const themeOptions=[['blue','Blue'],['orange','Orange'],['red','Red'],['green','Green'],['muted','Muted']]
 function ThemePicker({theme,onChange}){return <section className="theme-picker" aria-label="Plan theme"><span>Theme</span><div>{themeOptions.map(([value,label])=><button type="button" key={value} className={`theme-swatch ${value} ${theme===value?'selected':''}`} title={label} aria-label={`${label} theme`} aria-pressed={theme===value} onClick={()=>onChange(value)}><i/></button>)}</div></section>}
 function Edit({id,token}){
