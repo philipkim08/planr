@@ -31,7 +31,7 @@
 .viewer.apple-preview .activity-actions.compact-actions .comments-action>span:last-child{font-size:.78rem}
 .apple-preview .rsvp-status-mark{font-size:1rem}
 .apple-preview .chip-people{font-size:.72rem}
-.viewer.apple-preview .day-payment-summary{width:100%;margin:0 0 8px;color:#222632}
+.viewer.apple-preview .day-payment-summary{width:100%!important;max-width:100%;min-width:0;margin:0 0 8px!important;color:#222632}
 .apple-preview .balance-banner{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:19px 20px;border-radius:22px;background:var(--theme-soft)}
 .apple-preview .balance-banner>div{display:flex;flex-direction:column;gap:5px;min-width:0;color:var(--theme-strong)}
 .apple-preview .balance-banner span{font-size:.85rem;font-weight:600}
