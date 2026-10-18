@@ -40,7 +40,7 @@ export function PaymentSheet({slot,trip,day,visitor,refresh,api,theme,onClose}){
     {addingPerson&&<div className="sheet-add-person"><input autoFocus aria-label="New person's name" placeholder="Name" value={newPerson} onChange={e=>setNewPerson(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addPerson()}}}/><button type="button" disabled={busy||!newPerson.trim()} onClick={addPerson}>Add</button></div>}
     <small>Applies to all expenses in this activity. Going guests are included automatically.</small>
   </div>
-  return <dialog ref={dialog} className={`planr-sheet theme-${theme||'blue'}`} aria-labelledby="payment-sheet-title" onCancel={e=>{e.preventDefault();if(!busy)onClose()}} onClick={e=>{if(e.target===e.currentTarget&&!busy)onClose()}}>
+  return <dialog ref={dialog} className={`planr-sheet ${entry?'is-entry':''} theme-${theme||'blue'}`} aria-labelledby="payment-sheet-title" onCancel={e=>{e.preventDefault();if(!busy)onClose()}} onClick={e=>{if(e.target===e.currentTarget&&!busy)onClose()}}>
     <div className="sheet-content">
       <div className="sheet-handle" aria-hidden="true"/>
       <div className="sheet-navigation">{entry?<button type="button" disabled={busy} onClick={()=>{setEntry(null);setEditPeople(false);setError('')}}>‹ Back</button>:<span/>}<button type="button" className="sheet-close" aria-label="Close payments" disabled={busy} onClick={onClose}>×</button></div>

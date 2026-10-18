@@ -36,6 +36,7 @@ import './fluid-motion.css'
 import './preview-flow.css'
 import './apple-preview.css'
 import {PaymentSheet} from './payment-sheet.jsx'
+import {RsvpSheet} from './rsvp-sheet.jsx'
 const API = import.meta.env.VITE_API_URL || '/api'
 const supabaseUrl=import.meta.env.VITE_SUPABASE_URL,publicKey=import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
 const auth=supabaseUrl&&publicKey?createClient(supabaseUrl,publicKey):null
@@ -91,7 +92,7 @@ function View({id}){
   </main>
 }
 function PublicSlot({slot,trip,day,visitor,refresh,allDays,theme}){
-  const[status,setStatus]=useState('going'),[body,setBody]=useState(''),[rsvp,setRsvp]=useState(false),[payments,setPayments]=useState(false),[comments,setComments]=useState(false),[attendees,setAttendees]=useState(false),[message,setMessage]=useState(''),[sending,setSending]=useState(false)
+  const[body,setBody]=useState(''),[rsvp,setRsvp]=useState(false),[payments,setPayments]=useState(false),[comments,setComments]=useState(false),[message,setMessage]=useState(''),[sending,setSending]=useState(false)
   const send=async(path,payload,method='POST')=>{try{const r=await api(path,{method,body:JSON.stringify(payload)});refresh(r.trip);setMessage('Saved');setTimeout(()=>setMessage(''),1400);return true}catch(e){setMessage(e.message);return false}}
   const links=slot.links||(slot.link?[slot.link]:[]),responses=slot.attendance||[],goingResponses=responses.filter(x=>x.status==='going'),response=responses.find(x=>x.name.toLowerCase()===visitor.trim().toLowerCase())
   const marker={going:'✓','not-going':'×',maybe:'–'}[response?.status],markerClass=response?.status||''
@@ -102,17 +103,11 @@ function PublicSlot({slot,trip,day,visitor,refresh,allDays,theme}){
     {slot.notes&&<p>{slot.notes}</p>}
     {links.map((link,i)=><a key={i} className="link" href={link} target="_blank" rel="noreferrer">↗ Link {links.length>1?i+1:''}</a>)}
     <div className="activity-actions compact-actions">
-      {slot.attendance_required&&<button type="button" className={`action-button rsvp-action ${response?.status==='going'?'is-going':''}`} aria-expanded={rsvp} onClick={()=>{setStatus(response?.status||'going');setRsvp(!rsvp)}}>{response&&<span className="rsvp-status-mark" aria-hidden="true">{marker}</span>}<span>{response?({going:'Going',maybe:'Maybe','not-going':'Can’t go'})[response.status]:'RSVP'}</span></button>}
+      {slot.attendance_required&&<button type="button" className={`action-button rsvp-action ${response?`status-${response.status}`:''}`} aria-expanded={rsvp} onClick={()=>setRsvp(!rsvp)}>{response&&<span className="rsvp-status-mark" aria-hidden="true">{marker}</span>}<span>{response?({going:'Going',maybe:'Maybe','not-going':'Can’t go'})[response.status]:'RSVP'}</span></button>}
       {slot.splitting_payments&&<button type="button" className="action-button payments-action" aria-label={`Expenses: ${totalLabel}`} aria-expanded={payments} onClick={()=>setPayments(!payments)}><span>{total?totalLabel:'+ Add cost'}</span>{total>0&&splitPeople(slot).length>0&&<span className="chip-people">· {splitPeople(slot).length} people</span>}</button>}
       <button type="button" className="action-button comments-action" aria-label={`Comments (${slot.comments?.length||0})`} aria-expanded={comments} onClick={()=>setComments(!comments)}><span className="comment-chip-icon" aria-hidden="true"/>{slot.comments?.length>0&&<span>{slot.comments.length}</span>}</button>
     </div>
-    {rsvp&&<div className="rsvp">
-      <b>Will you be there?</b>
-      <div className="response"><select aria-label="Your RSVP" value={status} onChange={e=>setStatus(e.target.value)}><option value="going">Going</option><option value="maybe">Maybe</option><option value="not-going">Can’t go</option></select><button type="button" onClick={async()=>{await send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/attendance`,{name:visitor,status})}}>Save RSVP</button></div>
-      {!visitor&&<small>Enter your name above before saving.</small>}
-      <button className="show-attendees" type="button" aria-expanded={attendees} onClick={()=>setAttendees(!attendees)}>{attendees?'Hide attendees':`Show attendees · ${goingResponses.length} going`} <span aria-hidden="true">{attendees?'⌃':'⌄'}</span></button>
-      {attendees&&<div className="attendee-list">{responses.length?responses.map(a=><div key={a.name}><span className={`status-dot ${a.status}`}>{({going:'✓',maybe:'–','not-going':'×'})[a.status]}</span><b>{a.name}</b><small>{a.status==='not-going'?'Can’t go':a.status[0].toUpperCase()+a.status.slice(1)}</small></div>):<small>No responses yet.</small>}</div>}
-    </div>}
+    {rsvp&&<RsvpSheet slot={slot} visitor={visitor} theme={theme} onClose={()=>setRsvp(false)} onSave={status=>send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/attendance`,{name:visitor,status})}/>}
     {payments&&<PaymentSheet slot={slot} trip={trip} day={day} visitor={visitor} refresh={refresh} api={api} theme={theme} onClose={()=>setPayments(false)}/>}
     {comments&&<div className="comments">
       {slot.comments?.map(c=><p key={c.id}><b className="comment-author">{c.name};</b> {c.body}{c.name.toLowerCase()===visitor.trim().toLowerCase()&&<button type="button" className="delete-comment" onClick={()=>send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/comments/${c.id}`,{name:visitor},'DELETE')}>Delete</button>}</p>)}
