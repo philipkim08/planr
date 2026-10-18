@@ -15,7 +15,7 @@
 .welcome-halo{position:absolute;z-index:-1;left:50%;top:45%;width:min(480px,110vw);height:340px;transform:translate(-50%,-50%);background:radial-gradient(ellipse,#dfebfa90, #ece8fb50 45%,transparent 70%);pointer-events:none;animation:welcome-light 1400ms ease-out both}
 .welcome-refresh .landing-intro h1{font-family:inherit;margin:0;color:#222632;letter-spacing:-.06em;line-height:1.05;animation:welcome-arrive 900ms cubic-bezier(.22,1,.36,1) both}
 .welcome-refresh .landing-intro h1>span{display:block;font-size:clamp(1.15rem,4vw,1.6rem);font-weight:450;letter-spacing:-.025em;color:#777c8d;margin-bottom:10px}
-.welcome-refresh .landing-intro h1>strong{display:block;font-size:clamp(4.8rem,19vw,7.4rem);font-weight:650;letter-spacing:-.075em}
+.welcome-refresh .landing-intro h1>strong{display:block;font-size:clamp(4.8rem,19vw,7.4rem);font-weight:650;letter-spacing:-.075em;transform:scaleY(.86);transform-origin:center;line-height:.95}
 .welcome-greeting>p{color:#7b8090;font-size:.95rem;line-height:1.5;margin:19px 0 0;animation:welcome-arrive 900ms 100ms cubic-bezier(.22,1,.36,1) both}
 .welcome-actions{display:flex;flex-direction:column;align-items:center;gap:19px;margin:44px 0 0;width:100%;animation:welcome-arrive 800ms 180ms cubic-bezier(.22,1,.36,1) both}
 .welcome-refresh.landing .landing-cta{display:flex;align-items:center;justify-content:center;gap:28px;width:min(100%,290px);min-height:52px;margin:0;padding:14px 24px;border-radius:999px;background:var(--welcome-accent)!important;color:#fff;font-size:.9rem;font-weight:600!important;box-shadow:none!important}
@@ -33,7 +33,7 @@
 .plans-toolbar>p{margin:0;color:#868999;font-size:.8rem;line-height:1.5}
 .welcome-refresh .plans-toolbar .new-plan-link{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex-shrink:0;min-height:42px;margin:0;padding:10px 17px;border:0;border-radius:999px;background:var(--welcome-accent);color:#fff;font-size:.8rem;font-weight:600;text-decoration:none}
 .welcome-refresh .plan-list{display:grid;gap:13px}
-.welcome-refresh .plan-row{padding:19px 18px;border:1px solid #e2e2ec;border-radius:20px;background:#fff;box-shadow:none;gap:10px}
+.welcome-refresh .plan-row{padding:19px 18px;border:1px solid #e2e2ec;border-left:4px solid var(--theme-primary,#2469bc);border-radius:20px;background:#fff;box-shadow:none;gap:10px}
 .welcome-refresh .plan-open{min-width:0;flex:1;gap:12px}
 .welcome-refresh .plan-open b{font-size:1.05rem;font-weight:650;letter-spacing:-.02em;color:#222632;white-space:normal;overflow-wrap:anywhere}
 .welcome-refresh .plan-open small{font-size:.77rem;color:#898b9a;margin-top:4px;line-height:1.5}
@@ -91,3 +91,13 @@
   .welcome-refresh .account-card{padding:22px;margin-top:30px}
 }
 @media(prefers-reduced-motion:reduce){.welcome-halo,.welcome-refresh .landing-intro h1,.welcome-greeting>p,.welcome-actions{animation:none!important}}
+
+/* The blue dot is brand identity, independent of a plan's selected palette. */
+.home .logo b,.viewer .logo b,.editor .logo b,.account-page .logo b,.center .logo b{display:inline-block!important;width:9px;height:9px;border-radius:50%;background:#6baed6!important;color:#6baed6!important;font-size:0!important;vertical-align:middle;margin:0 7px 3px 0}
+.viewer-welcome .welcome-greeting h1{font-size:clamp(2.6rem,10vw,4rem);font-weight:600;letter-spacing:-.055em;line-height:1.1}
+.viewer-welcome .welcome-greeting .invitation-title{margin:17px auto 0;max-width:340px;font-size:1rem;color:#737587;overflow-wrap:anywhere}
+.viewer-welcome-form{width:min(100%,320px);margin-top:34px;text-align:left}
+.viewer-welcome-form label{font-size:.78rem;color:#737587;margin:0 0 8px}
+.viewer-welcome-form input{width:100%;font-size:16px;border-radius:13px;border:1px solid #dcdde7!important;padding:14px;background:#fff!important;color:#222632;box-shadow:none!important}
+.viewer-welcome-form .primary{display:flex;align-items:center;justify-content:center;gap:24px;width:100%;min-height:50px;margin-top:14px;border-radius:999px;background:#194f91!important;color:#fff;font-size:.9rem;font-weight:600}
+.viewer-welcome .landing-intro .invited-note{margin-top:30px}

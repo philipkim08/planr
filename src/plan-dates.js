@@ -1,4 +1,8 @@
 // ISO dates are stored separately from editable labels for newly created plans.
+export function newestPlansFirst(trips) {
+  const timestamp=trip=>Number.isFinite(Date.parse(trip.created_at))?Date.parse(trip.created_at):0
+  return [...trips].sort((a,b)=>timestamp(b)-timestamp(a))
+}
 export function calendarDates(start,end) {
   if(!start)return []
   const current=new Date(`${start}T12:00:00`),last=new Date(`${end||start}T12:00:00`),dates=[]

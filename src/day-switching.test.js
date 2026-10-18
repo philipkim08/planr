@@ -73,10 +73,36 @@ test('repeated day switches leave exactly one current preview/editor surface and
       await click(button(renderer,b=>hasClass(b,'add-activity')))
       assert.equal(renderer.root.findAllByType('dialog').length,1)
     }
-    assert.equal(warnings.filter(w=>/same key|unique.*key|duplicate/i.test(w)).length,0,'no duplicate React keys')
+    assert.deepEqual(warnings.filter(w=>/^Warning:|React|same key|destroy is not/.test(w)),[],'no duplicate keys or React lifecycle warnings')
   }finally{
     if(renderer)await act(async()=>renderer.unmount())
     console.error=originalError
     Object.assign(globalThis,originals)
   }
+})
+test('a first-time viewer must submit a name; returning viewers skip the welcome',async()=>{
+ const originals={fetch:globalThis.fetch,localStorage:globalThis.localStorage,ResizeObserver:globalThis.ResizeObserver}
+ let stored=''
+ globalThis.fetch=async()=>({ok:true,json:async()=>({trip})})
+ globalThis.localStorage={getItem:()=>stored,setItem:(_key,value)=>{stored=value}}
+ globalThis.ResizeObserver=class{observe(){} disconnect(){}}
+ const options={createNodeMock:()=>({querySelectorAll:()=>[]})}
+ let renderer
+ try{
+   await act(async()=>{renderer=TestRenderer.create(React.createElement(View,{id:'test'}),options)})
+   assert.equal(count(renderer,'viewer-welcome'),1)
+   assert.equal(count(renderer,'agenda'),0)
+   const form=renderer.root.findByType('form')
+   await act(async()=>form.props.onSubmit({preventDefault(){}}))
+   assert.equal(count(renderer,'viewer-welcome'),1,'blank names do not bypass the welcome')
+   await act(async()=>renderer.root.findByType('input').props.onChange({target:{value:'  Sarah  '}}))
+   await act(async()=>renderer.root.findByType('form').props.onSubmit({preventDefault(){}}))
+   assert.equal(stored,'Sarah')
+   assert.equal(count(renderer,'viewer-welcome'),0)
+   assert.equal(count(renderer,'agenda'),1)
+   await act(async()=>renderer.unmount())
+   await act(async()=>{renderer=TestRenderer.create(React.createElement(View,{id:'test'}),options)})
+   assert.equal(count(renderer,'viewer-welcome'),0)
+   assert.equal(count(renderer,'agenda'),1)
+ }finally{if(renderer)await act(async()=>renderer.unmount());Object.assign(globalThis,originals)}
 })

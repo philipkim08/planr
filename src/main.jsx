@@ -1,7 +1,8 @@
+import {readVisitorName,rememberVisitorName} from './visitor-name.js'
 import {themeOptions} from './plan-themes.js'
 import React, { useEffect, useRef, useState } from 'react'
 import { outOfOrder, splitPeople, expenseTotal, itineraryPeople } from './activity-helpers.js'
-import { calendarDates, planDateRange } from './plan-dates.js'
+import { calendarDates, planDateRange, newestPlansFirst } from './plan-dates.js'
 import { SignIn, AccountSettings, PasswordReset } from './account-forms.jsx'
 import { createRoot } from 'react-dom/client'
 import { createClient } from '@supabase/supabase-js'
@@ -56,7 +57,7 @@ function ActivityTime({value,onChange}){
 }
 if (typeof window !== 'undefined') new MutationObserver(() => {document.querySelectorAll('input[type="url"]').forEach((input) => { if (input.placeholder.includes('link')) input.placeholder = 'https://' });document.querySelectorAll('.payment-form input[placeholder="What was paid for? (optional)"]').forEach(input=>{input.placeholder='For?'})}).observe(document.documentElement, { childList: true, subtree: true })
 async function api(path, options={}, token) { const{data:{session}}=auth?await auth.auth.getSession():{data:{session:null}},r=await fetch(`${API}${path}`,{headers:{'Content-Type':'application/json',...(session?{Authorization:`Bearer ${session.access_token}`}:{}),...(token?{'x-edit-token':token}:{}),...options.headers},...options}),data=await r.json();if(!r.ok)throw new Error(data.error||'Something went wrong.');return data }
-const fmt=t=>{if(!t)return 'Any time';const[h,m]=t.split(':').map(Number);return new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit'}).format(new Date(2000,0,1,h,m))}; const initials=name=>{const words=name.trim().split(/\s+/).filter(Boolean);return words.length<2?(words[0]?.[0]||'').toUpperCase():`${words[0][0]}${words[words.length-1][0]}`.toUpperCase()}; const uniqueNames=names=>{const seen=new Set();return names.map(name=>String(name).trim()).filter(name=>{const key=name.toLowerCase();if(!key||seen.has(key))return false;seen.add(key);return true})}; const ordered=d=>[...d.timeslots].sort((a,b)=>a.order-b.order); const Logo=()=> <a className="logo" href="/"><b>●</b> planr</a>;
+const fmt=t=>{if(!t)return 'Any time';const[h,m]=t.split(':').map(Number);return new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit'}).format(new Date(2000,0,1,h,m))}; const initials=name=>{const words=name.trim().split(/\s+/).filter(Boolean);return words.length<2?(words[0]?.[0]||'').toUpperCase():`${words[0][0]}${words[words.length-1][0]}`.toUpperCase()}; const uniqueNames=names=>{const seen=new Set();return names.map(name=>String(name).trim()).filter(name=>{const key=name.toLowerCase();if(!key||seen.has(key))return false;seen.add(key);return true})}; const ordered=d=>[...d.timeslots].sort((a,b)=>a.order-b.order); const Logo=()=> <a className="logo" href="/"><b aria-hidden="true">●</b> planr</a>;
 function range(start,end){if(!start)return[];let a=new Date(`${start}T12:00:00`),b=new Date(`${end||start}T12:00:00`),out=[];if(b<a)return[];for(;a<=b;a.setDate(a.getDate()+1))out.push(new Date(a).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}));return out}
 function useCurrentUser(){const[user,setUser]=useState(null),[ready,setReady]=useState(!auth);useEffect(()=>{if(!auth)return;auth.auth.getUser().then(({data})=>{setUser(data.user||null);setReady(true)});const{data:{subscription}}=auth.auth.onAuthStateChange((_event,session)=>{setUser(session?.user||null);setReady(true)});return()=>subscription.unsubscribe()},[]);return{user,ready}}
 function AccountNav(){const{user,ready}=useCurrentUser();if(!auth||!ready)return null;return <a className="account-nav" href="/plans">{user?'My plans':'Sign in'}</a>}
@@ -106,12 +107,28 @@ function Plans(){
 }
 function CalendarRange({start,end,setStart,setEnd}){const[month,setMonth]=useState(()=>new Date());const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,pretty=value=>value?new Date(`${value}T12:00:00`).toLocaleDateString(undefined,{month:'short',day:'numeric'}):'Select date',choose=value=>{if(!start||end||value<start){setStart(value);setEnd('')}else setEnd(value)};const days=Array.from({length:new Date(month.getFullYear(),month.getMonth()+1,0).getDate()},(_,i)=>new Date(month.getFullYear(),month.getMonth(),i+1));return <section className="range-picker"><p className="date-title">Choose your dates <small>{start&&!end?'Now select your end date':''}</small></p><div className="chosen-dates"><span>Start <b>{pretty(start)}</b></span><i>→</i><span>End <b>{pretty(end)}</b></span></div><div className="calendar"><div className="cal-head"><button type="button" onClick={()=>setMonth(new Date(month.getFullYear(),month.getMonth()-1,1))}>‹</button><b>{month.toLocaleDateString(undefined,{month:'long',year:'numeric'})}</b><button type="button" onClick={()=>setMonth(new Date(month.getFullYear(),month.getMonth()+1,1))}>›</button></div><div className="cal-grid">{['S','M','T','W','T','F','S'].map((d,i)=><i key={i}>{d}</i>)}{Array.from({length:days[0].getDay()}).map((_,i)=><span key={`x${i}`}/>)}{days.map(d=>{const v=iso(d),inRange=start&&end&&v>=start&&v<=end;return <button type="button" key={v} className={`${v===start||v===end?'picked':''} ${inRange?'in-range':''}`} onClick={()=>choose(v)}>{d.getDate()}</button>})}</div></div></section>}
 function Tabs({days,active,onChange}){return <LiquidChoices label="Choose a day" value={active} onChange={onChange} items={[...days].sort((a,b)=>a.order-b.order).map(d=>({value:d.id,label:d.label}))}/>}
+function ViewerWelcome({trip,onContinue}){
+  const[name,setName]=useState('')
+  return <main className="home landing welcome-refresh viewer-welcome">
+    <nav className="home-nav"><Logo/></nav>
+    <section className="landing-intro">
+      <div className="welcome-greeting"><span className="welcome-halo" aria-hidden="true"/><h1>you’re invited.</h1><p className="invitation-title">{trip.title}</p></div>
+      <form className="viewer-welcome-form" onSubmit={e=>{e.preventDefault();if(name.trim())onContinue(name.trim())}}>
+        <label htmlFor="guest-name">What should we call you?</label>
+        <input id="guest-name" name="name" autoComplete="name" required placeholder="Your name" value={name} onChange={e=>setName(e.target.value)}/>
+        <button className="primary" disabled={!name.trim()}>View the plan <span aria-hidden="true">→</span></button>
+      </form>
+      <small className="invited-note">No account needed. Your name helps friends recognize your RSVPs, comments, and expenses.</small>
+    </section>
+  </main>
+}
 function View({id}){
-  const[trip,setTrip]=useState(),[active,setActive]=useState(),[error,setError]=useState(''),[visitor,setVisitor]=useState(()=>localStorage.getItem('planr-visitor-name')||''),[changingName,setChangingName]=useState(()=>!localStorage.getItem('planr-visitor-name'))
-  useEffect(()=>api(`/trips/${id}`).then(({trip})=>{setTrip(trip);setActive(trip.days[0]?.id)}).catch(e=>setError(e.message)),[id])
-  const setName=value=>{setVisitor(value);localStorage.setItem('planr-visitor-name',value)}
+  const[trip,setTrip]=useState(),[active,setActive]=useState(),[error,setError]=useState(''),[visitor,setVisitor]=useState(readVisitorName),[entered,setEntered]=useState(()=>!!readVisitorName()),[changingName,setChangingName]=useState(false)
+  useEffect(()=>{let live=true;api(`/trips/${id}`).then(({trip})=>{if(live){setTrip(trip);setActive(trip.days[0]?.id)}}).catch(e=>{if(live)setError(e.message)});return()=>{live=false}},[id])
+  const setName=value=>{setVisitor(value);rememberVisitorName(value)}
   if(error)return <Missing message={error}/>
   if(!trip)return <Loading/>
+  if(!entered)return <ViewerWelcome trip={trip} onContinue={name=>{setName(name);setEntered(true)}}/>
   const day=trip.days.find(d=>d.id===active)||trip.days[0],people=itineraryPeople(trip.days)
   return <main className={`viewer apple-preview theme-${trip.theme||'blue'}`}>
     <nav><Logo/><button className="visitor-greeting" type="button" onClick={()=>setChangingName(!changingName)}>{visitor?`Hi ${visitor} · change`:'Add your name'}</button></nav>
@@ -178,7 +195,7 @@ function PlanList({trips,onDeleted}){
   }
   return <section className="plan-list">
     {error&&<p className="error" role="alert">{error}</p>}
-    {trips.map(trip=><article key={trip.id} className={`plan-row theme-${trip.theme||'blue'}`}>
+    {newestPlansFirst(trips).map(trip=><article key={trip.id} className={`plan-row theme-${trip.theme||'blue'}`}>
       <a className="plan-open" href={`/edit/${trip.id}`}><span><b>{trip.title}</b><small>{planDateRange(trip.days)}</small></span><i>Open →</i></a>
       <button className="delete-plan" type="button" disabled={deleting!==null} aria-label={`Delete plan: ${trip.title}`} onClick={()=>remove(trip)}>{deleting===trip.id?'Deleting…':'Delete plan'}</button>
     </article>)}
