@@ -1,4 +1,6 @@
-import {readVisitorName,rememberVisitorName} from './visitor-name.js'
+import {readVisitorName,rememberVisitorName,readGuestId} from './visitor-name.js'
+import {guestResponse,isGuest} from './guest-identity.js'
+import {watchSharedPlan} from './shared-plan-refresh.js'
 import {themeOptions} from './plan-themes.js'
 import React, { useEffect, useRef, useState } from 'react'
 import { outOfOrder, splitPeople, expenseTotal, itineraryPeople } from './activity-helpers.js'
@@ -124,7 +126,13 @@ function ViewerWelcome({trip,onContinue}){
 }
 function View({id}){
   const[trip,setTrip]=useState(),[active,setActive]=useState(),[error,setError]=useState(''),[visitor,setVisitor]=useState(readVisitorName),[entered,setEntered]=useState(()=>!!readVisitorName()),[changingName,setChangingName]=useState(false)
-  useEffect(()=>{let live=true;api(`/trips/${id}`).then(({trip})=>{if(live){setTrip(trip);setActive(trip.days[0]?.id)}}).catch(e=>{if(live)setError(e.message)});return()=>{live=false}},[id])
+  const [guestId]=useState(readGuestId),[refreshError,setRefreshError]=useState(''),revision=useRef(0),loaded=useRef(false)
+  const acceptTrip=next=>{revision.current++;setTrip(next)}
+  useEffect(()=>{loaded.current=false;setTrip(undefined);setError('');return watchSharedPlan({
+    load:()=>api(`/trips/${id}`,{cache:'no-store'}),revision:()=>revision.current,
+    apply:({trip:next})=>{loaded.current=true;setTrip(next);setError('');setRefreshError('');setActive(current=>next.days.some(d=>d.id===current)?current:next.days[0]?.id)},
+    onError:e=>loaded.current?setRefreshError('Updates paused. We’ll retry automatically when you’re connected.'):setError(e.message)
+  })},[id])
   const setName=value=>{setVisitor(value);rememberVisitorName(value)}
   if(error)return <Missing message={error}/>
   if(!trip)return <Loading/>
@@ -135,16 +143,17 @@ function View({id}){
     <header><h1>{trip.title}</h1><p className="plan-subtitle">{planDateRange(trip.days)}{people.length?` · ${people.length} ${people.length===1?'person':'people'}`:''}</p>
       {(!visitor||changingName)&&<form className="visitor-editor" onSubmit={e=>{e.preventDefault();setChangingName(false)}}><label>Your name<input aria-label="Your name" placeholder="So friends know it’s you" value={visitor} onChange={e=>setName(e.target.value)}/></label><button type="submit">Done</button></form>}
     </header>
+    {refreshError&&<p role="status" className="sheet-hint">{refreshError}</p>}
     <DayPaymentSummary key={`balances:${day.id}`} day={day} visitor={visitor}/>
     {trip.days.length>1&&<Tabs days={trip.days} active={day.id} onChange={setActive}/>}
-    <section key={`agenda:${day.id}`} className="agenda day-surface" aria-label={day.label}>{ordered(day).map(slot=><PublicSlot key={slot.id} slot={slot} allDays={trip.days} theme={trip.theme} trip={id} day={day.id} visitor={visitor} refresh={setTrip}/>)}{!day.timeslots.length&&<div className="empty">Nothing planned yet.</div>}</section>
+    <section key={`agenda:${day.id}`} className="agenda day-surface" aria-label={day.label}>{ordered(day).map(slot=><PublicSlot key={slot.id} slot={slot} allDays={trip.days} theme={trip.theme} trip={id} day={day.id} visitor={visitor} guestId={guestId} refresh={acceptTrip}/>)}{!day.timeslots.length&&<div className="empty">Nothing planned yet.</div>}</section>
     <footer>Made with <b>● planr</b></footer>
   </main>
 }
-function PublicSlot({slot,trip,day,visitor,refresh,allDays,theme}){
+function PublicSlot({slot,trip,day,visitor,guestId,refresh,allDays,theme}){
   const[body,setBody]=useState(''),[rsvp,setRsvp]=useState(false),[payments,setPayments]=useState(false),[comments,setComments]=useState(false),[message,setMessage]=useState(''),[sending,setSending]=useState(false)
   const send=async(path,payload,method='POST')=>{try{const r=await api(path,{method,body:JSON.stringify(payload)});refresh(r.trip);setMessage('Saved');setTimeout(()=>setMessage(''),1400);return true}catch(e){setMessage(e.message);return false}}
-  const links=slot.links||(slot.link?[slot.link]:[]),responses=slot.attendance||[],goingResponses=responses.filter(x=>x.status==='going'),response=responses.find(x=>x.name.toLowerCase()===visitor.trim().toLowerCase())
+  const links=slot.links||(slot.link?[slot.link]:[]),responses=slot.attendance||[],goingResponses=responses.filter(x=>x.status==='going'),response=guestResponse(responses,guestId,visitor)
   const marker={going:'✓','not-going':'×',maybe:'–'}[response?.status],markerClass=response?.status||''
   const total=expenseTotal(slot),totalLabel=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:total%1?2:0,maximumFractionDigits:2}).format(total)
   return <article className="public-slot"><div className="public-card"><time>{fmt(slot.time)}</time>
@@ -157,11 +166,11 @@ function PublicSlot({slot,trip,day,visitor,refresh,allDays,theme}){
       {slot.splitting_payments&&<button type="button" className="action-button payments-action" aria-label={`Expenses: ${totalLabel}`} aria-expanded={payments} onClick={()=>setPayments(!payments)}><span>{total?totalLabel:'+ Add cost'}</span>{total>0&&splitPeople(slot).length>0&&<span className="chip-people">· {splitPeople(slot).length} people</span>}</button>}
       <button type="button" className="action-button comments-action" aria-label={`Comments (${slot.comments?.length||0})`} aria-expanded={comments} onClick={()=>setComments(!comments)}><span className="comment-chip-icon" aria-hidden="true"/>{slot.comments?.length>0&&<span>{slot.comments.length}</span>}</button>
     </div>
-    {rsvp&&<RsvpSheet slot={slot} visitor={visitor} theme={theme} onClose={()=>setRsvp(false)} onSave={status=>send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/attendance`,{name:visitor,status})}/>}
+    {rsvp&&<RsvpSheet slot={slot} visitor={visitor} guestId={guestId} theme={theme} onClose={()=>setRsvp(false)} onSave={status=>send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/attendance`,{name:visitor,guest_id:guestId,status})}/>}
     {payments&&<PaymentSheet slot={slot} trip={trip} day={day} visitor={visitor} refresh={refresh} api={api} theme={theme} onClose={()=>setPayments(false)}/>}
     {comments&&<div className="comments">
-      {slot.comments?.map(c=><p key={c.id}><b className="comment-author">{c.name}:</b> {c.body}{c.name.toLowerCase()===visitor.trim().toLowerCase()&&<button type="button" className="delete-comment" onClick={()=>send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/comments/${c.id}`,{name:visitor},'DELETE')}>Delete</button>}</p>)}
-      <form className="comment-form" onSubmit={async e=>{e.preventDefault();if(sending)return;setSending(true);if(await send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/comments`,{name:visitor,body}))setBody('');setSending(false)}}>
+      {slot.comments?.map(c=><p key={c.id}><b className="comment-author">{c.name}:</b> {c.body}{isGuest(c,guestId,visitor)&&<button type="button" className="delete-comment" onClick={()=>send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/comments/${c.id}`,{name:visitor,guest_id:guestId},'DELETE')}>Delete</button>}</p>)}
+      <form className="comment-form" onSubmit={async e=>{e.preventDefault();if(sending)return;setSending(true);if(await send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/comments`,{name:visitor,guest_id:guestId,body}))setBody('');setSending(false)}}>
         <input aria-label="Leave a comment" placeholder="Leave a comment" value={body} onChange={e=>setBody(e.target.value)}/>
         <button type="submit" disabled={sending||!body.trim()}>{sending?'Sending…':'Send'}</button>
       </form>

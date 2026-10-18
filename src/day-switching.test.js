@@ -30,6 +30,27 @@ const count=(renderer,name)=>renderer.root.findAll(node=>hasClass(node,name)).le
 const button=(renderer,predicate)=>renderer.root.findAllByType('button').find(predicate)
 const click=async b=>{assert.ok(b,'button exists');await act(async()=>{b.props.onClick()})}
 
+test('background refresh keeps the selected day and unsent comment draft',async()=>{
+ const originals={fetch:globalThis.fetch,localStorage:globalThis.localStorage,window:globalThis.window,document:globalThis.document,ResizeObserver:globalThis.ResizeObserver}
+ let current=structuredClone(trip),renderer
+ globalThis.fetch=async()=>({ok:true,json:async()=>({trip:current})})
+ globalThis.localStorage={getItem:key=>key==='planr-visitor-name'?'Sarah':null,setItem(){}}
+ globalThis.window=new EventTarget();globalThis.document=new EventTarget()
+ globalThis.document.visibilityState='visible'
+ globalThis.ResizeObserver=class{observe(){} disconnect(){}}
+ try{
+  await act(async()=>{renderer=TestRenderer.create(React.createElement(View,{id:'test'}),{createNodeMock:()=>({querySelectorAll:()=>[]})})})
+  await click(button(renderer,b=>b.props['data-value']==='b'))
+  await click(button(renderer,b=>hasClass(b,'comments-action')))
+  await act(async()=>renderer.root.findByProps({'aria-label':'Leave a comment'}).props.onChange({target:{value:'Still typing'}}))
+  current=structuredClone(current);current.days[1].timeslots[0].comments.push({id:'new-comment',name:'Friend',body:'Hello'})
+  await act(async()=>{globalThis.window.dispatchEvent(new Event('focus'))})
+  assert.equal(renderer.root.findByProps({'aria-label':'Leave a comment'}).props.value,'Still typing')
+  assert.equal(renderer.root.findAll(node=>hasClass(node,'agenda'))[0].props['aria-label'],'Day B')
+  assert.equal(renderer.root.findAll(node=>hasClass(node,'comment-author')).length,1)
+ }finally{if(renderer)await act(async()=>renderer.unmount());Object.assign(globalThis,originals)}
+})
+
 test('repeated day switches leave exactly one current preview/editor surface and no orphan windows',async()=>{
   const originals={fetch:globalThis.fetch,localStorage:globalThis.localStorage,document:globalThis.document,location:globalThis.location,ResizeObserver:globalThis.ResizeObserver}
   globalThis.fetch=async()=>({ok:true,json:async()=>({trip})})
@@ -84,7 +105,7 @@ test('a first-time viewer must submit a name; returning viewers skip the welcome
  const originals={fetch:globalThis.fetch,localStorage:globalThis.localStorage,ResizeObserver:globalThis.ResizeObserver}
  let stored=''
  globalThis.fetch=async()=>({ok:true,json:async()=>({trip})})
- globalThis.localStorage={getItem:()=>stored,setItem:(_key,value)=>{stored=value}}
+ globalThis.localStorage={getItem:key=>key==='planr-visitor-name'?stored:null,setItem:(key,value)=>{if(key==='planr-visitor-name')stored=value}}
  globalThis.ResizeObserver=class{observe(){} disconnect(){}}
  const options={createNodeMock:()=>({querySelectorAll:()=>[]})}
  let renderer
