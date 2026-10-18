@@ -93,7 +93,10 @@
 @media(prefers-reduced-motion:reduce){.welcome-halo,.welcome-refresh .landing-intro h1,.welcome-greeting>p,.welcome-actions{animation:none!important}}
 
 /* The blue dot is brand identity, independent of a plan's selected palette. */
-.home .logo b,.viewer .logo b,.editor .logo b,.account-page .logo b,.center .logo b{display:inline-block!important;width:9px;height:9px;border-radius:50%;background:#6baed6!important;color:#6baed6!important;font-size:0!important;vertical-align:middle;margin:0 7px 3px 0}
+.home .logo b,.viewer .logo b,.editor .logo b,.account-page .logo b,.center .logo b{display:inline-block!important;width:11px;height:11px;border-radius:50%;background:#194f91!important;color:#194f91!important;font-size:0!important;vertical-align:middle;margin:0 7px 3px 0}
+.welcome-refresh .account-gear[aria-expanded="true"]{background:#e4ecf7;color:#194f91;border-radius:10px}
+.account-page.welcome-refresh:has(>.account-settings)>header{padding-bottom:12px}
+.account-page.welcome-refresh>.account-settings{margin-top:0}
 .viewer-welcome .welcome-greeting h1{font-size:clamp(2.6rem,10vw,4rem);font-weight:600;letter-spacing:-.055em;line-height:1.1}
 .viewer-welcome .welcome-greeting .invitation-title{margin:17px auto 0;max-width:340px;font-size:1rem;color:#737587;overflow-wrap:anywhere}
 .viewer-welcome-form{width:min(100%,320px);margin-top:34px;text-align:left}
