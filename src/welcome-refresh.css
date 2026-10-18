@@ -1,0 +1,93 @@
+/* Welcome / library / new plan. Local checkpoint: backup/pre-welcome-refresh-2026-10-17. */
+.editor.creator-refresh .creator-card-actions .creator-edit{background:#194f91!important;color:#fff!important}
+.welcome-refresh{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;color:#222632;--welcome-accent:#194f91;--welcome-muted:#737587}
+.home.welcome-refresh,.account-page.welcome-refresh{max-width:760px;min-height:100svh;padding:30px 24px 50px;background:#f7f7fb!important}
+.home.welcome-refresh::before,.account-page.welcome-refresh::before{position:fixed;inset:0;width:100%;height:100%;background:#f7f7fb!important;pointer-events:none;z-index:-1}
+.welcome-refresh .logo{font-size:1.5rem!important;letter-spacing:-.055em;color:#222632}
+.welcome-refresh .logo b{display:none}
+.welcome-refresh nav{min-height:32px;align-items:center;gap:16px}
+.welcome-refresh .home-nav{margin:0}
+.welcome-refresh .account-nav,.welcome-refresh .sign-out{font-size:.8rem;font-weight:500;color:var(--welcome-accent)}
+.welcome-refresh .sign-out{border:0;background:transparent;padding:8px 0}
+.home.welcome-refresh.landing{background:#fafbfe!important;overflow:hidden}
+.welcome-refresh.landing .landing-intro{position:relative;flex:1;justify-content:center;padding:60px 0 28px;isolation:isolate}
+.welcome-greeting{position:relative;width:100%;padding:10px 0 0;isolation:isolate}
+.welcome-halo{position:absolute;z-index:-1;left:50%;top:45%;width:min(480px,110vw);height:340px;transform:translate(-50%,-50%);background:radial-gradient(ellipse,#dfebfa90, #ece8fb50 45%,transparent 70%);pointer-events:none;animation:welcome-light 1400ms ease-out both}
+.welcome-refresh .landing-intro h1{font-family:inherit;margin:0;color:#222632;letter-spacing:-.06em;line-height:1.05;animation:welcome-arrive 900ms cubic-bezier(.22,1,.36,1) both}
+.welcome-refresh .landing-intro h1>span{display:block;font-size:clamp(1.15rem,4vw,1.6rem);font-weight:450;letter-spacing:-.025em;color:#777c8d;margin-bottom:10px}
+.welcome-refresh .landing-intro h1>strong{display:block;font-size:clamp(4.8rem,19vw,7.4rem);font-weight:650;letter-spacing:-.075em}
+.welcome-greeting>p{color:#7b8090;font-size:.95rem;line-height:1.5;margin:19px 0 0;animation:welcome-arrive 900ms 100ms cubic-bezier(.22,1,.36,1) both}
+.welcome-actions{display:flex;flex-direction:column;align-items:center;gap:19px;margin:44px 0 0;width:100%;animation:welcome-arrive 800ms 180ms cubic-bezier(.22,1,.36,1) both}
+.welcome-refresh.landing .landing-cta{display:flex;align-items:center;justify-content:center;gap:28px;width:min(100%,290px);min-height:52px;margin:0;padding:14px 24px;border-radius:999px;background:var(--welcome-accent)!important;color:#fff;font-size:.9rem;font-weight:600!important;box-shadow:none!important}
+.welcome-refresh .landing-signin{font-size:.8rem;color:#777c8d;text-decoration:none;line-height:1.6}
+.welcome-refresh .landing-signin strong{color:var(--welcome-accent);font-weight:600}
+.welcome-refresh .landing-intro .invited-note{margin:64px 0 0;max-width:270px;color:#9296a3;font-size:.72rem;line-height:1.7}
+
+/* The signed-in library uses the same quiet surfaces as the itinerary. */
+.account-page.welcome-refresh>header{padding:44px 0 28px}
+.welcome-refresh h1.personal-plan-title{font-family:inherit;font-size:clamp(2.1rem,7vw,3rem);font-weight:700;letter-spacing:-.045em;line-height:1.15;color:#222632;margin:0}
+.welcome-refresh .account-identity{margin-top:13px;gap:7px;min-width:0}
+.welcome-refresh .account-identity>span{color:#858896;font-size:.8rem;overflow-wrap:anywhere}
+.welcome-refresh .account-gear{background:transparent;border:0;color:#737587;box-shadow:none;padding:6px;flex-shrink:0}
+.plans-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 20px}
+.plans-toolbar>p{margin:0;color:#868999;font-size:.8rem;line-height:1.5}
+.welcome-refresh .plans-toolbar .new-plan-link{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex-shrink:0;min-height:42px;margin:0;padding:10px 17px;border:0;border-radius:999px;background:var(--welcome-accent);color:#fff;font-size:.8rem;font-weight:600;text-decoration:none}
+.welcome-refresh .plan-list{display:grid;gap:13px}
+.welcome-refresh .plan-row{padding:19px 18px;border:1px solid #e2e2ec;border-radius:20px;background:#fff;box-shadow:none;gap:10px}
+.welcome-refresh .plan-open{min-width:0;flex:1;gap:12px}
+.welcome-refresh .plan-open b{font-size:1.05rem;font-weight:650;letter-spacing:-.02em;color:#222632;white-space:normal;overflow-wrap:anywhere}
+.welcome-refresh .plan-open small{font-size:.77rem;color:#898b9a;margin-top:4px;line-height:1.5}
+.welcome-refresh .plan-open i{font-size:.76rem;color:var(--theme-strong,var(--welcome-accent));font-style:normal}
+.welcome-refresh .delete-plan{background:transparent;border:0;color:#ac5660;font-size:.7rem;padding:8px 3px}
+.welcome-refresh .empty-plans{border:1px dashed #dcdde8;border-radius:22px;padding:38px 24px;text-align:center;background:transparent;color:#505667}
+.welcome-refresh .empty-plans p{font-size:.85rem;color:#898b9a;line-height:1.6}
+.welcome-refresh .account-card,.welcome-refresh .account-settings{background:#fff;border:1px solid #e2e2ec;border-radius:22px;padding:26px;box-shadow:none;margin-top:30px}
+.welcome-refresh .account-card h1{font-family:inherit;color:#222632;letter-spacing:-.04em}
+.welcome-refresh .account-card label,.welcome-refresh .account-settings label{color:#737587;font-size:.78rem}
+.welcome-refresh .account-card input,.welcome-refresh .account-settings input{font-size:16px;border:1px solid #dcdde7!important;border-radius:12px;padding:12px;color:#222632;background:#fff!important;box-shadow:none!important}
+.welcome-refresh .account-card .primary,.welcome-refresh .account-settings .primary{background:var(--welcome-accent)!important;border-radius:999px;min-height:48px;font-size:.9rem}
+
+/* A single uncluttered calendar surface for the new-trip flow. */
+.new-trip-page .start-header{padding:40px 0 24px}
+.new-trip-page .start-header p{margin:0 0 11px;color:#9194a3;font-size:.61rem;font-weight:650;letter-spacing:.09em;line-height:1.5}
+.new-trip-page .start-header h1{font-family:inherit;font-size:clamp(2.3rem,8vw,3.2rem);font-weight:700;letter-spacing:-.05em;line-height:1.1;color:#222632;margin:0 0 10px}
+.new-trip-page .start-header>span{font-size:.88rem;color:#838797;line-height:1.6;display:block}
+.home.new-trip-page .create{margin-top:0;padding:24px!important;border:1px solid #e2e2ec!important;border-radius:23px!important;background:#fff!important;box-shadow:none!important}
+.new-trip-page .trip-title-label{margin:0;font-size:.78rem;font-weight:600;color:#737587}
+.new-trip-page .trip-title-label input{font-size:16px;margin-top:8px;border:1px solid #dcdde7!important;border-radius:12px;padding:13px 14px;box-shadow:none!important;color:#222632;background:#fff!important}
+.new-trip-page .range-picker{margin-top:22px}
+.new-trip-page .date-title{margin:0 0 14px;font-size:.8rem;color:#737587;font-weight:600}
+.new-trip-page .date-title small{font-size:.7rem;color:#9094a2;display:block;margin-top:5px}
+.new-trip-page .chosen-dates{display:flex;align-items:center;justify-content:center;gap:22px;border:0;border-radius:14px;background:#f5f6fa;padding:14px 10px;margin:0 0 14px}
+.new-trip-page .chosen-dates span{flex:1;text-align:center;color:#999cab;font-size:.64rem;gap:5px}
+.new-trip-page .chosen-dates b{color:#444b5b;font-size:.87rem;font-weight:600}
+.new-trip-page .chosen-dates i{color:#a3a6b2}
+.new-trip-page .calendar{border:0!important;border-radius:0;background:transparent!important;box-shadow:none!important;padding:5px 0}
+.new-trip-page .cal-head{margin-bottom:12px;color:#4b5262}
+.new-trip-page .cal-head b{font-size:.9rem;font-weight:600}
+.new-trip-page .cal-head button{border:0;background:#f5f6fa;border-radius:50%;color:#626a7b;width:34px;height:34px;padding:0;font-size:1.3rem}
+.new-trip-page .cal-grid{gap:4px}
+.new-trip-page .cal-grid i{color:#a4a7b3;font-size:.66rem}
+.new-trip-page .cal-grid button{min-width:0;min-height:38px;border-radius:11px;background:transparent;color:#4b5262;font-size:.83rem}
+.new-trip-page .cal-grid button.in-range{background:#eaf0f9;color:#194f91}
+.new-trip-page .cal-grid button.picked{background:#194f91!important;color:#fff!important;border-color:#194f91!important}
+.new-trip-page .create-trip-footer{border-top:1px solid #eeeef3;margin-top:17px;padding-top:13px}
+.new-trip-page .create-trip-footer .range-note{color:#9699a6;font-size:.73rem;text-align:center;margin:0 0 13px}
+.new-trip-page .create-trip-footer .primary{display:flex;align-items:center;justify-content:center;gap:14px;width:100%;background:var(--welcome-accent)!important;border-radius:999px;margin:0;min-height:50px;font-size:.9rem;font-weight:600!important}
+@keyframes welcome-arrive{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes welcome-light{from{opacity:0;transform:translate(-50%,-50%) scale(.88)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@media(max-width:540px){
+  .home.welcome-refresh,.account-page.welcome-refresh{padding:24px 20px 36px}
+  .welcome-refresh.landing .landing-intro{padding:45px 0 12px}
+  .welcome-refresh .landing-intro .invited-note{margin-top:48px}
+  .account-page.welcome-refresh>header{padding:34px 0 24px}
+  .plans-toolbar{gap:10px}
+  .plans-toolbar>p{max-width:150px;font-size:.75rem}
+  .welcome-refresh .plan-row{padding:17px 15px;gap:8px}
+  .welcome-refresh .plan-open i{display:none}
+  .welcome-refresh .delete-plan{font-size:.68rem}
+  .new-trip-page .start-header{padding:32px 0 23px}
+  .home.new-trip-page .create{padding:19px!important}
+  .welcome-refresh .account-card{padding:22px;margin-top:30px}
+}
+@media(prefers-reduced-motion:reduce){.welcome-halo,.welcome-refresh .landing-intro h1,.welcome-greeting>p,.welcome-actions{animation:none!important}}

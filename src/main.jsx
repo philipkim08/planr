@@ -37,6 +37,7 @@ import './fluid-motion.css'
 import './preview-flow.css'
 import './apple-preview.css'
 import './creator-refresh.css'
+import './welcome-refresh.css'
 import {ActivityWindow} from './activity-window.jsx'
 import {LiquidChoices} from './liquid-choices.jsx'
 import {PaymentSheet} from './payment-sheet.jsx'
@@ -60,17 +61,45 @@ function range(start,end){if(!start)return[];let a=new Date(`${start}T12:00:00`)
 function useCurrentUser(){const[user,setUser]=useState(null),[ready,setReady]=useState(!auth);useEffect(()=>{if(!auth)return;auth.auth.getUser().then(({data})=>{setUser(data.user||null);setReady(true)});const{data:{subscription}}=auth.auth.onAuthStateChange((_event,session)=>{setUser(session?.user||null);setReady(true)});return()=>subscription.unsubscribe()},[]);return{user,ready}}
 function AccountNav(){const{user,ready}=useCurrentUser();if(!auth||!ready)return null;return <a className="account-nav" href="/plans">{user?'My plans':'Sign in'}</a>}
 function App(){const p=location.pathname.split('/').filter(Boolean);return p[0]==='reset-password'?<PasswordReset auth={auth}/>:p[0]==='trip'?<View id={p[1]}/>:p[0]==='edit'?<Edit id={p[1]} token={p[2]}/>:p[0]==='plans'?<Plans/>:<Home/>}
-function Home(){const {user,ready}=useCurrentUser();const[title,setTitle]=useState(''),[start,setStart]=useState(''),[end,setEnd]=useState(''),[error,setError]=useState('');const create=async e=>{e.preventDefault();try{const{trip,editToken}=await api('/trips',{method:'POST',body:JSON.stringify({title,dates:range(start,end),day_dates:calendarDates(start,end)})});location.href=`/edit/${trip.id}/${editToken}`}catch(e){setError(e.message)}};if(!ready)return <Loading/>;if(!user)return <main className="home landing"><nav className="home-nav"><Logo/></nav><section className="landing-intro"><h1>welcome to planr</h1><a className="primary landing-cta" href="/plans?mode=signup">Create an account</a><a className="landing-signin" href="/plans">Already have an account? Sign in</a><small>Invited to a plan? Open your shared link—no account needed to join in.</small></section></main>;return <main className="home"><nav className="home-nav"><Logo/><AccountNav/></nav><section className="create"><h2>Start a new trip</h2><form onSubmit={create}><label>What are you planning?<input required autoFocus placeholder="e.g. Saturday with Sarah" value={title} onChange={e=>setTitle(e.target.value)}/></label><CalendarRange start={start} end={end} setStart={setStart} setEnd={setEnd}/>{start&&<p className="range-note">{range(start,end).length} day{range(start,end).length===1?'':'s'} selected</p>}{error&&<p className="error">{error}</p>}<button className="primary">Create trip →</button></form></section></main>}
+function Home(){
+  const {user,ready}=useCurrentUser()
+  const[title,setTitle]=useState(''),[start,setStart]=useState(''),[end,setEnd]=useState(''),[error,setError]=useState(''),[creating,setCreating]=useState(false)
+  const create=async e=>{
+    e.preventDefault();if(creating)return
+    setCreating(true);setError('')
+    try{const{trip,editToken}=await api('/trips',{method:'POST',body:JSON.stringify({title,dates:range(start,end),day_dates:calendarDates(start,end)})});location.href=`/edit/${trip.id}/${editToken}`}
+    catch(e){setError(e.message);setCreating(false)}
+  }
+  if(!ready)return <Loading/>
+  if(!user)return <main className="home landing welcome-refresh">
+    <nav className="home-nav"><Logo/></nav>
+    <section className="landing-intro">
+      <div className="welcome-greeting"><span className="welcome-halo" aria-hidden="true"/><h1><span>welcome to</span><strong>planr</strong></h1><p>Something good starts here.</p></div>
+      <div className="welcome-actions"><a className="primary landing-cta" href="/plans?mode=signup">Create an account <span aria-hidden="true">↗</span></a><a className="landing-signin" href="/plans">Already have an account? <strong>Sign in</strong></a></div>
+      <small className="invited-note">Invited to a plan? Open your shared link—no account needed to join in.</small>
+    </section>
+  </main>
+  return <main className="home new-trip-page welcome-refresh">
+    <nav className="home-nav"><Logo/><AccountNav/></nav>
+    <header className="start-header"><p>A LITTLE SOMETHING TO LOOK FORWARD TO</p><h1>Make a plan.</h1><span>A day out, a weekend away, or anything in between.</span></header>
+    <section className="create"><form onSubmit={create}>
+      <label className="trip-title-label">Give it a name<input required autoFocus placeholder="Saturday with Sarah" value={title} onChange={e=>setTitle(e.target.value)}/></label>
+      <CalendarRange start={start} end={end} setStart={setStart} setEnd={setEnd}/>
+      <div className="create-trip-footer"><p className="range-note">{start?`${range(start,end).length} ${range(start,end).length===1?'day':'days'} of possibilities`:'Pick a start and end date above.'}</p><button disabled={creating} className="primary">{creating?'Creating…':'Create trip'} <span aria-hidden="true">→</span></button></div>
+      {error&&<p className="error" role="alert">{error}</p>}
+    </form></section>
+  </main>
+}
 function Plans(){
   const {user,ready}=useCurrentUser(),[error,setError]=useState(''),[trips,setTrips]=useState([]),[loading,setLoading]=useState(false),[settingsOpen,setSettingsOpen]=useState(false)
   useEffect(()=>{if(!user)return;setLoading(true);api('/me/trips').then(({trips})=>setTrips(trips)).catch(e=>setError(e.message)).finally(()=>setLoading(false))},[user?.id])
   const signOut=async()=>{await auth?.auth.signOut();location.href='/'}
   if(!ready)return <Loading/>
-  if(!user)return <main className="account-page"><nav><Logo/></nav><SignIn auth={auth} api={api}/></main>
+  if(!user)return <main className="account-page welcome-refresh"><nav><Logo/></nav><SignIn auth={auth} api={api}/></main>
   const firstName=String(user.user_metadata?.first_name||'').trim().toLowerCase()
-  return <main className="account-page"><nav><Logo/><button className="sign-out" onClick={signOut}>Sign out</button></nav><header><p className="eyebrow">YOUR PLANS</p><h1 className="personal-plan-title">{firstName?`${firstName}'s plans`:'my plans'}</h1><div className="account-identity"><span>{user.email}</span><button className="account-gear" type="button" aria-label="Account settings" aria-expanded={settingsOpen} aria-controls="account-settings" onClick={()=>setSettingsOpen(!settingsOpen)}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m9 3 .6-1h4.8l.6 1 .5 2 1.5.9 2-.6 1.2.1 2.4 4.2-.5 1.1-1.5 1.4v1.8l1.5 1.4.5 1.1-2.4 4.2-1.2.1-2-.6-1.5.9-.5 2-.6 1H9l-.6-1-.5-2-1.5-.9-2 .6-1.2-.1-2.4-4.2.5-1.1 1.5-1.4v-1.8L1.3 9.8.8 8.7l2.4-4.2 1.2-.1 2 .6 1.5-.9z" transform="translate(1 0) scale(.92)"/><circle cx="12" cy="12" r="3"/></svg></button></div></header>
+  return <main className="account-page welcome-refresh"><nav><Logo/><button className="sign-out" onClick={signOut}>Sign out</button></nav><header><h1 className="personal-plan-title">{firstName?`${firstName}'s plans`:'my plans'}</h1><div className="account-identity"><span>{user.email}</span><button className="account-gear" type="button" aria-label="Account settings" aria-expanded={settingsOpen} aria-controls="account-settings" onClick={()=>setSettingsOpen(!settingsOpen)}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m9 3 .6-1h4.8l.6 1 .5 2 1.5.9 2-.6 1.2.1 2.4 4.2-.5 1.1-1.5 1.4v1.8l1.5 1.4.5 1.1-2.4 4.2-1.2.1-2-.6-1.5.9-.5 2-.6 1H9l-.6-1-.5-2-1.5-.9-2 .6-1.2-.1-2.4-4.2.5-1.1 1.5-1.4v-1.8L1.3 9.8.8 8.7l2.4-4.2 1.2-.1 2 .6 1.5-.9z" transform="translate(1 0) scale(.92)"/><circle cx="12" cy="12" r="3"/></svg></button></div></header>
     {settingsOpen&&<AccountSettings key={user.id} auth={auth} api={api} user={user}/>}
-    <a className="new-plan-link" href="/">+ Create a new plan</a>
+    <div className="plans-toolbar"><p>Good times, all in one place.</p><a className="new-plan-link" href="/"><span aria-hidden="true">+</span> New plan</a></div>
     {error&&<p className="error" role="alert">{error}</p>}
     {loading?<p>Loading your plans…</p>:trips.length?<PlanList trips={trips} onDeleted={id=>setTrips(current=>current.filter(trip=>trip.id!==id))}/>:<section className="empty-plans"><b>No saved plans yet.</b><p>Create your next plan while signed in and it will appear here.</p></section>}
   </main>
