@@ -5,12 +5,22 @@
 .viewer.apple-preview .timeline-stop:last-child:before{display:none}
 .viewer.apple-preview .timeline-time{position:relative;align-self:start;padding:22px 0 0;text-align:right;min-width:0}
 .viewer.apple-preview .timeline-time time{display:block;padding:0;margin:0;color:var(--theme-strong);font-size:.78rem;font-weight:700;line-height:1.35;letter-spacing:.015em;font-variant-numeric:tabular-nums;white-space:normal;overflow-wrap:normal}
-.viewer.apple-preview .timeline-marker{position:absolute;right:-12px;top:25px;width:9px;height:9px;border-radius:50%;background:var(--theme-primary);border:2px solid white;box-sizing:border-box}
+.viewer.apple-preview .timeline-marker{position:absolute;right:-13px;top:25px;width:13px;height:13px;border-radius:50%;background:var(--theme-primary);border:2px solid white;box-sizing:border-box}
 .viewer.apple-preview .timeline-stop>.public-card{min-width:0;position:relative}
 .viewer.apple-preview .minor-stop>.public-card{background:transparent!important;border:0!important;border-radius:0;padding:17px 12px;box-shadow:none!important}
 .viewer.apple-preview .minor-stop>.public-card>h2{font-size:1rem;font-weight:600;letter-spacing:-.01em}
 .viewer.apple-preview .minor-stop>.public-card>p{font-size:.82rem}
 .viewer.apple-preview .minor-stop .timeline-marker{background:white;border:1px solid var(--theme-primary)}
+.viewer.apple-preview .timeline-time .timeline-clock{display:block;font-size:1.1rem;font-weight:750;line-height:1.15;letter-spacing:-.025em}
+.viewer.apple-preview .timeline-time .timeline-period{display:block;margin-top:3px;font-size:.72rem;font-weight:650;letter-spacing:.06em}
+.viewer.apple-preview .minor-stop>.public-card{align-self:start;min-height:62px;display:flex;align-items:center}
+.viewer.apple-preview .minor-stop>.public-card>h2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;margin:0}
+.planr-sheet.is-empty .sheet-content{min-height:0;padding-top:12px;padding-bottom:max(20px,env(safe-area-inset-bottom))}
+.planr-sheet.is-empty .sheet-navigation{position:relative;top:auto;right:auto;height:40px;margin:0}
+.planr-sheet.is-empty .sheet-handle{margin-bottom:4px}
+.planr-sheet.is-empty .sheet-ledger{border:0}
+.viewer.apple-preview .public-card .planr-sheet.is-empty .empty-payment-header{position:absolute!important;padding:0!important;margin:0!important}
+.planr-sheet.is-empty .sheet-empty{padding:10px 0 18px;text-align:center}
 .viewer.apple-preview .activity-actions.compact-actions .payments-action:before{display:none!important;content:none!important}
 .viewer.apple-preview .activity-actions.compact-actions .payment-chip-icon{display:block!important;flex:0 0 15px;width:15px!important;height:15px!important;margin:0!important;background:currentColor!important}
 .planr-sheet .sheet-split-select[aria-expanded=true]{background:var(--theme-soft)!important;border-color:var(--theme-border)!important;color:var(--theme-strong)!important}
@@ -29,6 +39,7 @@
  .viewer.apple-preview .public-slot.timeline-stop{grid-template-columns:51px minmax(0,1fr);gap:16px;padding-bottom:14px}
  .viewer.apple-preview .timeline-stop:before{left:57px}
  .viewer.apple-preview .timeline-time time{font-size:.7rem}
+ .viewer.apple-preview .timeline-time .timeline-clock{font-size:1rem}
  .viewer.apple-preview .timeline-stop>.public-card{padding:16px 12px}
  .viewer.apple-preview .minor-stop>.public-card{padding:16px 8px}
  .viewer.apple-preview .timeline-stop>.public-card>h2{font-size:1.08rem}
