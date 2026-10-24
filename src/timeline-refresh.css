@@ -1,7 +1,7 @@
 /* Keep the existing planr cards; only their placement and hierarchy change. */
 .viewer.apple-preview .agenda{position:relative}
 .viewer.apple-preview .public-slot.timeline-stop{display:grid;grid-template-columns:68px minmax(0,1fr);gap:18px;position:relative;margin:0;padding:0 0 18px;min-width:0}
-.viewer.apple-preview .timeline-time{position:relative;align-self:start;padding:24px 0 0;text-align:right;min-width:0}
+.viewer.apple-preview .timeline-time{position:relative;align-self:start;padding:21px 0 0;text-align:right;min-width:0}
 .viewer.apple-preview .timeline-time time{display:block;padding:0;margin:0;color:var(--theme-strong);font-size:.78rem;font-weight:700;line-height:1.35;letter-spacing:.015em;font-variant-numeric:tabular-nums;white-space:normal;overflow-wrap:normal}
 .viewer.apple-preview .timeline-stop>.public-card{min-width:0;position:relative}
 .viewer.apple-preview .minor-stop>.public-card{background:#fff!important;border:1px solid #e2e2ec!important;border-radius:14px;padding:12px 20px;box-shadow:none!important}
@@ -34,7 +34,7 @@
 @media(max-width:600px){
  .activity-window .two{grid-template-columns:minmax(0,1fr)}
  .viewer.apple-preview .public-slot.timeline-stop{grid-template-columns:51px minmax(0,1fr);gap:16px;padding-bottom:14px}
- .viewer.apple-preview .timeline-time{padding-top:19px}
+ .viewer.apple-preview .timeline-time{padding-top:17px}
  .viewer.apple-preview .timeline-time time{font-size:.7rem}
  .viewer.apple-preview .timeline-time .timeline-clock{font-size:.9rem}
  .viewer.apple-preview .timeline-stop>.public-card{padding:16px 12px}
