@@ -1,0 +1,41 @@
+/* Keep the existing planr cards; only their placement and hierarchy change. */
+.viewer.apple-preview .agenda{position:relative}
+.viewer.apple-preview .public-slot.timeline-stop{display:grid;grid-template-columns:68px minmax(0,1fr);gap:18px;position:relative;margin:0;padding:0 0 18px;min-width:0}
+.viewer.apple-preview .timeline-stop:before{content:'';position:absolute;left:74px;top:26px;bottom:-26px;width:1px;background:var(--theme-border);pointer-events:none}
+.viewer.apple-preview .timeline-stop:last-child:before{display:none}
+.viewer.apple-preview .timeline-time{position:relative;align-self:start;padding:22px 0 0;text-align:right;min-width:0}
+.viewer.apple-preview .timeline-time time{display:block;padding:0;margin:0;color:var(--theme-strong);font-size:.78rem;font-weight:700;line-height:1.35;letter-spacing:.015em;font-variant-numeric:tabular-nums;white-space:normal;overflow-wrap:normal}
+.viewer.apple-preview .timeline-marker{position:absolute;right:-12px;top:25px;width:9px;height:9px;border-radius:50%;background:var(--theme-primary);border:2px solid white;box-sizing:border-box}
+.viewer.apple-preview .timeline-stop>.public-card{min-width:0;position:relative}
+.viewer.apple-preview .minor-stop>.public-card{background:transparent!important;border:0!important;border-radius:0;padding:17px 12px;box-shadow:none!important}
+.viewer.apple-preview .minor-stop>.public-card>h2{font-size:1rem;font-weight:600;letter-spacing:-.01em}
+.viewer.apple-preview .minor-stop>.public-card>p{font-size:.82rem}
+.viewer.apple-preview .minor-stop .timeline-marker{background:white;border:1px solid var(--theme-primary)}
+.viewer.apple-preview .activity-actions.compact-actions .payments-action:before{display:none!important;content:none!important}
+.viewer.apple-preview .activity-actions.compact-actions .payment-chip-icon{display:block!important;flex:0 0 15px;width:15px!important;height:15px!important;margin:0!important;background:currentColor!important}
+.planr-sheet .sheet-split-select[aria-expanded=true]{background:var(--theme-soft)!important;border-color:var(--theme-border)!important;color:var(--theme-strong)!important}
+.planr-sheet .empty-payment-header{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip-path:inset(50%);white-space:nowrap}
+.activity-window .activity-time-controls{display:grid;grid-template-columns:minmax(0,1fr) 78px;gap:8px;min-width:0}
+.activity-window .two{grid-template-columns:minmax(0,220px) minmax(0,1fr)}
+.activity-window .activity-clock{position:relative;display:flex;align-items:center;min-width:0}
+.activity-window .activity-clock>input{width:100%;min-width:0;padding-right:36px}
+.activity-window .activity-clock>button{position:absolute;right:2px;top:9px;bottom:2px;width:32px;padding:0;border:0;background:transparent;color:var(--theme-strong);box-shadow:none}
+.activity-window .activity-time-controls>select{width:100%;min-width:0;padding-left:10px;padding-right:10px}
+.activity-window .activity-clock-options{position:absolute;left:0;right:0;top:100%;z-index:10;max-height:220px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;background:white;border:1px solid var(--theme-border);border-radius:12px;padding:4px;box-shadow:0 6px 20px #18243418}
+.activity-window .activity-clock-options button{display:block;width:100%;min-height:40px;text-align:left;padding:8px 12px;border:0;border-radius:8px;background:white;color:#222}
+.activity-window .activity-clock-options button:hover,.activity-window .activity-clock-options button:focus-visible{background:var(--theme-soft);color:var(--theme-strong)}
+@media(max-width:600px){
+ .activity-window .two{grid-template-columns:minmax(0,1fr)}
+ .viewer.apple-preview .public-slot.timeline-stop{grid-template-columns:51px minmax(0,1fr);gap:16px;padding-bottom:14px}
+ .viewer.apple-preview .timeline-stop:before{left:57px}
+ .viewer.apple-preview .timeline-time time{font-size:.7rem}
+ .viewer.apple-preview .timeline-stop>.public-card{padding:16px 12px}
+ .viewer.apple-preview .minor-stop>.public-card{padding:16px 8px}
+ .viewer.apple-preview .timeline-stop>.public-card>h2{font-size:1.08rem}
+ .viewer.apple-preview .minor-stop>.public-card>h2{font-size:.95rem}
+ .viewer.apple-preview .timeline-stop .activity-actions.compact-actions{gap:5px;flex-wrap:nowrap}
+ .viewer.apple-preview .timeline-stop .activity-actions.compact-actions .action-button{min-width:0;padding:8px 7px!important;font-size:.72rem!important;gap:4px;white-space:nowrap}
+}
+@media(max-width:360px){
+ .viewer.apple-preview .timeline-stop .activity-actions.compact-actions .action-button{padding:8px 5px!important;font-size:.68rem!important;gap:3px}
+}

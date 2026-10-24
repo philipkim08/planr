@@ -15,7 +15,7 @@ export function RsvpSheet({slot,visitor,guestId,theme,onClose,onSave}){
   const save=async()=>{
     if(busy)return
     setBusy(true);setError('');setSaved(false)
-    try{if(await onSave(status))setSaved(true);else setError('Could not save your RSVP. Please try again.')}
+    try{if(await onSave(status))onClose();else setError('Could not save your RSVP. Please try again.')}
     catch(e){setError(e.message)}finally{setBusy(false)}
   }
   return <dialog ref={dialog} className={`planr-sheet rsvp-sheet theme-${theme||'blue'}`} aria-labelledby="rsvp-sheet-title" onCancel={e=>{e.preventDefault();if(!busy)onClose()}} onClick={e=>{if(e.target===e.currentTarget&&!busy)onClose()}}><div className="sheet-content">
