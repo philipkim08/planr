@@ -1,3 +1,4 @@
+import {expenseBalances,personKey,expensePeople} from './expense-splits.js'
 import {readVisitorName,rememberVisitorName,readGuestId} from './visitor-name.js'
 import {guestResponse,isGuest} from './guest-identity.js'
 import {watchSharedPlan} from './shared-plan-refresh.js'
@@ -163,7 +164,7 @@ function PublicSlot({slot,trip,day,visitor,guestId,refresh,allDays,theme}){
     {links.map((link,i)=><a key={i} className="link" href={link} target="_blank" rel="noreferrer">↗ Link {links.length>1?i+1:''}</a>)}
     <div className="activity-actions compact-actions">
       {slot.attendance_required&&<button type="button" className={`action-button rsvp-action ${response?`status-${response.status}`:''}`} aria-expanded={rsvp} onClick={()=>setRsvp(!rsvp)}>{response&&<span className="rsvp-status-mark" aria-hidden="true">{marker}</span>}<span>{response?({going:'Going',maybe:'Maybe','not-going':'Can’t go'})[response.status]:'RSVP'}</span></button>}
-      {slot.splitting_payments&&<button type="button" className="action-button payments-action" aria-label={`Expenses: ${totalLabel}`} aria-expanded={payments} onClick={()=>setPayments(!payments)}><span>{total?totalLabel:'+ Add cost'}</span>{total>0&&splitPeople(slot).length>0&&<span className="chip-people">· {splitPeople(slot).length} people</span>}</button>}
+      {slot.splitting_payments&&<button type="button" className="action-button payments-action" aria-label={`Expenses: ${totalLabel}`} aria-expanded={payments} onClick={()=>setPayments(!payments)}><span>{total?totalLabel:'+ Add cost'}</span>{total>0&&expensePeople(slot).length>0&&<span className="chip-people">· {expensePeople(slot).length} people</span>}</button>}
       <button type="button" className="action-button comments-action" aria-label={`Comments (${slot.comments?.length||0})`} aria-expanded={comments} onClick={()=>setComments(!comments)}><span className="comment-chip-icon" aria-hidden="true"/>{slot.comments?.length>0&&<span>{slot.comments.length}</span>}</button>
     </div>
     {rsvp&&<RsvpSheet slot={slot} visitor={visitor} guestId={guestId} theme={theme} onClose={()=>setRsvp(false)} onSave={status=>send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/attendance`,{name:visitor,guest_id:guestId,status})}/>}
@@ -182,10 +183,7 @@ function PublicSlot({slot,trip,day,visitor,guestId,refresh,allDays,theme}){
 function DayPaymentSummary({day,visitor}){
   const [open,setOpen]=useState(false),money=value=>`$${Number(value||0).toFixed(2)}`,amount=value=>parseFloat(String(value||'').replace(/[^0-9.]/g,''))||0,entries=ordered(day).flatMap(slot=>(slot.payments||[]).map(payment=>({...payment,slot}))).filter(payment=>amount(payment.amount)>0)
   if(!entries.length)return null
-  const labels=new Map(),key=name=>String(name||'').trim().toLocaleLowerCase(),label=name=>{const cleaned=String(name||'').trim(),id=key(cleaned);if(!labels.has(id))labels.set(id,cleaned);return labels.get(id)},balances=new Map(),add=(name,value)=>{const display=label(name);balances.set(key(display),(balances.get(key(display))||0)+value)},incomplete=[]
-  ordered(day).forEach(slot=>{const payments=(slot.payments||[]).filter(payment=>amount(payment.amount)>0),total=payments.reduce((sum,payment)=>sum+amount(payment.amount),0),people=splitPeople(slot);if(!total)return;if(!people.length){incomplete.push(slot.title);return}people.forEach(person=>add(person,-total/people.length));payments.forEach(payment=>add(payment.paid_by,amount(payment.amount)))});
-  const creditors=[...balances].filter(([,value])=>value>.005).map(([id,value])=>({name:labels.get(id),value})),debtors=[...balances].filter(([,value])=>value<-.005).map(([id,value])=>({name:labels.get(id),value:-value})),transfers=[]
-  debtors.forEach(debtor=>creditors.forEach(creditor=>{const value=Math.min(debtor.value,creditor.value);if(value>.005){transfers.push({from:debtor.name,to:creditor.name,amount:Math.round(value*100)/100});debtor.value-=value;creditor.value-=value}}))
+  const result=expenseBalances(ordered(day)),balances=new Map([...result.balances].map(([name,value])=>[name,value/100])),transfers=result.transfers,incomplete=result.incomplete,key=personKey
   const net=balances.get(key(visitor))||0,headline=incomplete.length?'Partial day balance':!visitor?'Day expenses':net<-.005?'You owe':net>.005?'You’re owed':'You’re settled up',displayAmount=visitor?Math.abs(net):entries.reduce((sum,p)=>sum+amount(p.amount),0)
   return <section className="day-payment-summary">
     <div className="balance-banner"><div><span>{headline}</span><strong>{money(displayAmount)}</strong></div><button type="button" className="day-payment-toggle" aria-expanded={open} onClick={()=>setOpen(!open)}>{open?'Hide balances':'View balances'} <i>{open?'⌃':'⌄'}</i></button></div>

@@ -13,12 +13,12 @@ const root=fileURLToPath(new URL('../',import.meta.url))
 const bundle=await build({
   entryPoints:[path.join(root,'src/main.jsx')],bundle:true,write:false,platform:'node',format:'cjs',packages:'external',
   define:{'import.meta.env':'{}'},loader:{'.css':'empty'},
-  plugins:[{name:'page-test-entry',setup(build){build.onLoad({filter:/\/src\/main\.jsx$/},args=>({loader:'jsx',contents:readFileSync(args.path,'utf8').replace("createRoot(document.getElementById('root')).render(<App/>)",'export {View,Edit}') }))}}]
+  plugins:[{name:'page-test-entry',setup(build){build.onLoad({filter:/\/src\/main\.jsx$/},args=>({loader:'jsx',contents:readFileSync(args.path,'utf8').replace("createRoot(document.getElementById('root')).render(<App/>)",'export {View,Edit,PaymentSheet}') }))}}]
 })
 const modulePath=path.join(root,'day-switching-test.cjs'),loaded=new Module(modulePath)
 loaded.paths=Module._nodeModulePaths(root)
 loaded._compile(bundle.outputFiles[0].text,modulePath)
-const {View,Edit}=loaded.exports
+const {View,Edit,PaymentSheet}=loaded.exports
 const slot=(id,title)=>({id,title,time:'12:00',order:0,attendance_required:true,splitting_payments:true,attendance:[{name:'Philip',status:'going'}],payments:[{id:'payment',paid_by:'Grace',amount:'30',note:'Lunch'}],comments:[]})
 const trip={id:'test',title:'Test plan',theme:'purple',days:[
   {id:'a',label:'Day A',order:0,timeslots:[slot('shared-id','Activity A')]},
@@ -29,6 +29,25 @@ const hasClass=(node,name)=>typeof node.props.className==='string'&&node.props.c
 const count=(renderer,name)=>renderer.root.findAll(node=>hasClass(node,name)).length
 const button=(renderer,predicate)=>renderer.root.findAllByType('button').find(predicate)
 const click=async b=>{assert.ok(b,'button exists');await act(async()=>{b.props.onClick()})}
+
+test('expense UI custom split validates totals and sends saved per-person shares',async()=>{
+ const previous=globalThis.document;globalThis.document={activeElement:{focus(){}},body:{style:{overflow:''}}}
+ let renderer,payload
+ const activity={id:'dinner',attendance:[{name:'A',status:'going'},{name:'B',status:'going'}],payments:[]}
+ try{
+  await act(async()=>{renderer=TestRenderer.create(React.createElement(PaymentSheet,{slot:activity,visitor:'A',theme:'blue',trip:'test',day:'a',refresh(){},onClose(){},api:async(path,options)=>{payload=JSON.parse(options.body);return {trip:{}}}}),{createNodeMock:()=>({showModal(){},focus(){}})})})
+  await click(button(renderer,b=>b.props.children==='+ Add expense'))
+  await act(async()=>renderer.root.findByProps({'aria-label':'Amount'}).props.onChange({target:{value:'100'}}))
+  await click(button(renderer,b=>hasClass(b,'sheet-split-select')))
+  await click(button(renderer,b=>b.props.children==='Custom amounts'))
+  await act(async()=>renderer.root.findByProps({'aria-label':'Their share: A'}).props.onChange({target:{value:'70'}}))
+  assert.equal(button(renderer,b=>b.props.type==='submit').props.disabled,true)
+  await act(async()=>renderer.root.findByProps({'aria-label':'Their share: B'}).props.onChange({target:{value:'30'}}))
+  assert.equal(button(renderer,b=>b.props.type==='submit').props.disabled,false)
+  await act(async()=>renderer.root.findByType('form').props.onSubmit({preventDefault(){}}))
+  assert.deepEqual(payload.split,{mode:'custom',shares:[{name:'A',cents:7000},{name:'B',cents:3000}]})
+ }finally{if(renderer)await act(async()=>renderer.unmount());globalThis.document=previous}
+})
 
 test('background refresh keeps the selected day and unsent comment draft',async()=>{
  const originals={fetch:globalThis.fetch,localStorage:globalThis.localStorage,window:globalThis.window,document:globalThis.document,ResizeObserver:globalThis.ResizeObserver}

@@ -1,0 +1,18 @@
+.planr-sheet .expense-split-editor{padding:14px 0;border-top:1px solid #e5e5eb;border-bottom:1px solid #e5e5eb}
+.planr-sheet .expense-split-modes{display:flex;gap:6px;padding:4px;background:#f0f0f4;border-radius:14px}
+.planr-sheet .expense-split-modes button{flex:1;min-width:0;min-height:42px;border:0;border-radius:10px;background:transparent;color:#555;font-size:.85rem;white-space:normal}
+.planr-sheet .expense-split-modes button[aria-pressed=true]{background:var(--theme-soft);color:var(--theme-strong);font-weight:700}
+.planr-sheet .expense-split-person{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;min-width:0}
+.planr-sheet .expense-split-person>label:first-child{display:flex;align-items:center;gap:10px;min-width:0;flex:1;margin:0}
+.planr-sheet .expense-split-person input[type=checkbox]{width:20px;height:20px;flex:0 0 20px;accent-color:var(--theme-strong);margin:0;padding:0;box-shadow:none}
+.planr-sheet .expense-split-person label>span{overflow-wrap:anywhere}
+.planr-sheet .expense-share-input{display:flex;align-items:center;gap:5px;flex:0 0 106px;width:106px;min-width:0;margin:0}
+.planr-sheet .expense-split-editor .expense-share-input input{width:85px;min-width:0;text-align:right;font-size:16px;margin:0}
+.planr-sheet .expense-split-editor label{font-size:.9rem;text-transform:none;letter-spacing:normal;color:#333}
+.planr-sheet .expense-split-add{display:flex;gap:8px;margin-top:12px}
+.planr-sheet .expense-split-editor .expense-split-add input{flex:1;min-width:0;width:0;font-size:16px;margin:0}
+.planr-sheet .expense-split-add button{flex:0 0 60px;border:0;border-radius:12px;background:var(--theme-strong);color:#fff}
+.planr-sheet .expense-split-total{font-size:.85rem;font-weight:600;color:var(--theme-strong);text-align:right;margin:12px 0 0}
+.planr-sheet .expense-split-link{border:0;background:none;padding:2px 0;color:var(--theme-strong);font-size:inherit;min-height:28px;box-shadow:none;white-space:normal;text-align:left}
+.planr-sheet .sheet-split-select{white-space:normal;font-size:.85rem}
+.planr-sheet .sheet-primary:disabled{opacity:.5}

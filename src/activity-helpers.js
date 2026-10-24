@@ -16,7 +16,7 @@ export function expenseTotal(slot) {
 export function itineraryPeople(days) {
   const seen=new Map()
   for(const day of days||[])for(const slot of day.timeslots||[]){
-    const names=[...(slot.payment_participants||[]),...(slot.attendance||[]).map(r=>r.name),...(slot.payments||[]).map(p=>p.paid_by),...(slot.comments||[]).map(c=>c.name)]
+    const names=[...(slot.payment_participants||[]),...(slot.attendance||[]).map(r=>r.name),...(slot.payments||[]).flatMap(p=>[p.paid_by,...(p.split?.shares||[]).map(r=>r.name)]),...(slot.comments||[]).map(c=>c.name)]
     for(const name of names){
       const display=String(name||'').trim(),key=display.toLowerCase()
       if(key&&!seen.has(key))seen.set(key,display)
