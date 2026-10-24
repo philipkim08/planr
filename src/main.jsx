@@ -147,7 +147,7 @@ function View({id}){
 }
 function TimelineTime({value}){
   const [clock,period]=value?fmt(value).split(' '):['Any time','']
-  return <div className="timeline-time"><time dateTime={value||undefined}><span className="timeline-clock">{clock}</span>{period&&<span className="timeline-period">{period}</span>}</time><span className="timeline-marker" aria-hidden="true"/></div>
+  return <div className="timeline-time"><time dateTime={value||undefined}><span className="timeline-clock">{clock}</span>{period&&<span className="timeline-period">{period}</span>}</time></div>
 }
 function PublicSlot({slot,trip,day,visitor,guestId,refresh,allDays,theme}){
   const[body,setBody]=useState(''),[rsvp,setRsvp]=useState(false),[payments,setPayments]=useState(false),[comments,setComments]=useState(false),[message,setMessage]=useState(''),[sending,setSending]=useState(false)
