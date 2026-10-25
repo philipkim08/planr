@@ -49,7 +49,7 @@ test('icon picker has all categories, selects one and closes',async()=>{
   await act(async()=>{renderer=TestRenderer.create(React.createElement(ActivityIconPicker,{value:'',onChange:v=>{selected=v}}))})
   await click(button(renderer,b=>hasClass(b,'activity-icon-trigger')))
   const group=renderer.root.findByProps({'aria-label':'Choose an activity icon'})
-  assert.equal(group.findAllByType('button').length,10)
+  assert.equal(group.findAllByType('button').length,15)
   const train=group.findAllByType('button').find(b=>b.findAllByType('span').some(s=>s.props.children==='Train / metro'))
   await act(async()=>train.props.onClick({currentTarget:{closest:()=>({querySelector:()=>({focus(){}})})}}))
   assert.equal(selected,'train')
