@@ -31,7 +31,7 @@ export function ActivityWindow({title,initial,save,remove,onClose,renderFields})
       <form onSubmit={submit}>
         <fieldset disabled={busy}>{renderFields(form,setForm)}</fieldset>
         {error&&<p className="window-error" role="alert">{error}</p>}
-        <div className="window-actions"><button type="submit" className="window-save" disabled={busy}>{busy?'Saving…':remove?'Save changes':'Add activity'}</button><button type="button" className="window-cancel" disabled={busy} onClick={close}>Cancel</button></div>
+        <div className="window-actions"><button type="submit" className="window-save" disabled={busy}>{busy?'Saving…':remove?'Save changes':'Add activity'}</button></div>
         {remove&&<button type="button" className="window-delete" disabled={busy} onClick={deleteActivity}>Delete activity</button>}
       </form>
     </div>

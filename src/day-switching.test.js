@@ -46,6 +46,33 @@ test('major cards separate corner links from the title and preserve notes and co
   assert.equal(renderer.root.findAllByType('button').length,3)
  }finally{if(renderer)await act(async()=>renderer.unmount())}
 })
+test('comment-only activities place their single action in the title area',async()=>{
+ let renderer
+ try{
+  await act(async()=>{renderer=TestRenderer.create(React.createElement(PublicSlot,{slot:{id:'one',title:'Walk',comments:[]},visitor:'Sarah',refresh(){}}))})
+  assert.equal(count(renderer,'compact-actions'),1)
+  const top=renderer.root.findAll(n=>hasClass(n,'activity-top'))[0]
+  assert.equal(top.findAllByType('button').length,1)
+  await click(top.findByType('button'))
+  assert.equal(renderer.root.findAllByProps({'aria-label':'Leave a comment'}).length,1)
+ }finally{if(renderer)await act(async()=>renderer.unmount())}
+})
+test('activity modes and detail chips retain drafts while hiding quick-stop extras',async()=>{
+ let renderer
+ function Editor(){const [form,setForm]=React.useState({title:'Lunch',time:'13:00',icon:'dining',notes:'Keep this',links:['https://example.com'],attendance_required:true});return React.createElement(Fields,{form,setForm})}
+ try{
+  await act(async()=>{renderer=TestRenderer.create(React.createElement(Editor))})
+  await click(button(renderer,b=>String(b.props.children).startsWith('Notes')))
+  assert.equal(renderer.root.findByType('textarea').props.value,'Keep this')
+  await click(button(renderer,b=>b.props.children==='Quick stop'))
+  assert.equal(renderer.root.findAllByType('textarea').length,0)
+  assert.equal(count(renderer,'editor-guests'),0)
+  await click(button(renderer,b=>b.props.children==='Full activity'))
+  assert.equal(renderer.root.findByType('textarea').props.value,'Keep this')
+  assert.equal(renderer.root.findAllByType('input').find(n=>n.props.type==='url').props.value,'https://example.com')
+  assert.equal(renderer.root.findAllByType('input').filter(n=>n.props.type==='checkbox')[1].props.checked,true)
+ }finally{if(renderer)await act(async()=>renderer.unmount())}
+})
 test('icon picker has all categories, selects one and closes',async()=>{
  let renderer,selected
  try{
@@ -104,7 +131,7 @@ test('time input accepts arbitrary minutes with separate period and 24 half-hour
   assert.equal(renderer.root.findByType('input').props.value,'1:15')
   await act(async()=>renderer.root.findByType('input').props.onChange({target:{value:'9:45',setCustomValidity:v=>{validity=v}}}))
   assert.equal(value,'21:45');assert.equal(validity,'')
-  await act(async()=>renderer.root.findByType('select').props.onChange({target:{value:'AM'}}));assert.equal(value,'09:45')
+  await click(button(renderer,b=>b.props.children==='AM'));assert.equal(value,'09:45')
   await click(button(renderer,b=>b.props['aria-label']==='Choose activity time'))
   const options=renderer.root.findByProps({'aria-label':'Half-hour times'}).findAllByType('button')
   assert.equal(options.length,24);assert.ok(options.every(b=>/^\d{1,2}:(00|30)$/.test(b.props.children)))

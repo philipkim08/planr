@@ -1,3 +1,4 @@
+import {Fields} from './activity-fields.jsx'
 import {ActivityIcon,ActivityIconPicker} from './activity-icon.jsx'
 import {ActivityTime} from './activity-time.jsx'
 import {expenseBalances,personKey,expensePeople} from './expense-splits.js'
@@ -46,6 +47,7 @@ import './creator-refresh.css'
 import './welcome-refresh.css'
 import './timeline-refresh.css'
 import './activity-card-refresh.css'
+import './activity-editor-simplified.css'
 import {ActivityWindow} from './activity-window.jsx'
 import {LiquidChoices} from './liquid-choices.jsx'
 import {PaymentSheet} from './payment-sheet.jsx'
@@ -155,11 +157,13 @@ function PublicSlot({slot,trip,day,visitor,guestId,refresh,allDays,theme}){
   const[body,setBody]=useState(''),[rsvp,setRsvp]=useState(false),[payments,setPayments]=useState(false),[comments,setComments]=useState(false),[message,setMessage]=useState(''),[sending,setSending]=useState(false)
   const send=async(path,payload,method='POST')=>{try{const r=await api(path,{method,body:JSON.stringify(payload)});refresh(r.trip);setMessage('Saved');setTimeout(()=>setMessage(''),1400);return true}catch(e){setMessage(e.message);return false}}
   const links=slot.links||(slot.link?[slot.link]:[]),responses=slot.attendance||[],goingResponses=responses.filter(x=>x.status==='going'),response=guestResponse(responses,guestId,visitor)
+  const commentsOnly=!slot.attendance_required&&!slot.splitting_payments
+  const commentAction=<button type="button" className="action-button comments-action" aria-label={`Comments (${slot.comments?.length||0})`} aria-expanded={comments} onClick={()=>setComments(!comments)}><span className="comment-chip-icon" aria-hidden="true"/>{slot.comments?.length>0&&<span>{slot.comments.length}</span>}</button>
   const marker={going:'✓','not-going':'×',maybe:'–'}[response?.status],markerClass=response?.status||''
   const total=expenseTotal(slot),totalLabel=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:total%1?2:0,maximumFractionDigits:2}).format(total)
   if(slot.minor_stop)return <article className="public-slot timeline-stop minor-stop"><TimelineTime value={slot.time}/><div className="public-card">{slot.icon&&<span className="activity-icon-badge"><ActivityIcon name={slot.icon}/></span>}<h2 title={slot.title}>{slot.title}</h2></div></article>
   return <article className={`public-slot timeline-stop ${slot.minor_stop?'minor-stop':''}`}><TimelineTime value={slot.time}/><div className="public-card">
-    <div className={`activity-top ${links.length?'has-links':''}`}>
+    <div className={`activity-top ${links.length||commentsOnly?'has-links':''}`}>
     <div className="activity-heading">
       {slot.icon&&<span className="activity-icon-badge"><ActivityIcon name={slot.icon}/></span>}
       <div className="activity-copy">
@@ -167,13 +171,16 @@ function PublicSlot({slot,trip,day,visitor,guestId,refresh,allDays,theme}){
         {slot.notes&&<p className="activity-notes">{slot.notes}</p>}
       </div>
     </div>
+    <div className="activity-card-tools">
     {links.length>0&&<div className="activity-card-links" aria-label="Activity links">{links.map((link,i)=><React.Fragment key={i}> <a className="activity-card-link" href={link} target="_blank" rel="noreferrer" aria-label={`Open link ${i+1} for ${slot.title}`} title={link}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 3h7v7m0-7L10 14M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg>{links.length>1&&<span>{i+1}</span>}</a></React.Fragment>)}</div>}
+    {commentsOnly&&<div className="activity-actions compact-actions comment-only">{commentAction}</div>}
     </div>
-    <div className="activity-actions compact-actions">
+    </div>
+    {!commentsOnly&&<div className="activity-actions compact-actions">
       {slot.attendance_required&&<button type="button" className={`action-button rsvp-action ${response?`status-${response.status}`:''}`} aria-expanded={rsvp} onClick={()=>setRsvp(!rsvp)}>{response&&<span className="rsvp-status-mark" aria-hidden="true">{marker}</span>}<span>{response?({going:'Going',maybe:'Maybe','not-going':'Can’t go'})[response.status]:'RSVP'}</span></button>}
       {slot.splitting_payments&&<button type="button" className="action-button payments-action" aria-label={`Expenses: ${totalLabel}`} aria-expanded={payments} onClick={()=>setPayments(!payments)}><span className="payment-chip-icon" aria-hidden="true"/><span>{totalLabel}</span></button>}
-      <button type="button" className="action-button comments-action" aria-label={`Comments (${slot.comments?.length||0})`} aria-expanded={comments} onClick={()=>setComments(!comments)}><span className="comment-chip-icon" aria-hidden="true"/>{slot.comments?.length>0&&<span>{slot.comments.length}</span>}</button>
-    </div>
+      {commentAction}
+    </div>}
     {rsvp&&<RsvpSheet slot={slot} visitor={visitor} guestId={guestId} theme={theme} onClose={()=>setRsvp(false)} onSave={status=>send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/attendance`,{name:visitor,guest_id:guestId,status})}/>}
     {payments&&<PaymentSheet slot={slot} trip={trip} day={day} visitor={visitor} refresh={refresh} api={api} theme={theme} onClose={()=>setPayments(false)}/>}
     {comments&&<div className="comments">
@@ -239,7 +246,6 @@ function Edit({id,token}){
   return <main className={`editor creator-refresh theme-${previewTheme||trip.theme||'blue'}`}><nav><Logo/><span className="nav-actions"><a href={view} target="_blank">Preview ↗</a><AccountNav/></span></nav><header className="edit-header"><input value={trip.title} onChange={e=>setTrip({...trip,title:e.target.value})} onBlur={()=>mutate(`/trips/${id}`,{method:'PUT',body:JSON.stringify({title:trip.title})})}/>{notice&&<small className="saved">✓ {notice}</small>}</header><ThemePicker theme={previewTheme||trip.theme||'blue'} onChange={changeTheme}/><section className="share"><div><b>Share your plan</b><p>View link is public. Edit link is private.</p></div><button onClick={()=>copy(view,'View link')}>Copy view link</button>{edit&&<button onClick={()=>copy(edit,'Edit link')}>Copy edit link</button>}{user&&token&&<button className="save-plan" onClick={claim}>Save to My plans</button>}</section><Tabs days={trip.days} active={day.id} onChange={setActive}/><section key={`editor-day:${day.id}`} className="edit-day day-surface"><div className="day-tools"><input value={day.label} onChange={e=>setTrip({...trip,days:trip.days.map(d=>d.id===day.id?{...d,label:e.target.value}:d)})} onBlur={()=>mutate(`/trips/${id}/days/${day.id}`,{method:'PUT',body:JSON.stringify({label:day.label})})}/>{trip.days.length>1&&<button className="text-danger delete-day" onClick={deleteDay}>Delete day</button>}</div>{ordered(day).map((slot,i)=><EditSlot key={slot.id} slot={slot} timeIssue={outOfOrder(day.timeslots).has(slot.id)} index={i} count={day.timeslots.length} save={v=>mutate(`/trips/${id}/days/${day.id}/timeslots/${slot.id}`,{method:'PUT',body:JSON.stringify({...v,attendance_required:!!v.attendance_required,splitting_payments:!!v.splitting_payments})})} remove={()=>confirm('Delete this activity?')&&mutate(`/trips/${id}/days/${day.id}/timeslots/${slot.id}`,{method:'DELETE'})} move={n=>{const ids=ordered(day).map(x=>x.id);[ids[i],ids[i+n]]=[ids[i+n],ids[i]];mutate(`/trips/${id}/days/${day.id}/reorder`,{method:'PUT',body:JSON.stringify({ids})})}}/>)}<Add save={v=>mutate(`/trips/${id}/days/${day.id}/timeslots`,{method:'POST',body:JSON.stringify(v)})}/></section><AddDay save={label=>mutate(`/trips/${id}/days`,{method:'POST',body:JSON.stringify({label})})}/>{error&&<p className="error">{error}</p>}</main>
 }
 function AddDay({save}){const[open,setOpen]=useState(false),[label,setLabel]=useState(''),submit=async e=>{e.preventDefault();if(!label.trim())return;if(await save(label.trim())){setLabel('');setOpen(false)}};if(!open)return <button type="button" className="add-new-day" onClick={()=>setOpen(true)}>+ Add new day</button>;return <form className="add-day day-name-form" onSubmit={submit}><input autoFocus placeholder="New day name" value={label} onChange={e=>setLabel(e.target.value)}/><button>Add day</button><button type="button" onClick={()=>{setLabel('');setOpen(false)}}>Cancel</button></form>}
-function Fields({form,setForm}){const set=(k,v)=>setForm({...form,[k]:v}),links=form.links||[''];return <><div className="activity-meta-row"><div className="activity-time-field"><span className="activity-meta-label">Time</span><ActivityTime value={form.time} onChange={value=>set('time',value)}/></div><ActivityIconPicker value={form.icon||''} onChange={value=>set('icon',value)}/></div><label className="field-label">Activity<input required value={form.title} onChange={e=>set('title',e.target.value)}/></label><label className="switch minor-stop-switch"><span><b>Minor stop</b><small>One-line stop. No RSVPs, payments, or comments.</small></span><input type="checkbox" checked={!!form.minor_stop} onChange={e=>set('minor_stop',e.target.checked)}/><i/></label><label className="switch next-day-switch"><span><b>Next day</b><small>After midnight, but part of this day’s plans.</small></span><input type="checkbox" disabled={!form.time} checked={!!form.next_day} onChange={e=>set('next_day',e.target.checked)}/><i/></label><label className="field-label">Location<input placeholder="Location or address" value={form.location_text} onChange={e=>set('location_text',e.target.value)}/></label><div className="section-label">Links</div>{links.map((link,i)=><div className="link-row" key={i}><input type="url" aria-label={`Link ${i+1}`} placeholder="https://" value={link} onChange={e=>set('links',links.map((x,n)=>n===i?e.target.value:x))}/>{links.length>1&&<button type="button" onClick={()=>set('links',links.filter((_,n)=>n!==i))}>×</button>}</div>)}<button type="button" className="add-link" onClick={()=>set('links',[...links,''])}>+ Add another link</button><label className="field-label">Notes<textarea placeholder="Notes (optional)" value={form.notes} onChange={e=>set('notes',e.target.value)}/></label><label className="switch"><span><b>Request attendance</b><small>Guests can reply from the view link.</small></span><input type="checkbox" disabled={!!form.minor_stop} checked={!form.minor_stop&&!!form.attendance_required} onChange={e=>set('attendance_required',e.target.checked)}/><i/></label><label className="switch"><span><b>Splitting payments?</b><small>Track expenses and split costs with your group.</small></span><input type="checkbox" disabled={!!form.minor_stop} checked={!form.minor_stop&&!!form.splitting_payments} onChange={e=>set('splitting_payments',e.target.checked)}/><i/></label></>}
 function EditSlot({slot,index,count,save,remove,move,timeIssue}){
   const[editing,setEditing]=useState(false)
   return <><article data-time={slot.time} className="activity-summary">
