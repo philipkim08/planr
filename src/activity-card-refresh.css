@@ -1,0 +1,49 @@
+/* Final, scoped rules override the older mobile card margin/padding declarations. */
+.viewer.apple-preview .public-slot.timeline-stop{padding-bottom:10px}
+.viewer.apple-preview .timeline-stop>.public-card{margin:0!important}
+.viewer.apple-preview .activity-heading{display:flex;align-items:flex-start;gap:8px;min-width:0}
+.viewer.apple-preview .public-card .activity-heading>h2{flex:1;min-width:0;margin:0!important;font-size:1rem!important;line-height:1.4;font-weight:400;letter-spacing:-.015em;overflow-wrap:anywhere}
+.viewer.apple-preview .activity-title{font-weight:750;color:#222632}
+.viewer.apple-preview .activity-at,.viewer.apple-preview .activity-location{font-size:.9em;font-weight:400;color:#747782}
+.viewer.apple-preview .activity-at{color:#9699a2}
+.viewer.apple-preview .activity-inline-link{display:inline-flex;align-items:center;justify-content:center;gap:2px;vertical-align:middle;min-width:28px;min-height:28px;margin:-6px 0 -4px 2px;padding:4px;border-radius:7px;color:var(--theme-strong);background:var(--theme-soft);text-decoration:none;font-size:.65rem;white-space:nowrap}
+.viewer.apple-preview .activity-inline-link svg{width:14px;height:14px;flex-shrink:0}
+.activity-line-icon{display:block;width:22px;height:22px;flex-shrink:0;color:var(--theme-strong)}
+.viewer.apple-preview .activity-icon-badge{display:flex;align-items:center;justify-content:center;width:30px;height:30px;flex:0 0 30px;margin-top:-4px;border-radius:9px;background:var(--theme-soft);color:var(--theme-strong)}
+.viewer.apple-preview .activity-icon-badge .activity-line-icon{width:19px;height:19px}
+.viewer.apple-preview .public-card>.activity-notes{margin:7px 0 0!important;font-size:.85rem;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.viewer.apple-preview .public-card>.activity-actions.compact-actions{margin-top:12px}
+.viewer.apple-preview .minor-stop>.public-card{gap:8px}
+.viewer.apple-preview .minor-stop .activity-icon-badge{width:24px;height:24px;flex-basis:24px;margin:0;border-radius:7px}
+.viewer.apple-preview .minor-stop .activity-icon-badge .activity-line-icon{width:17px;height:17px}
+@supports(text-box-trim:trim-start){.viewer.apple-preview .timeline-stop:not(.minor-stop)>.public-card>.activity-heading>h2{text-box-trim:trim-start;text-box-edge:cap alphabetic}}
+.activity-window .activity-meta-row{display:grid;grid-template-columns:minmax(0,1fr) 86px;gap:10px;align-items:start;margin-bottom:16px}
+.activity-window .activity-time-field{min-width:0}
+.activity-window .activity-meta-label,.activity-window .activity-icon-label{display:block;font-size:.8rem;font-weight:600;color:#737587;margin-bottom:6px}
+.activity-window .activity-meta-row .activity-time-controls{grid-template-columns:minmax(0,1fr) 68px;gap:7px}
+.activity-window .activity-meta-row input,.activity-window .activity-meta-row select{height:46px;margin:0;box-sizing:border-box}
+.activity-window .activity-meta-row .activity-clock>button{top:2px;bottom:2px}
+.activity-window .activity-icon-picker{position:relative;min-width:0}
+.activity-window .activity-icon-trigger{display:flex;align-items:center;justify-content:center;gap:9px;height:46px;width:100%;padding:6px;border:1px solid #dcdde7;border-radius:12px;background:#fff;color:var(--theme-strong);font-size:.85rem}
+.activity-window .activity-icon-trigger[aria-expanded=true]{background:var(--theme-soft);border-color:var(--theme-border)}
+.activity-window .activity-icon-options{position:absolute;right:0;top:calc(100% + 6px);width:260px;max-width:calc(100vw - 64px);z-index:12;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:8px;border:1px solid var(--theme-border);border-radius:16px;background:#fff;box-shadow:0 8px 24px #1824341c;max-height:280px;overflow-y:auto;overscroll-behavior:contain}
+.activity-window .activity-icon-options button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:62px;padding:6px 2px;border:0;border-radius:10px;background:transparent;color:#505560;font-size:.7rem;line-height:1.2}
+.activity-window .activity-icon-options button[aria-pressed=true],.activity-window .activity-icon-options button:hover{background:var(--theme-soft);color:var(--theme-strong)}
+.creator-icon-title{display:flex;align-items:center;gap:7px}
+.creator-icon-title .activity-line-icon{width:18px;height:18px}
+@media(max-width:600px){
+ .viewer.apple-preview{padding-left:max(8px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
+ .viewer.apple-preview .public-slot.timeline-stop{grid-template-columns:46px minmax(0,1fr)!important;gap:8px;padding-bottom:8px}
+ .viewer.apple-preview .timeline-time{text-align:left}
+ .viewer.apple-preview .timeline-stop>.public-card{padding-left:12px!important;padding-right:12px!important;margin:0!important}
+ .viewer.apple-preview .activity-heading{gap:6px}
+ .viewer.apple-preview .activity-icon-badge{width:27px;height:27px;flex-basis:27px}
+ .viewer.apple-preview .public-card .activity-heading>h2{font-size:.95rem!important}
+}
+@media(max-width:360px){
+ .activity-window .activity-meta-row{grid-template-columns:minmax(0,1fr) 66px;gap:6px}
+ .activity-window .activity-meta-row .activity-time-controls{grid-template-columns:minmax(0,1fr) 62px;gap:6px}
+ .activity-window .activity-meta-row .activity-clock>input{padding-left:10px;padding-right:24px}
+ .activity-window .activity-meta-row .activity-clock>button{width:22px}
+ .activity-window .activity-icon-trigger{gap:5px}
+}

@@ -13,12 +13,12 @@ const root=fileURLToPath(new URL('../',import.meta.url))
 const bundle=await build({
   entryPoints:[path.join(root,'src/main.jsx')],bundle:true,write:false,platform:'node',format:'cjs',packages:'external',
   define:{'import.meta.env':'{}'},loader:{'.css':'empty','.png':'dataurl'},
-  plugins:[{name:'page-test-entry',setup(build){build.onLoad({filter:/\/src\/main\.jsx$/},args=>({loader:'jsx',contents:readFileSync(args.path,'utf8').replace("createRoot(document.getElementById('root')).render(<App/>)",'export {View,Edit,PaymentSheet,RsvpSheet,ActivityTime,PublicSlot}') }))}}]
+  plugins:[{name:'page-test-entry',setup(build){build.onLoad({filter:/\/src\/main\.jsx$/},args=>({loader:'jsx',contents:readFileSync(args.path,'utf8').replace("createRoot(document.getElementById('root')).render(<App/>)",'export {View,Edit,PaymentSheet,RsvpSheet,ActivityTime,PublicSlot,ActivityIconPicker,Fields}') }))}}]
 })
 const modulePath=path.join(root,'day-switching-test.cjs'),loaded=new Module(modulePath)
 loaded.paths=Module._nodeModulePaths(root)
 loaded._compile(bundle.outputFiles[0].text,modulePath)
-const {View,Edit,PaymentSheet,RsvpSheet,ActivityTime,PublicSlot}=loaded.exports
+const {View,Edit,PaymentSheet,RsvpSheet,ActivityTime,PublicSlot,ActivityIconPicker,Fields}=loaded.exports
 const slot=(id,title)=>({id,title,time:'12:00',order:0,attendance_required:true,splitting_payments:true,attendance:[{name:'Philip',status:'going'}],payments:[{id:'payment',paid_by:'Grace',amount:'30',note:'Lunch'}],comments:[]})
 const trip={id:'test',title:'Test plan',theme:'purple',days:[
   {id:'a',label:'Day A',order:0,timeslots:[slot('shared-id','Activity A')]},
@@ -29,6 +29,33 @@ const hasClass=(node,name)=>typeof node.props.className==='string'&&node.props.c
 const count=(renderer,name)=>renderer.root.findAll(node=>hasClass(node,name)).length
 const button=(renderer,predicate)=>renderer.root.findAllByType('button').find(predicate)
 const click=async b=>{assert.ok(b,'button exists');await act(async()=>{b.props.onClick()})}
+
+test('major cards keep title, location and links together with notes and controls below',async()=>{
+ let renderer
+ try{
+  await act(async()=>{renderer=TestRenderer.create(React.createElement(PublicSlot,{slot:{id:'dinner',title:'Dinner',icon:'dining',time:'19:30',location_text:"Benny's Diner",notes:'Meet outside',links:['https://example.com'],attendance_required:true,splitting_payments:true},visitor:'Sarah',refresh(){}}))})
+  const heading=renderer.root.findAll(n=>hasClass(n,'activity-heading'))[0]
+  assert.equal(heading.findByType('h2').findAllByType('a').length,1)
+  assert.equal(heading.findAll(n=>hasClass(n,'activity-location'))[0].props.children,"Benny's Diner")
+  assert.equal(count(renderer,'activity-icon-badge'),1)
+  assert.equal(count(renderer,'activity-notes'),1)
+  assert.equal(count(renderer,'compact-actions'),1)
+  assert.equal(renderer.root.findAllByType('button').length,3)
+ }finally{if(renderer)await act(async()=>renderer.unmount())}
+})
+test('icon picker has all categories, selects one and closes',async()=>{
+ let renderer,selected
+ try{
+  await act(async()=>{renderer=TestRenderer.create(React.createElement(ActivityIconPicker,{value:'',onChange:v=>{selected=v}}))})
+  await click(button(renderer,b=>hasClass(b,'activity-icon-trigger')))
+  const group=renderer.root.findByProps({'aria-label':'Choose an activity icon'})
+  assert.equal(group.findAllByType('button').length,10)
+  const train=group.findAllByType('button').find(b=>b.findAllByType('span').some(s=>s.props.children==='Train / metro'))
+  await act(async()=>train.props.onClick({currentTarget:{closest:()=>({querySelector:()=>({focus(){}})})}}))
+  assert.equal(selected,'train')
+  assert.equal(count(renderer,'activity-icon-options'),0)
+ }finally{if(renderer)await act(async()=>renderer.unmount())}
+})
 
 test('minor stops show only the title and stacked time without social controls',async()=>{
  let renderer
