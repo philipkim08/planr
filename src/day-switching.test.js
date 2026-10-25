@@ -30,12 +30,15 @@ const count=(renderer,name)=>renderer.root.findAll(node=>hasClass(node,name)).le
 const button=(renderer,predicate)=>renderer.root.findAllByType('button').find(predicate)
 const click=async b=>{assert.ok(b,'button exists');await act(async()=>{b.props.onClick()})}
 
-test('major cards keep title, location and links together with notes and controls below',async()=>{
+test('major cards separate corner links from the title and preserve notes and controls',async()=>{
  let renderer
  try{
   await act(async()=>{renderer=TestRenderer.create(React.createElement(PublicSlot,{slot:{id:'dinner',title:'Dinner',icon:'dining',time:'19:30',location_text:"Benny's Diner",notes:'Meet outside',links:['https://example.com'],attendance_required:true,splitting_payments:true},visitor:'Sarah',refresh(){}}))})
   const heading=renderer.root.findAll(n=>hasClass(n,'activity-heading'))[0]
-  assert.equal(heading.findByType('h2').findAllByType('a').length,1)
+  assert.equal(heading.findAllByType('a').length,0)
+  const corner=renderer.root.findByProps({'aria-label':'Activity links'})
+  assert.equal(corner.findByType('a').props.href,'https://example.com')
+  assert.equal(corner.findByType('a').props.target,'_blank')
   assert.equal(heading.findAll(n=>hasClass(n,'activity-location'))[0].props.children,"Benny's Diner")
   assert.equal(count(renderer,'activity-icon-badge'),1)
   assert.equal(count(renderer,'activity-notes'),1)
