@@ -161,9 +161,11 @@ function PublicSlot({slot,trip,day,visitor,guestId,refresh,allDays,theme}){
   return <article className={`public-slot timeline-stop ${slot.minor_stop?'minor-stop':''}`}><TimelineTime value={slot.time}/><div className="public-card">
     <div className="activity-heading">
       {slot.icon&&<span className="activity-icon-badge"><ActivityIcon name={slot.icon}/></span>}
+      <div className="activity-copy">
       <h2><strong className="activity-title">{slot.title}</strong>{slot.location_text&&<> <span className="activity-at">@</span> <span className="activity-location">{slot.location_text}</span></>}{links.map((link,i)=><React.Fragment key={i}> <a className="activity-inline-link" href={link} target="_blank" rel="noreferrer" aria-label={`Open link ${i+1} for ${slot.title}`} title={link}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 3h7v7m0-7L10 14M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg>{links.length>1&&<span>{i+1}</span>}</a></React.Fragment>)}</h2>
+        {slot.notes&&<p className="activity-notes">{slot.notes}</p>}
+      </div>
     </div>
-    {slot.notes&&<p className="activity-notes">{slot.notes}</p>}
     <div className="activity-actions compact-actions">
       {slot.attendance_required&&<button type="button" className={`action-button rsvp-action ${response?`status-${response.status}`:''}`} aria-expanded={rsvp} onClick={()=>setRsvp(!rsvp)}>{response&&<span className="rsvp-status-mark" aria-hidden="true">{marker}</span>}<span>{response?({going:'Going',maybe:'Maybe','not-going':'Can’t go'})[response.status]:'RSVP'}</span></button>}
       {slot.splitting_payments&&<button type="button" className="action-button payments-action" aria-label={`Expenses: ${totalLabel}`} aria-expanded={payments} onClick={()=>setPayments(!payments)}><span className="payment-chip-icon" aria-hidden="true"/><span>{totalLabel}</span></button>}

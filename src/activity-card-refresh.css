@@ -1,22 +1,22 @@
 /* Final, scoped rules override the older mobile card margin/padding declarations. */
 .viewer.apple-preview .public-slot.timeline-stop{padding-bottom:10px}
 .viewer.apple-preview .timeline-stop>.public-card{margin:0!important}
-.viewer.apple-preview .activity-heading{display:flex;align-items:flex-start;gap:8px;min-width:0}
-.viewer.apple-preview .public-card .activity-heading>h2{flex:1;min-width:0;margin:0!important;font-size:1rem!important;line-height:1.4;font-weight:400;letter-spacing:-.015em;overflow-wrap:anywhere}
+.viewer.apple-preview .activity-heading{display:flex;align-items:center;gap:8px;min-width:0}
+.viewer.apple-preview .public-card .activity-copy>h2{flex:1;min-width:0;margin:0!important;font-size:1rem!important;line-height:1.4;font-weight:400;letter-spacing:-.015em;overflow-wrap:anywhere}
 .viewer.apple-preview .activity-title{font-weight:750;color:#222632}
 .viewer.apple-preview .activity-at,.viewer.apple-preview .activity-location{font-size:.9em;font-weight:400;color:#747782}
 .viewer.apple-preview .activity-at{color:#9699a2}
 .viewer.apple-preview .activity-inline-link{display:inline-flex;align-items:center;justify-content:center;gap:2px;vertical-align:middle;min-width:28px;min-height:28px;margin:-6px 0 -4px 2px;padding:4px;border-radius:7px;color:var(--theme-strong);background:var(--theme-soft);text-decoration:none;font-size:.65rem;white-space:nowrap}
 .viewer.apple-preview .activity-inline-link svg{width:14px;height:14px;flex-shrink:0}
 .activity-line-icon{display:block;width:22px;height:22px;flex-shrink:0;color:var(--theme-strong)}
-.viewer.apple-preview .activity-icon-badge{display:flex;align-items:center;justify-content:center;width:30px;height:30px;flex:0 0 30px;margin-top:-4px;border-radius:9px;background:var(--theme-soft);color:var(--theme-strong)}
+.viewer.apple-preview .activity-icon-badge{display:flex;align-items:center;justify-content:center;width:30px;height:30px;flex:0 0 30px;margin-top:0;border-radius:9px;background:var(--theme-soft);color:var(--theme-strong)}
 .viewer.apple-preview .activity-icon-badge .activity-line-icon{width:19px;height:19px}
-.viewer.apple-preview .public-card>.activity-notes{margin:7px 0 0!important;font-size:.85rem;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.viewer.apple-preview .activity-copy>.activity-notes{margin:4px 0 0!important;font-size:.85rem;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
 .viewer.apple-preview .public-card>.activity-actions.compact-actions{margin-top:12px}
 .viewer.apple-preview .minor-stop>.public-card{gap:8px}
 .viewer.apple-preview .minor-stop .activity-icon-badge{width:24px;height:24px;flex-basis:24px;margin:0;border-radius:7px}
 .viewer.apple-preview .minor-stop .activity-icon-badge .activity-line-icon{width:17px;height:17px}
-@supports(text-box-trim:trim-start){.viewer.apple-preview .timeline-stop:not(.minor-stop)>.public-card>.activity-heading>h2{text-box-trim:trim-start;text-box-edge:cap alphabetic}}
+@supports(text-box-trim:trim-start){.viewer.apple-preview .timeline-stop:not(.minor-stop)>.public-card>.activity-heading>.activity-copy>h2{text-box-trim:trim-start;text-box-edge:cap alphabetic}}
 .activity-window .activity-meta-row{display:grid;grid-template-columns:minmax(0,1fr) 86px;gap:10px;align-items:start;margin-bottom:16px}
 .activity-window .activity-time-field{min-width:0}
 .activity-window .activity-meta-label,.activity-window .activity-icon-label{display:block;font-size:.8rem;font-weight:600;color:#737587;margin-bottom:6px}
@@ -38,21 +38,16 @@
  .viewer.apple-preview>header .plan-subtitle{font-size:.88rem}
  .viewer.apple-preview .tabs{margin:14px 0 0;padding-bottom:0}
  .viewer.apple-preview .agenda{padding-top:10px}
- .viewer.apple-preview .public-slot.timeline-stop{grid-template-columns:46px minmax(0,1fr)!important;gap:6px;padding-bottom:10px}
+ .viewer.apple-preview .public-slot.timeline-stop{grid-template-columns:42px minmax(0,1fr)!important;gap:10px;padding-bottom:10px}
  .viewer.apple-preview .timeline-time{text-align:right}
  .viewer.apple-preview .timeline-stop>.public-card{padding-left:12px!important;padding-right:12px!important;margin:0!important}
  .viewer.apple-preview .activity-heading{gap:8px}
- .viewer.apple-preview .activity-heading:has(>.activity-icon-badge){position:relative;display:block;padding-left:46px;min-height:30px}
- .viewer.apple-preview .public-card:has(>.activity-notes)>.activity-heading{min-height:0}
- .viewer.apple-preview .activity-heading>.activity-icon-badge{position:absolute;left:0;top:0}
- .viewer.apple-preview .timeline-stop:not(.minor-stop) .activity-icon-badge{width:38px;height:38px;flex-basis:38px;margin-top:-8px;border-radius:12px}
+ .viewer.apple-preview .timeline-stop:not(.minor-stop) .activity-icon-badge{width:38px;height:38px;flex-basis:38px;margin-top:0;border-radius:12px}
  .viewer.apple-preview .timeline-stop .activity-icon-badge .activity-line-icon{width:21px;height:21px}
  .viewer.apple-preview .minor-stop .activity-icon-badge{width:36px;height:36px;flex-basis:36px;border-radius:11px}
  .viewer.apple-preview .minor-stop>.public-card{padding-top:10px!important;padding-bottom:10px!important}
- .viewer.apple-preview .minor-stop>.timeline-time{padding-top:20px}
- .viewer.apple-preview .public-card:has(>.activity-heading>.activity-icon-badge)>.activity-notes{margin-left:46px!important;margin-top:4px!important}
  .viewer.apple-preview .public-card>.activity-actions.compact-actions{margin-top:10px}
- .viewer.apple-preview .public-card .activity-heading>h2{font-size:.95rem!important}
+ .viewer.apple-preview .public-card .activity-copy>h2{font-size:.95rem!important}
 }
 @media(max-width:360px){
  .activity-window .activity-meta-row{grid-template-columns:minmax(0,1fr) 66px;gap:6px}
@@ -61,3 +56,6 @@
  .activity-window .activity-meta-row .activity-clock>button{width:22px}
  .activity-window .activity-icon-trigger{gap:5px}
 }
+
+.viewer.apple-preview .activity-copy{flex:1;min-width:0}
+.viewer.apple-preview .minor-stop>.timeline-time{align-self:center;padding-top:0;padding-bottom:0}
