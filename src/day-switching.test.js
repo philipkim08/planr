@@ -171,18 +171,22 @@ test('background refresh keeps the selected day and unsent comment draft',async(
   await click(button(renderer,b=>b.props['data-value']==='b'))
   await click(button(renderer,b=>hasClass(b,'comments-action')))
   await act(async()=>renderer.root.findByProps({'aria-label':'Leave a comment'}).props.onChange({target:{value:'Still typing'}}))
-  current=structuredClone(current);current.days[1].timeslots[0].comments.push({id:'new-comment',name:'Friend',body:'Hello'})
+  current=structuredClone(current);current.description='A weekend together.\nBring a jacket.';current.days[1].timeslots[0].comments.push({id:'new-comment',name:'Friend',body:'Hello'})
   await act(async()=>{globalThis.window.dispatchEvent(new Event('focus'))})
   assert.equal(renderer.root.findByProps({'aria-label':'Leave a comment'}).props.value,'Still typing')
   assert.equal(renderer.root.findAll(node=>hasClass(node,'agenda'))[0].props['aria-label'],'Day B')
   assert.equal(renderer.root.findAll(node=>hasClass(node,'comment-author')).length,1)
+  assert.equal(renderer.root.findByProps({className:'plan-description'}).props.children,current.description)
+  current={...current,description:''}
+  await act(async()=>{globalThis.window.dispatchEvent(new Event('focus'))})
+  assert.equal(count(renderer,'plan-description'),0)
  }finally{if(renderer)await act(async()=>renderer.unmount());Object.assign(globalThis,originals)}
 })
 
 test('account-opened editor offers and copies the authorized private edit link',async()=>{
  const originals={fetch:globalThis.fetch,location:globalThis.location,ResizeObserver:globalThis.ResizeObserver},nav=Object.getOwnPropertyDescriptor(globalThis,'navigator')
- let renderer,copied
- globalThis.fetch=async()=>({ok:true,json:async()=>({trip,editToken:'private-test-token'})})
+ let renderer,copied,descriptionPayload
+ globalThis.fetch=async(_url,options)=>{if(options?.method==='PUT')descriptionPayload=JSON.parse(options.body);return {ok:true,json:async()=>({trip:{...trip,...descriptionPayload},editToken:'private-test-token'})}}
  globalThis.location={origin:'https://planr.test'}
  globalThis.ResizeObserver=class{observe(){} disconnect(){}}
  Object.defineProperty(globalThis,'navigator',{configurable:true,value:{clipboard:{writeText:async value=>{copied=value}}}})
@@ -192,6 +196,13 @@ test('account-opened editor offers and copies the authorized private edit link',
   assert.equal(copied,'https://planr.test/edit/test/private-test-token')
   await click(button(renderer,b=>b.props.children==='Copy view link'))
   assert.equal(copied,'https://planr.test/trip/test')
+  await act(async()=>renderer.root.findByProps({id:'plan-description'}).props.onChange({target:{value:'Our weekend plans'}}))
+  await act(async()=>renderer.root.findByProps({className:'plan-description-editor'}).props.onSubmit({preventDefault(){}}))
+  assert.deepEqual(descriptionPayload,{description:'Our weekend plans'})
+  assert.equal(renderer.root.findByProps({id:'plan-description'}).props.value,'Our weekend plans')
+  await act(async()=>renderer.root.findByProps({id:'plan-description'}).props.onChange({target:{value:''}}))
+  await act(async()=>renderer.root.findByProps({className:'plan-description-editor'}).props.onSubmit({preventDefault(){}}))
+  assert.deepEqual(descriptionPayload,{description:''})
  }finally{
   if(renderer)await act(async()=>renderer.unmount())
   Object.assign(globalThis,originals)

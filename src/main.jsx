@@ -1,3 +1,4 @@
+import {PlanDescriptionEditor} from './plan-description.jsx'
 import {Fields} from './activity-fields.jsx'
 import {ActivityIcon,ActivityIconPicker} from './activity-icon.jsx'
 import {ActivityTime} from './activity-time.jsx'
@@ -48,6 +49,7 @@ import './welcome-refresh.css'
 import './timeline-refresh.css'
 import './activity-card-refresh.css'
 import './activity-editor-simplified.css'
+import './plan-description.css'
 import {ActivityWindow} from './activity-window.jsx'
 import {LiquidChoices} from './liquid-choices.jsx'
 import {PaymentSheet} from './payment-sheet.jsx'
@@ -65,11 +67,11 @@ function AccountNav(){const{user,ready}=useCurrentUser();if(!auth||!ready)return
 function App(){const p=location.pathname.split('/').filter(Boolean);return p[0]==='reset-password'?<PasswordReset auth={auth}/>:p[0]==='trip'?<View id={p[1]}/>:p[0]==='edit'?<Edit id={p[1]} token={p[2]}/>:p[0]==='plans'?<Plans/>:<Home/>}
 function Home(){
   const {user,ready}=useCurrentUser()
-  const[title,setTitle]=useState(''),[start,setStart]=useState(''),[end,setEnd]=useState(''),[error,setError]=useState(''),[creating,setCreating]=useState(false)
+  const[title,setTitle]=useState(''),[description,setDescription]=useState(''),[start,setStart]=useState(''),[end,setEnd]=useState(''),[error,setError]=useState(''),[creating,setCreating]=useState(false)
   const create=async e=>{
     e.preventDefault();if(creating)return
     setCreating(true);setError('')
-    try{const{trip,editToken}=await api('/trips',{method:'POST',body:JSON.stringify({title,dates:range(start,end),day_dates:calendarDates(start,end)})});location.href=`/edit/${trip.id}/${editToken}`}
+    try{const{trip,editToken}=await api('/trips',{method:'POST',body:JSON.stringify({title,description,dates:range(start,end),day_dates:calendarDates(start,end)})});location.href=`/edit/${trip.id}/${editToken}`}
     catch(e){setError(e.message);setCreating(false)}
   }
   if(!ready)return <Loading/>
@@ -86,6 +88,7 @@ function Home(){
     <header className="start-header"><p>A LITTLE SOMETHING TO LOOK FORWARD TO</p><h1>Make a plan.</h1><span>A day out, a weekend away, or anything in between.</span></header>
     <section className="create"><form onSubmit={create}>
       <label className="trip-title-label">Give it a name<input required autoFocus placeholder="Saturday with Sarah" value={title} onChange={e=>setTitle(e.target.value)}/></label>
+      <label className="new-plan-description">Description (optional)<textarea maxLength={2000} rows={3} placeholder="What’s the plan?" value={description} onChange={e=>setDescription(e.target.value)}/></label>
       <CalendarRange start={start} end={end} setStart={setStart} setEnd={setEnd}/>
       <div className="create-trip-footer"><p className="range-note">{start?`${range(start,end).length} ${range(start,end).length===1?'day':'days'} of possibilities`:'Pick a start and end date above.'}</p><button disabled={creating} className="primary">{creating?'Creating…':'Create trip'} <span aria-hidden="true">→</span></button></div>
       {error&&<p className="error" role="alert">{error}</p>}
@@ -139,7 +142,7 @@ function View({id}){
   const day=trip.days.find(d=>d.id===active)||trip.days[0],people=itineraryPeople(trip.days)
   return <main className={`viewer apple-preview theme-${trip.theme||'blue'}`}>
     <nav><Logo/><button className="visitor-greeting" type="button" onClick={()=>setChangingName(!changingName)}>{visitor?`Hi ${visitor} · change`:'Add your name'}</button></nav>
-    <header><h1>{trip.title}</h1><p className="plan-subtitle">{planDateRange(trip.days)}{people.length?` · ${people.length} ${people.length===1?'person':'people'}`:''}</p>
+    <header><h1>{trip.title}</h1>{trip.description?.trim()&&<p className="plan-description">{trip.description}</p>}<p className="plan-subtitle">{planDateRange(trip.days)}{people.length?` · ${people.length} ${people.length===1?'person':'people'}`:''}</p>
       {(!visitor||changingName)&&<form className="visitor-editor" onSubmit={e=>{e.preventDefault();setChangingName(false)}}><label>Your name<input aria-label="Your name" placeholder="So friends know it’s you" value={visitor} onChange={e=>setName(e.target.value)}/></label><button type="submit">Done</button></form>}
     </header>
     {refreshError&&<p role="status" className="sheet-hint">{refreshError}</p>}
@@ -245,7 +248,7 @@ function Edit({id,token}){
   const shareToken=token||(editAccess?.id===id?editAccess.token:null)
   const day=trip.days.find(d=>d.id===active)||trip.days[0],view=`${location.origin}/trip/${id}`,edit=shareToken?`${location.origin}/edit/${id}/${shareToken}`:'',copy=(x,l)=>navigator.clipboard.writeText(x).then(()=>setNotice(`${l} copied`)).catch(()=>setError('Could not copy the link. Please try again.')),claim=async()=>{if(await mutate(`/trips/${id}/claim`,{method:'POST'}))setNotice('Saved to My plans')}
   const deleteDay=async()=>{if(!confirm(`Delete ${day.label} and every activity in it? This cannot be undone.`))return;const updated=await mutate(`/trips/${id}/days/${day.id}`,{method:'DELETE'});if(updated)setActive(updated.days[0]?.id)}
-  return <main className={`editor creator-refresh theme-${previewTheme||trip.theme||'blue'}`}><nav><Logo/><span className="nav-actions"><a href={view} target="_blank">Preview ↗</a><AccountNav/></span></nav><header className="edit-header"><input value={trip.title} onChange={e=>setTrip({...trip,title:e.target.value})} onBlur={()=>mutate(`/trips/${id}`,{method:'PUT',body:JSON.stringify({title:trip.title})})}/>{notice&&<small className="saved">✓ {notice}</small>}</header><ThemePicker theme={previewTheme||trip.theme||'blue'} onChange={changeTheme}/><section className="share"><div><b>Share your plan</b><p>View link is public. Edit link is private.</p></div><button onClick={()=>copy(view,'View link')}>Copy view link</button>{edit&&<button onClick={()=>copy(edit,'Edit link')}>Copy edit link</button>}{user&&token&&<button className="save-plan" onClick={claim}>Save to My plans</button>}</section><Tabs days={trip.days} active={day.id} onChange={setActive}/><section key={`editor-day:${day.id}`} className="edit-day day-surface"><div className="day-tools"><input value={day.label} onChange={e=>setTrip({...trip,days:trip.days.map(d=>d.id===day.id?{...d,label:e.target.value}:d)})} onBlur={()=>mutate(`/trips/${id}/days/${day.id}`,{method:'PUT',body:JSON.stringify({label:day.label})})}/>{trip.days.length>1&&<button className="text-danger delete-day" onClick={deleteDay}>Delete day</button>}</div>{ordered(day).map((slot,i)=><EditSlot key={slot.id} slot={slot} timeIssue={outOfOrder(day.timeslots).has(slot.id)} index={i} count={day.timeslots.length} save={v=>mutate(`/trips/${id}/days/${day.id}/timeslots/${slot.id}`,{method:'PUT',body:JSON.stringify({...v,attendance_required:!!v.attendance_required,splitting_payments:!!v.splitting_payments})})} remove={()=>confirm('Delete this activity?')&&mutate(`/trips/${id}/days/${day.id}/timeslots/${slot.id}`,{method:'DELETE'})} move={n=>{const ids=ordered(day).map(x=>x.id);[ids[i],ids[i+n]]=[ids[i+n],ids[i]];mutate(`/trips/${id}/days/${day.id}/reorder`,{method:'PUT',body:JSON.stringify({ids})})}}/>)}<Add save={v=>mutate(`/trips/${id}/days/${day.id}/timeslots`,{method:'POST',body:JSON.stringify(v)})}/></section><AddDay save={label=>mutate(`/trips/${id}/days`,{method:'POST',body:JSON.stringify({label})})}/>{error&&<p className="error">{error}</p>}</main>
+  return <main className={`editor creator-refresh theme-${previewTheme||trip.theme||'blue'}`}><nav><Logo/><span className="nav-actions"><a href={view} target="_blank">Preview ↗</a><AccountNav/></span></nav><header className="edit-header"><input value={trip.title} onChange={e=>setTrip({...trip,title:e.target.value})} onBlur={()=>mutate(`/trips/${id}`,{method:'PUT',body:JSON.stringify({title:trip.title})})}/><PlanDescriptionEditor key={id} value={trip.description||''} save={description=>mutate(`/trips/${id}`,{method:'PUT',body:JSON.stringify({description})})}/>{notice&&<small className="saved">✓ {notice}</small>}</header><ThemePicker theme={previewTheme||trip.theme||'blue'} onChange={changeTheme}/><section className="share"><div><b>Share your plan</b><p>View link is public. Edit link is private.</p></div><button onClick={()=>copy(view,'View link')}>Copy view link</button>{edit&&<button onClick={()=>copy(edit,'Edit link')}>Copy edit link</button>}{user&&token&&<button className="save-plan" onClick={claim}>Save to My plans</button>}</section><Tabs days={trip.days} active={day.id} onChange={setActive}/><section key={`editor-day:${day.id}`} className="edit-day day-surface"><div className="day-tools"><input value={day.label} onChange={e=>setTrip({...trip,days:trip.days.map(d=>d.id===day.id?{...d,label:e.target.value}:d)})} onBlur={()=>mutate(`/trips/${id}/days/${day.id}`,{method:'PUT',body:JSON.stringify({label:day.label})})}/>{trip.days.length>1&&<button className="text-danger delete-day" onClick={deleteDay}>Delete day</button>}</div>{ordered(day).map((slot,i)=><EditSlot key={slot.id} slot={slot} timeIssue={outOfOrder(day.timeslots).has(slot.id)} index={i} count={day.timeslots.length} save={v=>mutate(`/trips/${id}/days/${day.id}/timeslots/${slot.id}`,{method:'PUT',body:JSON.stringify({...v,attendance_required:!!v.attendance_required,splitting_payments:!!v.splitting_payments})})} remove={()=>confirm('Delete this activity?')&&mutate(`/trips/${id}/days/${day.id}/timeslots/${slot.id}`,{method:'DELETE'})} move={n=>{const ids=ordered(day).map(x=>x.id);[ids[i],ids[i+n]]=[ids[i+n],ids[i]];mutate(`/trips/${id}/days/${day.id}/reorder`,{method:'PUT',body:JSON.stringify({ids})})}}/>)}<Add save={v=>mutate(`/trips/${id}/days/${day.id}/timeslots`,{method:'POST',body:JSON.stringify(v)})}/></section><AddDay save={label=>mutate(`/trips/${id}/days`,{method:'POST',body:JSON.stringify({label})})}/>{error&&<p className="error">{error}</p>}</main>
 }
 function AddDay({save}){const[open,setOpen]=useState(false),[label,setLabel]=useState(''),submit=async e=>{e.preventDefault();if(!label.trim())return;if(await save(label.trim())){setLabel('');setOpen(false)}};if(!open)return <button type="button" className="add-new-day" onClick={()=>setOpen(true)}>+ Add new day</button>;return <form className="add-day day-name-form" onSubmit={submit}><input autoFocus placeholder="New day name" value={label} onChange={e=>setLabel(e.target.value)}/><button>Add day</button><button type="button" onClick={()=>{setLabel('');setOpen(false)}}>Cancel</button></form>}
 function EditSlot({slot,index,count,save,remove,move,timeIssue}){
