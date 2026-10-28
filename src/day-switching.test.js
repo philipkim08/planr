@@ -179,6 +179,26 @@ test('background refresh keeps the selected day and unsent comment draft',async(
  }finally{if(renderer)await act(async()=>renderer.unmount());Object.assign(globalThis,originals)}
 })
 
+test('account-opened editor offers and copies the authorized private edit link',async()=>{
+ const originals={fetch:globalThis.fetch,location:globalThis.location,ResizeObserver:globalThis.ResizeObserver},nav=Object.getOwnPropertyDescriptor(globalThis,'navigator')
+ let renderer,copied
+ globalThis.fetch=async()=>({ok:true,json:async()=>({trip,editToken:'private-test-token'})})
+ globalThis.location={origin:'https://planr.test'}
+ globalThis.ResizeObserver=class{observe(){} disconnect(){}}
+ Object.defineProperty(globalThis,'navigator',{configurable:true,value:{clipboard:{writeText:async value=>{copied=value}}}})
+ try{
+  await act(async()=>{renderer=TestRenderer.create(React.createElement(Edit,{id:'test'}),{createNodeMock:()=>({querySelectorAll:()=>[]})})})
+  await click(button(renderer,b=>b.props.children==='Copy edit link'))
+  assert.equal(copied,'https://planr.test/edit/test/private-test-token')
+  await click(button(renderer,b=>b.props.children==='Copy view link'))
+  assert.equal(copied,'https://planr.test/trip/test')
+ }finally{
+  if(renderer)await act(async()=>renderer.unmount())
+  Object.assign(globalThis,originals)
+  if(nav)Object.defineProperty(globalThis,'navigator',nav);else delete globalThis.navigator
+ }
+})
+
 test('repeated day switches leave exactly one current preview/editor surface and no orphan windows',async()=>{
   const originals={fetch:globalThis.fetch,localStorage:globalThis.localStorage,document:globalThis.document,location:globalThis.location,ResizeObserver:globalThis.ResizeObserver}
   globalThis.fetch=async()=>({ok:true,json:async()=>({trip})})

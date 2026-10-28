@@ -21,7 +21,7 @@ app.delete('/api/me/trips/:id',wrap(async(req,res)=>{
 app.set('trust proxy', 1)
 registerAccounts(app, { sb, authUser, wrap })
 app.get('/api/trips/:id',wrap(async(req,res)=>{const t=await get(req.params.id);t?res.json({trip:pub(t)}):res.status(404).json({error:'Trip not found.'})}))
-app.get('/api/trips/:id/edit',wrap(async(req,res)=>{const t=await editable(req,res);if(t)res.json({trip:pub(t)})}))
+app.get('/api/trips/:id/edit',wrap(async(req,res)=>{const t=await editable(req,res);if(t){res.set('Cache-Control','no-store');res.json({trip:pub(t),editToken:t.edit_token})}}))
 app.post('/api/trips/:id/claim',wrap(async(req,res)=>{const u=await authUser(req);if(!u)return res.status(401).json({error:'Please sign in before saving this plan.'});const t=await editable(req,res);if(!t)return;if(t.owner_id&&t.owner_id!==u.id)return res.status(409).json({error:'This plan is already saved to another account.'});t.owner_id=u.id;await save(t);res.json({trip:pub(t)})}))
 app.put('/api/trips/:id',wrap(async(req,res)=>{const t=await editable(req,res);if(!t)return;if('title'in req.body){if(!req.body.title?.trim())return res.status(400).json({error:'A trip title is required.'});t.title=req.body.title.trim()}if('theme'in req.body){if(!isPlanTheme(req.body.theme))return res.status(400).json({error:'That theme is not available.'});t.theme=req.body.theme}await save(t);res.json({trip:pub(t)})}))
 app.post('/api/trips/:id/days',wrap(async(req,res)=>{const t=await editable(req,res);if(!t)return;t.days.push({id:crypto.randomUUID(),label:req.body.label?.trim()||`Day ${t.days.length+1}`,order:t.days.length,timeslots:[]});await save(t);res.status(201).json({trip:pub(t)})}))
