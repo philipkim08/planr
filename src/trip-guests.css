@@ -20,3 +20,14 @@
 .balance-scope button[aria-pressed=true]{background:transparent;color:#fff}
 .viewer-welcome-form select{width:100%;font-size:16px;min-height:48px;border:1px solid #dedfe5;border-radius:12px;background:white;padding:10px;margin:10px 0}
 @media(prefers-reduced-motion:reduce){.balance-scope button,.balance-scope::before{transition:none}}
+.trip-guest-chips span{display:inline-flex;align-items:center;gap:6px;padding:4px 6px 4px 12px}
+.trip-guest-chips span button{display:grid;place-items:center;width:32px;height:32px;flex:0 0 32px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--theme-strong);font-size:20px;line-height:1}
+.guest-removal{padding:14px 0;margin:8px 0 16px;border-top:1px solid #dedfe5;border-bottom:1px solid #dedfe5}
+.guest-removal>strong{display:block;margin-bottom:8px}
+.guest-removal label{display:block;font-size:.85rem;font-weight:600}
+.guest-removal select{display:block;width:100%;max-width:100%;min-height:44px;padding:10px;margin:6px 0 12px;border:1px solid #dedfe5;border-radius:12px;background:#fff;font-size:16px;color:#333}
+.guest-removal-actions{display:flex;gap:10px;flex-wrap:wrap}
+.guest-removal-actions button{min-height:44px;padding:10px 16px;border:0;border-radius:999px;background:var(--theme-strong);color:white;font-weight:600}
+.guest-removal-actions button:last-child{background:transparent;color:#b34248}
+.guest-removal-actions button:disabled{opacity:.5}
+.guest-removal [role=alert]{color:#b34248}

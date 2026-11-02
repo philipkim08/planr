@@ -2,6 +2,7 @@ import {freezeLegacySplits,personKey,validatePayment,makeSplit} from './expense-
 
 // Deterministic IDs let old plans acquire a roster without writing on a read.
 export function tripGuests(trip){
+ if(trip.guest_roster_version===1)return [...(trip.guests||[])]
  const guests=[...(trip.guests||[])],seen=new Set(guests.map(g=>personKey(g.name)))
  const include=(name,id)=>{
   if(id&&guests.some(g=>g.id===id))return
@@ -15,6 +16,41 @@ export function tripGuests(trip){
   for(const row of slot.comments||[])include(row.name,row.person_id)
  }
  return guests
+}
+export function guestHasExpenses(trip,id){
+ const guest=tripGuests(trip).find(g=>g.id===id)
+ const matches=(name,personId)=>personId?personId===id:guest&&personKey(name)===personKey(guest.name)
+ return (trip.days||[]).some(d=>(d.timeslots||[]).some(s=>(s.payments||[]).some(p=>matches(p.paid_by,p.paid_by_id)||(p.split?.shares||[]).some(r=>matches(r.name,r.person_id)))))
+}
+export function removeTripGuest(trip,id,replacementId){
+ prepareGuests(trip)
+ const source=trip.guests.find(g=>g.id===id),target=trip.guests.find(g=>g.id===replacementId)
+ if(!source)throw Error('This guest is no longer on the trip.')
+ if(replacementId&&(!target||target.id===id))throw Error('Choose a different existing guest.')
+ if(!target&&guestHasExpenses(trip,id))throw Error('This guest has expenses. Merge them into the correct guest to preserve the payment history.')
+ const matches=(name,personId)=>personId?personId===id:personKey(name)===personKey(source.name)
+ // Validate before making any changes. Unresolved legacy expenses must be repaired first.
+ for(const d of trip.days||[])for(const s of d.timeslots||[])for(const p of s.payments||[])if(!p.split)throw Error('Finish the missing expense splits before changing the guest list.')
+ for(const d of trip.days||[])for(const s of d.timeslots||[]){
+  for(const p of s.payments||[]){
+   if(target&&matches(p.paid_by,p.paid_by_id)){p.paid_by=target.name;p.paid_by_id=target.id}
+   if(target&&p.split.shares.some(r=>matches(r.name,r.person_id))){
+    const combined=new Map();let overlap=false
+    for(const row of p.split.shares){const next=matches(row.name,row.person_id)?{...row,name:target.name,person_id:target.id}:{...row},key=next.person_id||personKey(next.name)
+     if(combined.has(key)){combined.get(key).cents+=next.cents;overlap=true}else combined.set(key,next)
+    }
+    p.split={mode:overlap?'custom':p.split.mode,shares:[...combined.values()]}
+   }
+  }
+  const existingTarget=target&&(s.attendance||[]).some(r=>r.person_id===target.id)
+  s.attendance=(s.attendance||[]).flatMap(r=>matches(r.name,r.person_id)?target&&!existingTarget?[{...r,name:target.name,person_id:target.id}]:[]:[r])
+  for(const field of ['payment_participants','payment_manual_participants','payment_excluded_participants'])if(s[field])s[field]=[...new Set(s[field].flatMap(name=>personKey(name)===personKey(source.name)?target?[target.name]:[]:[name]))]
+  if(target)for(const comment of s.comments||[])if(matches(comment.name,comment.person_id)){comment.name=target.name;comment.person_id=target.id}
+ }
+ trip.guests=trip.guests.filter(g=>g.id!==id)
+ // Once reconciled, historical comments must not recreate deleted names on the next read.
+ trip.guest_roster_version=1
+ return trip
 }
 export function prepareGuests(trip){
  for(const day of trip.days||[])for(const slot of day.timeslots||[])freezeLegacySplits(slot)

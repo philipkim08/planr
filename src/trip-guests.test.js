@@ -43,3 +43,27 @@ test('legacy display labels cannot replace a known stable guest ID during normal
  assert.equal(trip.days[0].timeslots[0].payments[0].paid_by,'Yumin Park')
  assert.deepEqual(expenseBalances(trip.days[0].timeslots,trip.guests).transfers,before.transfers)
 })
+
+test('removing an unused guest persists across reads without resurrecting historical comment names',async()=>{
+ const {removeTripGuest,tripGuests}=await import('./trip-guests.js')
+ const trip={guests:[{id:'a',name:'A'},{id:'b',name:'B'}],days:[{timeslots:[{comments:[{name:'B',body:'Hello'}],attendance:[{name:'B',status:'going'}],payments:[],payment_participants:['B']}]}]}
+ removeTripGuest(trip,'b')
+ const reloaded=prepareGuests(JSON.parse(JSON.stringify(trip)))
+ assert.deepEqual(tripGuests(reloaded).map(g=>g.name),['A'])
+ assert.deepEqual(reloaded.days[0].timeslots[0].attendance,[])
+ assert.equal(reloaded.days[0].timeslots[0].comments[0].body,'Hello')
+})
+test('cannot delete a payer or splitter without reconciliation; merged amounts are conserved',async()=>{
+ const {removeTripGuest}=await import('./trip-guests.js')
+ const trip={guests:[{id:'a',name:'Philip'},{id:'y',name:'Yumin Park'},{id:'alias',name:'Yumin'}],days:[{timeslots:[{title:'Dinner',attendance:[{person_id:'y',name:'Yumin Park',status:'going'},{person_id:'alias',name:'Yumin',status:'not-going'}],payments:[{paid_by:'Yumin',paid_by_id:'alias',amount:'10.01',split:{mode:'equal',shares:[{name:'Philip',person_id:'a',cents:334},{name:'Yumin Park',person_id:'y',cents:334},{name:'Yumin',person_id:'alias',cents:333}]}}]}]}]}
+ assert.throws(()=>removeTripGuest(trip,'alias'),/Merge/)
+ assert.throws(()=>removeTripGuest(trip,'alias','alias'),/different/)
+ removeTripGuest(trip,'alias','y')
+ const slot=trip.days[0].timeslots[0],p=slot.payments[0]
+ assert.equal(p.amount,'10.01');assert.equal(p.paid_by_id,'y');assert.equal(p.split.mode,'custom')
+ assert.deepEqual(p.split.shares.map(s=>[s.person_id,s.cents]),[['a',334],['y',667]])
+ assert.deepEqual(paymentSplit(p,slot).shares,p.split.shares)
+ assert.deepEqual(expenseBalances([slot],trip.guests).transfers,[{from:'Philip',to:'Yumin Park',amount:3.34}])
+ assert.equal(slot.attendance.length,1);assert.equal(slot.attendance[0].status,'going')
+ prepareGuests(trip);assert.equal(trip.guests.length,2)
+})
