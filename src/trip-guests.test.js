@@ -33,3 +33,13 @@ test('trip balances net opposing debts across days using stable guest IDs',()=>{
  assert.deepEqual(result.transfers,[{from:'Yumin Park',to:'Philip',amount:10}])
  assert.equal([...result.balances.values()].reduce((sum,n)=>sum+n,0),0)
 })
+
+test('legacy display labels cannot replace a known stable guest ID during normalization',()=>{
+ const trip={guests:[{id:'p',name:'Philip'},{id:'y',name:'Yumin Park'}],days:[{timeslots:[{attendance:[],payments:[{paid_by:'Yumin',paid_by_id:'y',amount:'10',split:{mode:'custom',shares:[{person_id:'p',name:'Phil',cents:700},{person_id:'y',name:'Yumin',cents:300}]}}]}]}]}
+ const before=expenseBalances(trip.days[0].timeslots,trip.guests)
+ prepareGuests(trip)
+ assert.deepEqual(trip.guests,[{id:'p',name:'Philip'},{id:'y',name:'Yumin Park'}])
+ assert.equal(trip.days[0].timeslots[0].payments[0].paid_by_id,'y')
+ assert.equal(trip.days[0].timeslots[0].payments[0].paid_by,'Yumin Park')
+ assert.deepEqual(expenseBalances(trip.days[0].timeslots,trip.guests).transfers,before.transfers)
+})

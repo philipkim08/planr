@@ -11,10 +11,11 @@ export function makeSplit(amount,mode,rows){
  if(total===null||total<=0)throw Error('Enter a positive amount with at most two decimal places.')
  if(!['equal','custom'].includes(mode))throw Error('Choose an equal or custom split.')
  if(!Array.isArray(rows)||!rows.length)throw Error('Select at least one person for this expense.')
- const seen=new Set(),shares=rows.map(row=>{
+ const seen=new Set(),seenIds=new Set(),shares=rows.map(row=>{
   const name=String(row.name||'').trim(),key=personKey(name)
-  if(!key||seen.has(key))throw Error('Each person must have a unique name.')
+  if(!key||seen.has(key)||(row.person_id&&seenIds.has(row.person_id)))throw Error('Each person must have a unique name.')
   seen.add(key)
+  if(row.person_id)seenIds.add(row.person_id)
   const value=mode==='custom'?cents(row.amount):0
   if(value===null)throw Error(`Enter a valid share for ${name}.`)
   return {name,cents:value,...(row.person_id?{person_id:row.person_id}:{})}

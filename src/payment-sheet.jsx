@@ -41,7 +41,10 @@ export function PaymentSheet({slot,trip,day,visitor,refresh,api,theme,onClose,pl
   }
   const startEntry=payment=>{
     const split=payment&&paymentSplit(payment,slot)
-    const rows=guests.map(g=>{const saved=split?.shares.find(r=>r.person_id===g.id||key(r.name)===key(g.name));return {name:g.name,person_id:g.id,amount:saved?(saved.cents/100).toFixed(2):'',selected:payment?!!saved:true}})
+    // Keep saved share order: it determines who receives a rounding cent in an equal split.
+    const savedGuests=(split?.shares||[]).map(r=>guests.find(g=>r.person_id?r.person_id===g.id:key(r.name)===key(g.name))).filter(Boolean)
+    const orderedGuests=[...savedGuests,...guests.filter(g=>!savedGuests.some(saved=>saved.id===g.id))]
+    const rows=orderedGuests.map(g=>{const saved=split?.shares.find(r=>r.person_id?r.person_id===g.id:key(r.name)===key(g.name));return {name:g.name,person_id:g.id,amount:saved?(saved.cents/100).toFixed(2):'',selected:payment?!!saved:true}})
     setEntry({...payment,paid_by:payment?.paid_by||guests.find(g=>key(g.name)===key(visitor))?.name||people[0]||'',amount:payment?.amount||'',note:payment?.note||'',mode:split?.mode||'equal',rows});setError('');setEditPeople(!guests.length)
   }
   const saveEntry=async e=>{
@@ -58,7 +61,7 @@ export function PaymentSheet({slot,trip,day,visitor,refresh,api,theme,onClose,pl
       <header className={!entry&&!(slot.payments||[]).length?'empty-payment-header':''}><h2 id="payment-sheet-title">{entry?(entry.id?'Edit expense':'Add expense'):slot.title}</h2>{!entry&&slot.location_text&&<p>{slot.location_text}</p>}</header>
       {error&&<p role="alert" className="sheet-error">{error}</p>}
       {entry?<form onSubmit={saveEntry} className="sheet-expense-form">
-        <label className="sheet-amount-label">Amount<div className="sheet-amount"><span>$</span><input autoFocus aria-label="Amount" inputMode="decimal" placeholder="0.00" value={entry.amount} onChange={e=>setEntry({...entry,amount:e.target.value.replace(/[^0-9.]/g,'')})}/></div></label>
+        <label className="sheet-amount-label">Amount<div className="sheet-amount"><span>$</span><input autoFocus aria-label="Amount" inputMode="decimal" placeholder="0.00" value={entry.amount} onChange={e=>setEntry({...entry,amount:e.target.value})}/></div></label>
         <label>What for<input placeholder="Dinner, tickets, gas" value={entry.note} onChange={e=>setEntry({...entry,note:e.target.value})}/></label>
         <div className="sheet-form-pair"><label>Paid by<select aria-label="Paid by" value={entry.paid_by} onChange={e=>{const name=e.target.value;setEntry({...entry,paid_by:name,rows:includePayer(entry.rows,name)})}}><option value="" disabled>Choose a guest</option>{payerOptions.map(name=><option key={key(name)} value={name}>{key(name)===key(visitor)?`You (${name})`:name}</option>)}</select></label><label>Split<button className="sheet-split-select" type="button" aria-expanded={editPeople} onClick={()=>setEditPeople(!editPeople)}>{entry.mode==='custom'?'Custom':'Equally'} · {entry.rows.filter(r=>r.selected).length} <span>⌄</span></button></label></div>
         {editPeople&&<><ExpenseSplitEditor entry={entry} setEntry={setEntry} draftSplit={draftSplit}/><AddTripGuest guests={guests} onAdd={addGuest} onChoose={g=>setEntry({...entry,rows:entry.rows.map(r=>r.person_id===g.id?{...r,selected:true}:r)})}/></>}

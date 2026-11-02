@@ -322,3 +322,34 @@ test('balance scope switches between day and entire trip and works on an empty d
   assert.ok(JSON.stringify(renderer.toJSON()).includes('No expenses for this day yet.'))
  }finally{if(renderer)await act(async()=>renderer.unmount())}
 })
+
+test('editing only an expense note preserves who owes the odd rounding cent',async()=>{
+ const previous=globalThis.document;globalThis.document={activeElement:{focus(){}},body:{style:{overflow:''}}}
+ const shares=[{person_id:'b',name:'B',cents:501},{person_id:'a',name:'A',cents:500}]
+ const activity={id:'dinner',payments:[{id:'old',paid_by:'A',paid_by_id:'a',amount:'10.01',note:'Dinner',split:{mode:'equal',shares}}]}
+ let renderer,payload
+ try{
+  await act(async()=>{renderer=TestRenderer.create(React.createElement(PaymentSheet,{slot:activity,plan:{guests:[{id:'a',name:'A'},{id:'b',name:'B'}],days:[]},visitor:'A',trip:'test',day:'a',refresh(){},onClose(){},api:async(path,options)=>{payload=JSON.parse(options.body);return {trip:{}}}}),{createNodeMock:()=>({showModal(){}})})})
+  await click(button(renderer,b=>b.props.children==='Edit'))
+  await act(async()=>renderer.root.findByProps({placeholder:'Dinner, tickets, gas'}).props.onChange({target:{value:'Dinner and tip'}}))
+  await act(async()=>renderer.root.findByType('form').props.onSubmit({preventDefault(){}}))
+  assert.equal(payload.note,'Dinner and tip')
+  assert.deepEqual(payload.split.shares,shares)
+ }finally{if(renderer)await act(async()=>renderer.unmount());globalThis.document=previous}
+})
+
+test('pasted invalid amounts are never silently converted into different payable amounts',async()=>{
+ const previous=globalThis.document;globalThis.document={activeElement:{focus(){}},body:{style:{overflow:''}}}
+ let renderer
+ try{
+  await act(async()=>{renderer=TestRenderer.create(React.createElement(PaymentSheet,{slot:{payments:[]},plan:{guests:[{id:'a',name:'A'}],days:[]},visitor:'A',refresh(){},onClose(){}}),{createNodeMock:()=>({showModal(){}})})})
+  await click(button(renderer,b=>b.props.children==='+ Add expense'))
+  for(const value of ['-10','1e3','12abc','1.001']){
+   await act(async()=>renderer.root.findByProps({'aria-label':'Amount'}).props.onChange({target:{value}}))
+   assert.equal(renderer.root.findByProps({'aria-label':'Amount'}).props.value,value)
+   assert.equal(button(renderer,b=>b.props.type==='submit').props.disabled,true)
+  }
+  await act(async()=>renderer.root.findByProps({'aria-label':'Amount'}).props.onChange({target:{value:'10.01'}}))
+  assert.equal(button(renderer,b=>b.props.type==='submit').props.disabled,false)
+ }finally{if(renderer)await act(async()=>renderer.unmount());globalThis.document=previous}
+})
