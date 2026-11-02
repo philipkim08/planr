@@ -3,9 +3,9 @@ import {guestResponse} from './guest-identity.js'
 
 const labels={going:'Going',maybe:'Maybe','not-going':'Can’t go'}
 const marks={going:'✓',maybe:'–','not-going':'×'}
-export function RsvpSheet({slot,visitor,guestId,theme,onClose,onSave}){
+export function RsvpSheet({slot,visitor,guestId,personId,theme,onClose,onSave}){
   const dialog=useRef(null)
-  const responses=slot.attendance||[],current=guestResponse(responses,guestId,visitor)
+  const responses=slot.attendance||[],current=guestResponse(responses,guestId,visitor,personId)
   const [status,setStatus]=useState(current?.status||'going'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[showPeople,setShowPeople]=useState(false),[saved,setSaved]=useState(false)
   useEffect(()=>{
     const focus=document.activeElement,overflow=document.body.style.overflow

@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev:demo": "node scripts/local-demo.mjs",
     "dev": "concurrently \"node --watch --env-file-if-exists=.env server/index.js\" \"vite\"",
     "server": "node --env-file-if-exists=.env server/index.js",
     "client": "vite",

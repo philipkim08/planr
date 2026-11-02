@@ -17,7 +17,7 @@ export function makeSplit(amount,mode,rows){
   seen.add(key)
   const value=mode==='custom'?cents(row.amount):0
   if(value===null)throw Error(`Enter a valid share for ${name}.`)
-  return {name,cents:value}
+  return {name,cents:value,...(row.person_id?{person_id:row.person_id}:{})}
  })
  if(mode==='equal')shares.forEach((row,i)=>{row.cents=Math.floor(total/shares.length)+(i<total%shares.length?1:0)})
  if(shares.reduce((sum,row)=>sum+row.cents,0)!==total)throw Error('The shares must add up to the expense total.')
@@ -25,7 +25,7 @@ export function makeSplit(amount,mode,rows){
 }
 export function paymentSplit(payment,slot){
  if(payment.split){
-  try{return makeSplit(payment.amount,payment.split.mode,payment.split.shares.map(r=>({name:r.name,amount:(r.cents/100).toFixed(2)})))}catch{return null}
+  try{return makeSplit(payment.amount,payment.split.mode,payment.split.shares.map(r=>({name:r.name,person_id:r.person_id,amount:(r.cents/100).toFixed(2)})))}catch{return null}
  }
  try{return makeSplit(payment.amount,'equal',splitPeople(slot).map(name=>({name})))}catch{return null}
 }
@@ -33,7 +33,7 @@ export function validatePayment(body,slot,previous){
  const paid_by=String(body.paid_by||'').trim()
  if(!paid_by)throw Error('Please say who paid.')
  const raw=body.split||previous?.split
- const split=raw?makeSplit(body.amount,raw.mode,(raw.shares||[]).map(r=>({name:r.name,amount:Number.isSafeInteger(r.cents)&&r.cents>=0?(r.cents/100).toFixed(2):'invalid'}))):makeSplit(body.amount,'equal',splitPeople(slot).map(name=>({name})))
+ const split=raw?makeSplit(body.amount,raw.mode,(raw.shares||[]).map(r=>({name:r.name,person_id:r.person_id,amount:Number.isSafeInteger(r.cents)&&r.cents>=0?(r.cents/100).toFixed(2):'invalid'}))):makeSplit(body.amount,'equal',splitPeople(slot).map(name=>({name})))
  return {paid_by,amount:(cents(body.amount)/100).toFixed(2),note:String(body.note||'').trim(),split}
 }
 // Freeze legacy equal splits before a guest changes the suggested group or RSVP.
@@ -44,14 +44,14 @@ export function expensePeople(slot){
  const names=(slot.payments||[]).length?(slot.payments||[]).flatMap(p=>(paymentSplit(p,slot)?.shares||[]).map(r=>r.name)):splitPeople(slot)
  return [...new Map(names.map(name=>[personKey(name),name])).values()]
 }
-export function expenseBalances(slots){
+export function expenseBalances(slots,guests=[]){
  const balances=new Map(),labels=new Map(),incomplete=[],transfers=[]
  let total=0
- const add=(name,value)=>{const key=personKey(name);labels.set(key,labels.get(key)||name);balances.set(key,(balances.get(key)||0)+value)}
+ const add=(name,value,id)=>{const guest=guests.find(g=>g.id===id)||guests.find(g=>personKey(g.name)===personKey(name)),key=guest?.id||id||personKey(name);labels.set(key,guest?.name||labels.get(key)||name);balances.set(key,(balances.get(key)||0)+value)}
  for(const slot of slots)for(const payment of slot.payments||[]){
   const value=cents(payment.amount),split=paymentSplit(payment,slot)
   if(value===null||!split){if(!incomplete.includes(slot.title))incomplete.push(slot.title);continue}
-  total+=value;add(payment.paid_by,value);split.shares.forEach(r=>add(r.name,-r.cents))
+  total+=value;add(payment.paid_by,value,payment.paid_by_id);split.shares.forEach(r=>add(r.name,-r.cents,r.person_id))
  }
  const creditors=[...balances].filter(([,v])=>v>0).map(([key,value])=>({name:labels.get(key),value})),debtors=[...balances].filter(([,v])=>v<0).map(([key,value])=>({name:labels.get(key),value:-value}))
  for(const debtor of debtors)for(const creditor of creditors){const value=Math.min(debtor.value,creditor.value);if(value){transfers.push({from:debtor.name,to:creditor.name,amount:value/100});debtor.value-=value;creditor.value-=value}}

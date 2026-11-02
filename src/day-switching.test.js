@@ -13,12 +13,12 @@ const root=fileURLToPath(new URL('../',import.meta.url))
 const bundle=await build({
   entryPoints:[path.join(root,'src/main.jsx')],bundle:true,write:false,platform:'node',format:'cjs',packages:'external',
   define:{'import.meta.env':'{}'},loader:{'.css':'empty','.png':'dataurl'},
-  plugins:[{name:'page-test-entry',setup(build){build.onLoad({filter:/\/src\/main\.jsx$/},args=>({loader:'jsx',contents:readFileSync(args.path,'utf8').replace("createRoot(document.getElementById('root')).render(<App/>)",'export {View,Edit,PaymentSheet,RsvpSheet,ActivityTime,PublicSlot,ActivityIconPicker,Fields}') }))}}]
+  plugins:[{name:'page-test-entry',setup(build){build.onLoad({filter:/\/src\/main\.jsx$/},args=>({loader:'jsx',contents:readFileSync(args.path,'utf8').replace("createRoot(document.getElementById('root')).render(<App/>)",'export {View,Edit,PaymentSheet,RsvpSheet,ActivityTime,PublicSlot,ActivityIconPicker,Fields,DayPaymentSummary}') }))}}]
 })
 const modulePath=path.join(root,'day-switching-test.cjs'),loaded=new Module(modulePath)
 loaded.paths=Module._nodeModulePaths(root)
 loaded._compile(bundle.outputFiles[0].text,modulePath)
-const {View,Edit,PaymentSheet,RsvpSheet,ActivityTime,PublicSlot,ActivityIconPicker,Fields}=loaded.exports
+const {View,Edit,PaymentSheet,RsvpSheet,ActivityTime,PublicSlot,ActivityIconPicker,Fields,DayPaymentSummary}=loaded.exports
 const slot=(id,title)=>({id,title,time:'12:00',order:0,attendance_required:true,splitting_payments:true,attendance:[{name:'Philip',status:'going'}],payments:[{id:'payment',paid_by:'Grace',amount:'30',note:'Lunch'}],comments:[]})
 const trip={id:'test',title:'Test plan',theme:'purple',days:[
   {id:'a',label:'Day A',order:0,timeslots:[slot('shared-id','Activity A')]},
@@ -105,14 +105,14 @@ test('empty payments hide split/share details and include a non-attending payer 
  const previous=globalThis.document;globalThis.document={activeElement:{focus(){}},body:{style:{overflow:''}}}
  let renderer,payload
  try{
-  await act(async()=>{renderer=TestRenderer.create(React.createElement(PaymentSheet,{slot:{payments:[],attendance:[]},visitor:'Sarah',theme:'blue',refresh(){},onClose(){},api:async(path,options)=>{payload=JSON.parse(options.body);return {trip:{}}}}),{createNodeMock:()=>({showModal(){}})})})
+  await act(async()=>{renderer=TestRenderer.create(React.createElement(PaymentSheet,{slot:{payments:[],attendance:[]},plan:{guests:[{id:'sarah',name:'Sarah'}],days:[]},visitor:'Sarah',theme:'blue',refresh(){},onClose(){},api:async(path,options)=>{payload=JSON.parse(options.body);return {trip:{}}}}),{createNodeMock:()=>({showModal(){}})})})
   assert.equal(count(renderer,'sheet-share'),0);assert.equal(count(renderer,'sheet-split-row'),0)
   assert.equal(count(renderer,'sheet-empty'),1)
   assert.ok(renderer.root.findByType('dialog').props.className.includes('is-empty'))
   await click(button(renderer,b=>b.props.children==='+ Add expense'))
   await act(async()=>renderer.root.findByProps({'aria-label':'Amount'}).props.onChange({target:{value:'25'}}))
   await act(async()=>renderer.root.findByType('form').props.onSubmit({preventDefault(){}}))
-  assert.deepEqual(payload.split.shares,[{name:'Sarah',cents:2500}])
+  assert.deepEqual(payload.split.shares,[{name:'Sarah',person_id:'sarah',cents:2500}])
  }finally{if(renderer)await act(async()=>renderer.unmount());globalThis.document=previous}
 })
 test('RSVP closes on successful save but remains open on failure',async()=>{
@@ -154,13 +154,13 @@ test('expense UI custom split validates totals and sends saved per-person shares
   await act(async()=>renderer.root.findByProps({'aria-label':'Their share: B'}).props.onChange({target:{value:'30'}}))
   assert.equal(button(renderer,b=>b.props.type==='submit').props.disabled,false)
   await act(async()=>renderer.root.findByType('form').props.onSubmit({preventDefault(){}}))
-  assert.deepEqual(payload.split,{mode:'custom',shares:[{name:'A',cents:7000},{name:'B',cents:3000}]})
+  assert.deepEqual(payload.split,{mode:'custom',shares:[{name:'A',person_id:'person:a',cents:7000},{name:'B',person_id:'person:b',cents:3000}]})
  }finally{if(renderer)await act(async()=>renderer.unmount());globalThis.document=previous}
 })
 
 test('background refresh keeps the selected day and unsent comment draft',async()=>{
  const originals={fetch:globalThis.fetch,localStorage:globalThis.localStorage,window:globalThis.window,document:globalThis.document,ResizeObserver:globalThis.ResizeObserver}
- let current=structuredClone(trip),renderer
+ let current={...structuredClone(trip),guests:[{id:'sarah',name:'Sarah'}]},renderer
  globalThis.fetch=async()=>({ok:true,json:async()=>({trip:current})})
  globalThis.localStorage={getItem:key=>key==='planr-visitor-name'?'Sarah':null,setItem(){}}
  globalThis.window=new EventTarget();globalThis.document=new EventTarget()
@@ -226,7 +226,7 @@ test('repeated day switches leave exactly one current preview/editor surface and
     for(let i=0;i<24;i++){
       const day=trip.days[i%3]
       await click(button(renderer,b=>b.props['data-value']===day.id))
-      assert.equal(count(renderer,'day-payment-summary'),day.timeslots.length?1:0,'one balance summary only')
+      assert.equal(count(renderer,'day-payment-summary'),1,'one balance summary only')
       assert.equal(count(renderer,'agenda'),1,'one agenda only')
       assert.equal(count(renderer,'public-slot'),day.timeslots.length,'only current activities')
       assert.equal(count(renderer,'liquid-days'),1,'one day selector')
@@ -262,8 +262,8 @@ test('repeated day switches leave exactly one current preview/editor surface and
 })
 test('a first-time viewer must submit a name; returning viewers skip the welcome',async()=>{
  const originals={fetch:globalThis.fetch,localStorage:globalThis.localStorage,ResizeObserver:globalThis.ResizeObserver}
- let stored=''
- globalThis.fetch=async()=>({ok:true,json:async()=>({trip})})
+ let stored='',current=structuredClone(trip)
+ globalThis.fetch=async(url,options)=>{if(url.endsWith('/guests')){const guest={id:'sarah',name:JSON.parse(options.body).name};current={...current,guests:[guest]};return {ok:true,json:async()=>({trip:current,guest})}}return {ok:true,json:async()=>({trip:current})}}
  globalThis.localStorage={getItem:key=>key==='planr-visitor-name'?stored:null,setItem:(key,value)=>{if(key==='planr-visitor-name')stored=value}}
  globalThis.ResizeObserver=class{observe(){} disconnect(){}}
  const options={createNodeMock:()=>({querySelectorAll:()=>[]})}
@@ -275,6 +275,7 @@ test('a first-time viewer must submit a name; returning viewers skip the welcome
    const form=renderer.root.findByType('form')
    await act(async()=>form.props.onSubmit({preventDefault(){}}))
    assert.equal(count(renderer,'viewer-welcome'),1,'blank names do not bypass the welcome')
+   await act(async()=>renderer.root.findByType('select').props.onChange({target:{value:'new'}}))
    await act(async()=>renderer.root.findByType('input').props.onChange({target:{value:'  Sarah  '}}))
    await act(async()=>renderer.root.findByType('form').props.onSubmit({preventDefault(){}}))
    assert.equal(stored,'Sarah')
@@ -285,4 +286,39 @@ test('a first-time viewer must submit a name; returning viewers skip the welcome
    assert.equal(count(renderer,'viewer-welcome'),0)
    assert.equal(count(renderer,'agenda'),1)
  }finally{if(renderer)await act(async()=>renderer.unmount());Object.assign(globalThis,originals)}
+})
+
+test('new expenses include the entire roster; existing splits retain exclusions when edited',async()=>{
+ const previous=globalThis.document;globalThis.document={activeElement:{focus(){}},body:{style:{overflow:''}}}
+ const guests=[{id:'a',name:'A'},{id:'b',name:'B'},{id:'c',name:'C'}],activity={id:'dinner',payments:[{id:'old',paid_by:'A',paid_by_id:'a',amount:'10',split:{mode:'equal',shares:[{person_id:'a',name:'A',cents:500},{person_id:'b',name:'B',cents:500}]}}]}
+ let renderer
+ try{
+  await act(async()=>{renderer=TestRenderer.create(React.createElement(PaymentSheet,{slot:activity,plan:{guests,days:[]},visitor:'A',refresh(){},onClose(){}}),{createNodeMock:()=>({showModal(){}})})})
+  await click(button(renderer,b=>b.props.children==='+ Add expense'))
+  await click(button(renderer,b=>hasClass(b,'sheet-split-select')))
+  assert.deepEqual(renderer.root.findAllByProps({type:'checkbox'}).map(x=>x.props.checked),[true,true,true])
+  await click(button(renderer,b=>b.props.children==='Clear all'))
+  assert.deepEqual(renderer.root.findAllByProps({type:'checkbox'}).map(x=>x.props.checked),[false,false,false])
+  await click(button(renderer,b=>b.props.children==='Select all'))
+  assert.deepEqual(renderer.root.findAllByProps({type:'checkbox'}).map(x=>x.props.checked),[true,true,true])
+  await click(button(renderer,b=>b.props.children==='‹ Back'))
+  await click(button(renderer,b=>b.props.children==='Edit'))
+  await click(button(renderer,b=>hasClass(b,'sheet-split-select')))
+  assert.deepEqual(renderer.root.findAllByProps({type:'checkbox'}).map(x=>x.props.checked),[true,true,false])
+  assert.equal(renderer.root.findByProps({'aria-label':'Paid by'}).findAllByType('option').length,4)
+ }finally{if(renderer)await act(async()=>renderer.unmount());globalThis.document=previous}
+})
+test('balance scope switches between day and entire trip and works on an empty day',async()=>{
+ const plan={guests:[{id:'a',name:'A'},{id:'b',name:'B'}],days:[{id:'one',label:'Friday',timeslots:[{payments:[{paid_by:'A',amount:'30',split:{mode:'equal',shares:[{name:'B',cents:3000}]}}]}]},{id:'empty',label:'Saturday',timeslots:[]}]}
+ let renderer
+ try{
+  await act(async()=>{renderer=TestRenderer.create(React.createElement(DayPaymentSummary,{day:plan.days[1],plan,visitor:'B'}))})
+  await click(button(renderer,b=>hasClass(b,'day-payment-toggle')))
+  assert.ok(JSON.stringify(renderer.toJSON()).includes('No expenses for this day yet.'))
+  await click(button(renderer,b=>b.props.children==='Entire trip'))
+  const banner=renderer.root.findAll(n=>hasClass(n,'balance-banner'))[0]
+  assert.equal(banner.findByType('strong').props.children,'$30.00')
+  await click(button(renderer,b=>b.props.children==='This day'))
+  assert.ok(JSON.stringify(renderer.toJSON()).includes('No expenses for this day yet.'))
+ }finally{if(renderer)await act(async()=>renderer.unmount())}
 })

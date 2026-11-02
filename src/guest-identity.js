@@ -4,7 +4,8 @@ const nameKey=value=>String(value||'').trim().toLowerCase()
 export function isGuest(record,id,name){
   return record.guest_id?record.guest_id===id:!!nameKey(name)&&nameKey(record.name)===nameKey(name)
 }
-export function guestResponse(responses,id,name){
+export function guestResponse(responses,id,name,personId){
+  if(personId)return responses.find(r=>r.person_id===personId)||responses.find(r=>!r.person_id&&nameKey(r.name)===nameKey(name))
   return responses.find(r=>r.guest_id===id)||responses.find(r=>!r.guest_id&&isGuest(r,id,name))
 }
 export function updateAttendance(responses,id,name,status){
