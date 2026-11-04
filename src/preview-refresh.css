@@ -108,3 +108,20 @@ html:has(.viewer.preview-refresh),body:has(.viewer.preview-refresh){background:#
 .preview-sheet input.balance-paid-check:checked:after{display:none}
 .balance-paid-check:checked+.balance-check-mark{display:block}
 .viewer.preview-refresh .preview-sheet input.balance-paid-check:checked{background:var(--theme-strong)!important;border-color:var(--theme-strong)!important}
+/* Rounded day controls and quiet, stable repayment feedback. */
+.viewer.preview-refresh>.liquid-days,
+.viewer.preview-refresh>.liquid-days>button,
+.viewer.preview-refresh>.liquid-days .liquid-indicator{border-radius:999px!important}
+.viewer.preview-refresh .preview-sheet .preview-sheet-done,
+.viewer.preview-refresh .preview-sheet .preview-sheet-back{background:transparent!important;border:0!important;box-shadow:none!important;outline:none;padding:6px 0!important}
+.viewer.preview-refresh .preview-sheet .preview-sheet-done:focus-visible,
+.viewer.preview-refresh .preview-sheet .preview-sheet-back:focus-visible{outline:2px solid var(--theme-strong);outline-offset:4px}
+.preview-sheet .balance-sheet-hero>p{min-height:1.4em}
+.preview-sheet .balance-sheet-hero>strong{font-variant-numeric:tabular-nums}
+.preview-sheet .balance-feedback{min-height:24px;margin-top:12px}
+.preview-sheet .balance-save-status{font-size:.8rem;color:#74747c}
+.viewer.preview-refresh .preview-sheet input.balance-paid-check{transition:background-color .18s ease,border-color .18s ease!important}
+.viewer.preview-refresh .preview-sheet input.balance-paid-check:disabled{opacity:1}
+.preview-sheet .balance-check-mark{display:block;opacity:0;transform:translate(-50%,-50%) scale(.7);transition:opacity .16s ease,transform .22s cubic-bezier(.2,.8,.2,1)}
+.preview-sheet .balance-paid-check:checked+.balance-check-mark{opacity:1;transform:translate(-50%,-50%) scale(1)}
+@media(prefers-reduced-motion:reduce){.preview-sheet .balance-check-mark,.viewer.preview-refresh .preview-sheet input.balance-paid-check{transition:none!important}}
