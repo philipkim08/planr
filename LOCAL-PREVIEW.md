@@ -28,3 +28,15 @@ Open **View balances → Entire trip**. Check a repayment under **Still to pay**
 Expense edits preserve recorded repayments and recalculate what remains, including any resulting overpayment. Each check-off records the full suggested repayment; partial repayment entry is not included in this first pass. Incomplete splits must be fixed before recording repayments.
 
 Rollback for this pass: `backup/before-repayment-tracking-2026-11-03`. No Supabase schema migration is needed. Validation: `node --test src/*.test.js server/*.test.js` (includes an isolated local HTTP server test). Trip writes are queued within one server process; this does not provide coordination across multiple server instances.
+
+## Preview sheet redesign (November 3)
+
+Local-only preview refresh: neutral page background, rounded cards, segmented days,
+guest sheet, and a balances sheet with day/trip tabs. Total spent opens a concise
+net-spending list. Repayment calculations and persistence are unchanged.
+
+Rollback snapshot: `backup/before-preview-sheets-2026-11-03` (commit `11f6315`).
+To undo only this redesign after committing it, use `git revert <redesign-commit>`;
+this preserves earlier repayment work and avoids resetting unrelated changes.
+
+Run `npm run dev:demo` and open http://127.0.0.1:5174/trip/local-preview.

@@ -53,6 +53,7 @@ import './timeline-refresh.css'
 import './activity-card-refresh.css'
 import './activity-editor-simplified.css'
 import './plan-description.css'
+import './preview-refresh.css'
 import {ActivityWindow} from './activity-window.jsx'
 import {LiquidChoices} from './liquid-choices.jsx'
 import {PaymentSheet} from './payment-sheet.jsx'
@@ -148,13 +149,13 @@ function View({id}){
   if(!trip)return <Loading/>
   if(!entered||(!tripGuests(trip).some(g=>personKey(g.name)===personKey(visitor))&&!changingName))return <ViewerWelcome trip={trip} onContinue={async name=>{const result=await api(`/trips/${id}/guests`,{method:'POST',body:JSON.stringify({name})});acceptTrip(result.trip);setName(result.guest.name);setEntered(true)}}/>
   const day=trip.days.find(d=>d.id===active)||trip.days[0],people=tripGuests(trip)
-  return <main className={`viewer apple-preview theme-${trip.theme||'blue'}`}>
+  return <main className={`viewer apple-preview preview-refresh theme-${trip.theme||'blue'}`}>
     <nav><Logo/><button className="visitor-greeting" type="button" onClick={()=>setChangingName(!changingName)}>{visitor?`Hi ${visitor} · change`:'Add your name'}</button></nav>
     <header><h1>{trip.title}</h1>{trip.description?.trim()&&<p className="plan-description">{trip.description}</p>}<p className="plan-subtitle">{planDateRange(trip.days)}{people.length?` · ${people.length} ${people.length===1?'person':'people'}`:''}</p>
       {(!visitor||changingName)&&<form className="visitor-editor" onSubmit={e=>{e.preventDefault();setChangingName(false)}}><label>Your name<select aria-label="Your name" value={visitor} onChange={e=>setName(e.target.value)}>{tripGuests(trip).map(g=><option key={g.id} value={g.name}>{g.name}</option>)}</select></label><button type="submit">Done</button></form>}
     </header>
     {refreshError&&<p role="status" className="sheet-hint">{refreshError}</p>}
-    <TripGuestList trip={trip} api={api} refresh={acceptTrip}/><DayPaymentSummary key={`balances:${day.id}`} day={day} visitor={visitor} plan={trip} apiClient={api} refresh={acceptTrip}/>
+    <TripGuestList preview trip={trip} api={api} refresh={acceptTrip}/><DayPaymentSummary key={`balances:${day.id}`} day={day} visitor={visitor} plan={trip} apiClient={api} refresh={acceptTrip}/>
     {trip.days.length>1&&<Tabs days={trip.days} active={day.id} onChange={setActive}/>}
     <section key={`agenda:${day.id}`} className="agenda day-surface" aria-label={day.label}>{ordered(day).map(slot=><PublicSlot key={slot.id} slot={slot} plan={trip} allDays={trip.days} theme={trip.theme} trip={id} day={day.id} visitor={visitor} guestId={guestId} refresh={acceptTrip}/>)}{!day.timeslots.length&&<div className="empty">Nothing planned yet.</div>}</section>
     <footer>Made with <b>● planr</b></footer>
