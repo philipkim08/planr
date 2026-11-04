@@ -1,8 +1,9 @@
 import React,{useEffect,useRef,useState} from 'react'
 
-export function PreviewAvatar({name,small=false}){
+export function PreviewAvatar({name,small=false,guests=[]}){
  const words=(String(name||'?').trim()||'?').split(/\s+/),initials=(words[0][0]+(words.length>1?words.at(-1)[0]:'')).toUpperCase()
- const tone=[...String(name)].reduce((sum,c)=>sum+c.charCodeAt(0),0)%3
+ const guestIndex=guests.findIndex(g=>g.name.trim().toLowerCase()===String(name).trim().toLowerCase())
+ const tone=guestIndex>=0?guestIndex%7:[...String(name).trim().toLowerCase()].reduce((sum,c)=>(sum*31+c.charCodeAt(0))>>>0,0)%7
  return <span aria-hidden="true" className={`preview-avatar avatar-tone-${tone}${small?' avatar-small':''}`}>{initials}</span>
 }
 

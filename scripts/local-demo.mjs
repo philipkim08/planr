@@ -6,9 +6,9 @@ mkdirSync(resolve('data'),{recursive:true})
 if(!existsSync(file)){
  const activity=(id,title,time,payments=[])=>({id,title,time,order:0,icon:'dining',attendance_required:true,splitting_payments:true,attendance:[],comments:[],payments})
  const trip={id:'local-preview',title:'Weekend with friends',description:'A local sandbox for trying the shared guest list and trip balances.',theme:'blue',edit_token:'local-preview-edit',created_at:new Date().toISOString(),guests:[{id:'philip',name:'Philip'},{id:'yumin',name:'Yumin Park'},{id:'bonnie',name:'Bonnie'}],days:[
-  {id:'friday',label:'Friday',order:0,timeslots:[activity('dinner','Dinner','19:00',[{id:'dinner-payment',paid_by:'Philip',paid_by_id:'philip',amount:'90',note:'Dinner',split:{mode:'equal',shares:[{name:'Philip',person_id:'philip',cents:3000},{name:'Yumin Park',person_id:'yumin',cents:3000},{name:'Bonnie',person_id:'bonnie',cents:3000}]}}]),{...activity('dessert','Dessert','21:00'),order:1,icon:'dessert'}]},
-  {id:'saturday',label:'Saturday',order:1,timeslots:[activity('brunch','Brunch','11:00',[{id:'brunch-payment',paid_by:'Yumin Park',paid_by_id:'yumin',amount:'60',note:'Brunch',split:{mode:'equal',shares:[{name:'Philip',person_id:'philip',cents:2000},{name:'Yumin Park',person_id:'yumin',cents:2000},{name:'Bonnie',person_id:'bonnie',cents:2000}]}}])]},
-  {id:'sunday',label:'Sunday',order:2,timeslots:[activity('coffee','Coffee','10:00')]}
+  {id:'friday',date:'2026-10-30',label:'Friday',order:0,timeslots:[activity('dinner','Dinner','19:00',[{id:'dinner-payment',paid_by:'Philip',paid_by_id:'philip',amount:'90',note:'Dinner',split:{mode:'equal',shares:[{name:'Philip',person_id:'philip',cents:3000},{name:'Yumin Park',person_id:'yumin',cents:3000},{name:'Bonnie',person_id:'bonnie',cents:3000}]}}]),{...activity('dessert','Dessert','21:00'),order:1,icon:'dessert'}]},
+  {id:'saturday',date:'2026-10-31',label:'Saturday',order:1,timeslots:[activity('brunch','Brunch','11:00',[{id:'brunch-payment',paid_by:'Yumin Park',paid_by_id:'yumin',amount:'60',note:'Brunch',split:{mode:'equal',shares:[{name:'Philip',person_id:'philip',cents:2000},{name:'Yumin Park',person_id:'yumin',cents:2000},{name:'Bonnie',person_id:'bonnie',cents:2000}]}}])]},
+  {id:'sunday',date:'2026-11-01',label:'Sunday',order:2,timeslots:[activity('coffee','Coffee','10:00')]}
  ]}
  writeFileSync(file,JSON.stringify({trips:[trip]},null,2))
 }

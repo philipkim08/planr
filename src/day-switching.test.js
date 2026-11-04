@@ -367,9 +367,13 @@ test('trip repayment checkboxes update net spent and undo restores it',async()=>
   await click(button(renderer,b=>hasClass(b,'day-payment-toggle')))
   await click(button(renderer,b=>b.props.children==='Entire trip'))
   const mark=renderer.root.findAllByType('input').find(n=>n.props['aria-label']?.startsWith('Mark paid:'))
+  const rowsBefore=renderer.root.findAll(n=>hasClass(n,'balance-transfer')).map(n=>n.findAll(n=>hasClass(n,'balance-transfer-name'))[0].props.children)
   assert.equal(mark.props.checked,false)
   await act(async()=>mark.props.onChange())
   assert.equal(calls,1)
+  assert.deepEqual(renderer.root.findAll(n=>hasClass(n,'balance-transfer')).map(n=>n.findAll(n=>hasClass(n,'balance-transfer-name'))[0].props.children),rowsBefore)
+  assert.equal(renderer.root.findAllByType('h3').some(n=>n.props.children==='Paid'),false)
+  assert.equal(renderer.root.findAllByType('input').find(n=>n.props['aria-label']?.startsWith('Undo paid:')).props.checked,true)
   assert.equal(renderer.root.findAll(n=>hasClass(n,'balance-banner'))[0].findByType('strong').props.children,'$0.00')
   assert.equal(renderer.root.findAllByType('input').filter(n=>n.props['aria-label']?.startsWith('Mark paid:')).length,0)
   await click(button(renderer,b=>hasClass(b,'balance-total-row')))
@@ -386,5 +390,30 @@ test('trip repayment checkboxes update net spent and undo restores it',async()=>
   assert.equal(renderer.root.findAll(n=>hasClass(n,'person-spending'))[0].findByType('strong').props.children,'$20.00')
   assert.equal(renderer.root.findAll(n=>hasClass(n,'balance-banner'))[0].findByType('strong').props.children,'$10.00')
   assert.equal(renderer.root.findAllByType('input').filter(n=>n.props['aria-label']?.startsWith('Undo paid:')).length,0)
+ }finally{if(renderer)await act(async()=>renderer.unmount())}
+})
+
+test('paid trip rows remain in their original groups and order through check and undo',async()=>{
+ const {recordRepayment,undoRepayment}=await import('./trip-finances.js')
+ const guests=['A','B','C','D'].map(name=>({id:name.toLowerCase(),name}))
+ let current={id:'stable',guests,days:[{id:'one',label:'Friday',timeslots:[{payments:[{paid_by:'A',paid_by_id:'a',amount:'100',split:{mode:'equal',shares:guests.map(g=>({name:g.name,person_id:g.id,cents:2500}))}}]}]}]},renderer
+ function Host(){const [plan,setPlan]=React.useState(current);return React.createElement(DayPaymentSummary,{day:plan.days[0],plan,visitor:'B',refresh:setPlan,apiClient:async(path,options)=>{const body=JSON.parse(options.body);if(path.endsWith('/undo'))undoRepayment(current,path.split('/').at(-2),body.recorded_by);else recordRepayment(current,body);return {trip:structuredClone(current)}}})}
+ const layout=()=>renderer.root.findAll(n=>hasClass(n,'balance-group')).map(group=>({title:group.findByType('h3').props.children,rows:group.findAllByType('input').map(n=>n.props['aria-label'].replace(/^(Mark paid|Undo paid): /,''))}))
+ try{
+  await act(async()=>{renderer=TestRenderer.create(React.createElement(Host))})
+  await click(button(renderer,b=>hasClass(b,'day-payment-toggle')))
+  await click(button(renderer,b=>b.props.children==='Entire trip'))
+  const before=layout()
+  assert.deepEqual(before.map(g=>g.title),['You owe','Between others','Spending'])
+  for(const from of ['B','C','D']){
+   const input=renderer.root.findByProps({'aria-label':`Mark paid: ${from} to A, $25.00`})
+   await act(async()=>input.props.onChange())
+   assert.equal(renderer.root.findByProps({'aria-label':`Undo paid: ${from} to A, $25.00`}).props.checked,true)
+   assert.deepEqual(layout(),before)
+  }
+  for(const from of ['C','B','D']){
+   await act(async()=>renderer.root.findByProps({'aria-label':`Undo paid: ${from} to A, $25.00`}).props.onChange())
+   assert.deepEqual(layout(),before)
+  }
  }finally{if(renderer)await act(async()=>renderer.unmount())}
 })

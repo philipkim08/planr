@@ -29,3 +29,12 @@ export function planDateRange(days=[]) {
   const labels=[...days].sort((a,b)=>a.order-b.order).map(day=>day.label).filter(Boolean)
   return labels.length>1?`${labels[0]} – ${labels.at(-1)}`:labels[0]||'Dates not set'
 }
+
+export function dayLabel(day) {
+  const value=day.date||(/^\d{4}-\d{2}-\d{2}$/.test(day.label||'')?day.label:null)
+  if(value&&/^\d{4}-\d{2}-\d{2}$/.test(value)){
+    const date=new Date(`${value}T12:00:00`)
+    if(!Number.isNaN(date.getTime()))return date.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})
+  }
+  return day.label
+}

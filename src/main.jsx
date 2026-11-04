@@ -12,7 +12,7 @@ import {watchSharedPlan} from './shared-plan-refresh.js'
 import {themeOptions} from './plan-themes.js'
 import React, { useEffect, useRef, useState } from 'react'
 import { outOfOrder, splitPeople, expenseTotal, itineraryPeople } from './activity-helpers.js'
-import { calendarDates, planDateRange, newestPlansFirst } from './plan-dates.js'
+import { calendarDates, planDateRange, newestPlansFirst, dayLabel } from './plan-dates.js'
 import { SignIn, AccountSettings, PasswordReset } from './account-forms.jsx'
 import { createRoot } from 'react-dom/client'
 import { createClient } from '@supabase/supabase-js'
@@ -114,7 +114,7 @@ function Plans(){
   </main>
 }
 function CalendarRange({start,end,setStart,setEnd}){const[month,setMonth]=useState(()=>new Date());const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,pretty=value=>value?new Date(`${value}T12:00:00`).toLocaleDateString(undefined,{month:'short',day:'numeric'}):'Select date',choose=value=>{if(!start||end||value<start){setStart(value);setEnd('')}else setEnd(value)};const days=Array.from({length:new Date(month.getFullYear(),month.getMonth()+1,0).getDate()},(_,i)=>new Date(month.getFullYear(),month.getMonth(),i+1));return <section className="range-picker"><p className="date-title">Choose your dates <small>{start&&!end?'Now select your end date':''}</small></p><div className="chosen-dates"><span>Start <b>{pretty(start)}</b></span><i>→</i><span>End <b>{pretty(end)}</b></span></div><div className="calendar"><div className="cal-head"><button type="button" onClick={()=>setMonth(new Date(month.getFullYear(),month.getMonth()-1,1))}>‹</button><b>{month.toLocaleDateString(undefined,{month:'long',year:'numeric'})}</b><button type="button" onClick={()=>setMonth(new Date(month.getFullYear(),month.getMonth()+1,1))}>›</button></div><div className="cal-grid">{['S','M','T','W','T','F','S'].map((d,i)=><i key={i}>{d}</i>)}{Array.from({length:days[0].getDay()}).map((_,i)=><span key={`x${i}`}/>)}{days.map(d=>{const v=iso(d),inRange=start&&end&&v>=start&&v<=end;return <button type="button" key={v} className={`${v===start||v===end?'picked':''} ${inRange?'in-range':''}`} onClick={()=>choose(v)}>{d.getDate()}</button>})}</div></div></section>}
-function Tabs({days,active,onChange}){return <LiquidChoices label="Choose a day" value={active} onChange={onChange} items={[...days].sort((a,b)=>a.order-b.order).map(d=>({value:d.id,label:d.label}))}/>}
+function Tabs({days,active,onChange}){return <LiquidChoices label="Choose a day" value={active} onChange={onChange} items={[...days].sort((a,b)=>a.order-b.order).map(d=>({value:d.id,label:dayLabel(d)}))}/>}
 function ViewerWelcome({trip,onContinue}){
   const[name,setName]=useState(''),[selection,setSelection]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('')
   const guests=tripGuests(trip),matches=selection==='new'&&name.trim()?guests.filter(g=>personKey(g.name).includes(personKey(name))):[]

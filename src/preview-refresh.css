@@ -92,3 +92,19 @@ html:has(.viewer.preview-refresh),body:has(.viewer.preview-refresh){background:#
 .viewer.preview-refresh .public-card .activity-actions{margin-top:12px!important}
 .viewer.preview-refresh .public-card .activity-actions.comment-only{margin-top:0!important}
 @media(max-width:350px){.balance-transfer .preview-avatar-pair{display:none}.balance-transfer{gap:8px;padding:14px 12px}.balance-transfer-amount{font-size:.9rem}}
+/* Selected dates and distinct guest identities. */
+.viewer.preview-refresh>.liquid-days .liquid-indicator{background:var(--theme-primary)!important}
+.viewer.preview-refresh>.liquid-days>button.selected{color:#fff!important}
+.preview-avatar.avatar-tone-0{background:#1768c5}
+.preview-avatar.avatar-tone-1{background:#c3336a}
+.preview-avatar.avatar-tone-2{background:#7050cf}
+.preview-avatar.avatar-tone-3{background:#168765}
+.preview-avatar.avatar-tone-4{background:#b45c16}
+.preview-avatar.avatar-tone-5{background:#007f91}
+.preview-avatar.avatar-tone-6{background:#a63b36}
+.balance-check-control{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 32px;width:32px;height:40px;margin:0!important;padding:0!important}
+.balance-check-mark{position:absolute;pointer-events:none;display:none;color:white;font-size:15px;font-weight:700;line-height:1;left:50%;top:50%;transform:translate(-50%,-50%)}
+.preview-sheet .balance-check-control input.balance-paid-check{margin:0!important}
+.preview-sheet input.balance-paid-check:checked:after{display:none}
+.balance-paid-check:checked+.balance-check-mark{display:block}
+.viewer.preview-refresh .preview-sheet input.balance-paid-check:checked{background:var(--theme-strong)!important;border-color:var(--theme-strong)!important}
