@@ -18,3 +18,13 @@ Try these flows:
 Existing plans import their names into the shared roster and preserve their saved splits. Different spellings already present in old data (such as Yumin and Yumin Park) are not automatically merged. The roster is based on shared trust: selecting a name is not identity verification. Balances are suggested repayments, not a record of money transferred.
 
 Rollback point: local branch `backup/before-trip-guests-2026-11-01`. These changes are local only until explicitly pushed. Normal `npm run dev` still uses the project's configured database, which may be production; use the demo command for isolated testing.
+
+## Repayments and spending summary
+
+Open **View balances → Entire trip**. Check a repayment under **Still to pay** only after the money has been sent. It moves to **Marked paid**, reduces the remaining balances, and survives a reload. Uncheck it to undo. This is shared, self-reported tracking; it does not transfer money or verify a bank payment.
+
+**Spending by person** shows each guest's upfront spending, own share, remaining balance, and recorded money sent/received. Repayments are not added to trip spending. Day balances remain before-repayment breakdowns; check-offs live only at trip level to avoid counting the same payment twice.
+
+Expense edits preserve recorded repayments and recalculate what remains, including any resulting overpayment. Each check-off records the full suggested repayment; partial repayment entry is not included in this first pass. Incomplete splits must be fixed before recording repayments.
+
+Rollback for this pass: `backup/before-repayment-tracking-2026-11-03`. No Supabase schema migration is needed. Validation: `node --test src/*.test.js server/*.test.js` (includes an isolated local HTTP server test). Trip writes are queued within one server process; this does not provide coordination across multiple server instances.

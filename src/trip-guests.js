@@ -20,7 +20,7 @@ export function tripGuests(trip){
 export function guestHasExpenses(trip,id){
  const guest=tripGuests(trip).find(g=>g.id===id)
  const matches=(name,personId)=>personId?personId===id:guest&&personKey(name)===personKey(guest.name)
- return (trip.days||[]).some(d=>(d.timeslots||[]).some(s=>(s.payments||[]).some(p=>matches(p.paid_by,p.paid_by_id)||(p.split?.shares||[]).some(r=>matches(r.name,r.person_id)))))
+ return (trip.repayments||[]).some(r=>r.from_id===id||r.to_id===id)||(trip.days||[]).some(d=>(d.timeslots||[]).some(s=>(s.payments||[]).some(p=>matches(p.paid_by,p.paid_by_id)||(p.split?.shares||[]).some(r=>matches(r.name,r.person_id)))))
 }
 export function removeTripGuest(trip,id,replacementId){
  prepareGuests(trip)
@@ -46,6 +46,9 @@ export function removeTripGuest(trip,id,replacementId){
   s.attendance=(s.attendance||[]).flatMap(r=>matches(r.name,r.person_id)?target&&!existingTarget?[{...r,name:target.name,person_id:target.id}]:[]:[r])
   for(const field of ['payment_participants','payment_manual_participants','payment_excluded_participants'])if(s[field])s[field]=[...new Set(s[field].flatMap(name=>personKey(name)===personKey(source.name)?target?[target.name]:[]:[name]))]
   if(target)for(const comment of s.comments||[])if(matches(comment.name,comment.person_id)){comment.name=target.name;comment.person_id=target.id}
+ }
+ if(target)for(const repayment of trip.repayments||[]){
+  for(const field of ['from_id','to_id','recorded_by','voided_by'])if(repayment[field]===id)repayment[field]=target.id
  }
  trip.guests=trip.guests.filter(g=>g.id!==id)
  // Once reconciled, historical comments must not recreate deleted names on the next read.

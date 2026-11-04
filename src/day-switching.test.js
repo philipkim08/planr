@@ -353,3 +353,30 @@ test('pasted invalid amounts are never silently converted into different payable
   assert.equal(button(renderer,b=>b.props.type==='submit').props.disabled,false)
  }finally{if(renderer)await act(async()=>renderer.unmount());globalThis.document=previous}
 })
+
+test('trip repayment checkboxes update remaining balances and can be undone without changing upfront spending',async()=>{
+ const {recordRepayment,undoRepayment}=await import('./trip-finances.js')
+ const initial={id:'test',guests:[{id:'a',name:'A'},{id:'b',name:'B'}],days:[{id:'one',label:'Friday',timeslots:[{title:'Dinner',payments:[{paid_by:'A',paid_by_id:'a',amount:'20',split:{mode:'equal',shares:[{name:'A',person_id:'a',cents:1000},{name:'B',person_id:'b',cents:1000}]}}]}]}]}
+ let renderer,current=structuredClone(initial),calls=0
+ const apiClient=async(path,options)=>{calls++;const body=JSON.parse(options.body);if(path.endsWith('/undo'))undoRepayment(current,path.split('/').at(-2),body.recorded_by);else recordRepayment(current,body);return {trip:structuredClone(current)}}
+ function Preview(){const [plan,setPlan]=React.useState(initial);return React.createElement(DayPaymentSummary,{day:plan.days[0],plan,visitor:'B',apiClient,refresh:setPlan})}
+ try{
+  await act(async()=>{renderer=TestRenderer.create(React.createElement(Preview))})
+  await click(button(renderer,b=>hasClass(b,'day-payment-toggle')))
+  await click(button(renderer,b=>b.props.children==='Entire trip'))
+  const mark=renderer.root.findAllByType('input').find(n=>n.props['aria-label']?.startsWith('Mark paid:'))
+  assert.equal(mark.props.checked,false)
+  await act(async()=>mark.props.onChange())
+  assert.equal(calls,1)
+  assert.equal(renderer.root.findAll(n=>hasClass(n,'balance-banner'))[0].findByType('strong').props.children,'$0.00')
+  assert.equal(renderer.root.findAllByType('input').filter(n=>n.props['aria-label']?.startsWith('Mark paid:')).length,0)
+  const people=renderer.root.findAll(n=>hasClass(n,'person-spending'))
+  assert.equal(people[0].findAllByType('dd')[0].props.children,'$20.00')
+  const undo=renderer.root.findAllByType('input').find(n=>n.props['aria-label']?.startsWith('Undo paid:'))
+  assert.equal(undo.props.checked,true)
+  await act(async()=>undo.props.onChange())
+  assert.equal(calls,2)
+  assert.equal(renderer.root.findAll(n=>hasClass(n,'balance-banner'))[0].findByType('strong').props.children,'$10.00')
+  assert.equal(renderer.root.findAllByType('input').filter(n=>n.props['aria-label']?.startsWith('Undo paid:')).length,0)
+ }finally{if(renderer)await act(async()=>renderer.unmount())}
+})

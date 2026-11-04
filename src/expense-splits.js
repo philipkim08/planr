@@ -45,7 +45,7 @@ export function expensePeople(slot){
  const names=(slot.payments||[]).length?(slot.payments||[]).flatMap(p=>(paymentSplit(p,slot)?.shares||[]).map(r=>r.name)):splitPeople(slot)
  return [...new Map(names.map(name=>[personKey(name),name])).values()]
 }
-export function expenseBalances(slots,guests=[]){
+export function expenseBalances(slots,guests=[],repayments=[]){
  const balances=new Map(),labels=new Map(),incomplete=[],transfers=[]
  let total=0
  const add=(name,value,id)=>{const guest=guests.find(g=>g.id===id)||guests.find(g=>personKey(g.name)===personKey(name)),key=guest?.id||id||personKey(name);labels.set(key,guest?.name||labels.get(key)||name);balances.set(key,(balances.get(key)||0)+value)}
@@ -53,6 +53,13 @@ export function expenseBalances(slots,guests=[]){
   const value=cents(payment.amount),split=paymentSplit(payment,slot)
   if(value===null||!split){if(!incomplete.includes(slot.title))incomplete.push(slot.title);continue}
   total+=value;add(payment.paid_by,value,payment.paid_by_id);split.shares.forEach(r=>add(r.name,-r.cents,r.person_id))
+ }
+ // A repayment reduces the sender's debt and the recipient's credit; it is not trip spending.
+ for(const repayment of repayments){
+  if(repayment.voided_at)continue
+  const from=guests.find(g=>g.id===repayment.from_id),to=guests.find(g=>g.id===repayment.to_id)
+  if(!from||!to||!Number.isSafeInteger(repayment.amount_cents)||repayment.amount_cents<=0)continue
+  add(from.name,repayment.amount_cents,from.id);add(to.name,-repayment.amount_cents,to.id)
  }
  const creditors=[...balances].filter(([,v])=>v>0).map(([key,value])=>({name:labels.get(key),value})),debtors=[...balances].filter(([,v])=>v<0).map(([key,value])=>({name:labels.get(key),value:-value}))
  for(const debtor of debtors)for(const creditor of creditors){const value=Math.min(debtor.value,creditor.value);if(value){transfers.push({from:debtor.name,to:creditor.name,amount:value/100});debtor.value-=value;creditor.value-=value}}

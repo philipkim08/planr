@@ -1,10 +1,11 @@
+import {DayPaymentSummary} from './balances-summary.jsx'
 import {tripGuests} from './trip-guests.js'
 import {TripGuestList} from './trip-guests.jsx'
 import {PlanDescriptionEditor} from './plan-description.jsx'
 import {Fields} from './activity-fields.jsx'
 import {ActivityIcon,ActivityIconPicker} from './activity-icon.jsx'
 import {ActivityTime} from './activity-time.jsx'
-import {expenseBalances,personKey,expensePeople} from './expense-splits.js'
+import {personKey,expensePeople} from './expense-splits.js'
 import {readVisitorName,rememberVisitorName,readGuestId} from './visitor-name.js'
 import {guestResponse,isGuest} from './guest-identity.js'
 import {watchSharedPlan} from './shared-plan-refresh.js'
@@ -153,7 +154,7 @@ function View({id}){
       {(!visitor||changingName)&&<form className="visitor-editor" onSubmit={e=>{e.preventDefault();setChangingName(false)}}><label>Your name<select aria-label="Your name" value={visitor} onChange={e=>setName(e.target.value)}>{tripGuests(trip).map(g=><option key={g.id} value={g.name}>{g.name}</option>)}</select></label><button type="submit">Done</button></form>}
     </header>
     {refreshError&&<p role="status" className="sheet-hint">{refreshError}</p>}
-    <TripGuestList trip={trip} api={api} refresh={acceptTrip}/><DayPaymentSummary key={`balances:${day.id}`} day={day} visitor={visitor} plan={trip}/>
+    <TripGuestList trip={trip} api={api} refresh={acceptTrip}/><DayPaymentSummary key={`balances:${day.id}`} day={day} visitor={visitor} plan={trip} apiClient={api} refresh={acceptTrip}/>
     {trip.days.length>1&&<Tabs days={trip.days} active={day.id} onChange={setActive}/>}
     <section key={`agenda:${day.id}`} className="agenda day-surface" aria-label={day.label}>{ordered(day).map(slot=><PublicSlot key={slot.id} slot={slot} plan={trip} allDays={trip.days} theme={trip.theme} trip={id} day={day.id} visitor={visitor} guestId={guestId} refresh={acceptTrip}/>)}{!day.timeslots.length&&<div className="empty">Nothing planned yet.</div>}</section>
     <footer>Made with <b>● planr</b></footer>
@@ -204,18 +205,6 @@ function PublicSlot({slot,trip,day,visitor,guestId,refresh,allDays,theme,plan}){
     </div>}
     {message&&<small className="saved" role="status">{message}</small>}
   </div></article>
-}
-function DayPaymentSummary({day,visitor,plan}){
-  const [scope,setScope]=useState('day'),guests=tripGuests(plan||{days:[day]}),slots=scope==='trip'?(plan?.days||[day]).flatMap(ordered):ordered(day)
-  const [open,setOpen]=useState(false),money=value=>`$${Number(value||0).toFixed(2)}`,amount=value=>parseFloat(String(value||'').replace(/[^0-9.]/g,''))||0,entries=slots.flatMap(slot=>(slot.payments||[]).map(payment=>({...payment,slot}))).filter(payment=>amount(payment.amount)>0)
-  if(!(plan?.days||[day]).some(d=>d.timeslots.some(s=>s.payments?.length)))return null
-  const result=expenseBalances(slots,guests),balances=new Map([...result.balances].map(([name,value])=>[name,value/100])),transfers=result.transfers,incomplete=result.incomplete,key=personKey
-  const net=balances.get(guests.find(g=>key(g.name)===key(visitor))?.id)||balances.get(key(visitor))||0,headline=incomplete.length?(scope==='trip'?'Partial trip balance':'Partial day balance'):!visitor?(scope==='trip'?'Trip expenses':'Day expenses'):net<-.005?'You owe':net>.005?'You’re owed':'You’re settled up',displayAmount=visitor?Math.abs(net):result.total
-  return <section className="day-payment-summary">
-    <div className="balance-banner"><div><span>{scope==='trip'?'Entire trip':day.label} · {headline}</span><strong>{money(displayAmount)}</strong></div><button type="button" className="day-payment-toggle" aria-expanded={open} onClick={()=>setOpen(!open)}>{open?'Hide balances':'View balances'} <i>{open?'⌃':'⌄'}</i></button></div>
-    <div className={`balance-disclosure ${open?'is-open':''}`} aria-hidden={!open} inert={open?undefined:''}><div className="balance-disclosure-inner"><div className="day-payment-details"><div className="balance-scope" data-scope={scope} role="group" aria-label="Balance scope"><button type="button" aria-pressed={scope==='day'} onClick={()=>setScope('day')}>This day</button><button type="button" aria-pressed={scope==='trip'} onClick={()=>setScope('trip')}>Entire trip</button></div><p className="balance-day-label">{scope==='trip'?'Entire trip':day.label} · Suggested repayments</p><div className="day-payment-balances">{incomplete.length>0&&<small>{incomplete.length===1?`${incomplete[0]} needs people added before it can be included.`:`${incomplete.length} activities need people added before they can be included.`}</small>}{transfers.length?transfers.map((transfer,index)=><p key={index}><b>{transfer.from}</b> should pay <b>{transfer.to}</b> {money(transfer.amount)}</p>):<p className="settled">{entries.length?'Everyone is settled up for the included expenses.':'No expenses for this day yet.'}</p>}</div><small>No money is moved through planr.</small></div></div></div>
-  </section>
-
 }
 function PlanList({trips,onDeleted}){
   const [deleting,setDeleting]=useState(null),[error,setError]=useState('')
