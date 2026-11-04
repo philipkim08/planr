@@ -1,8 +1,8 @@
 .viewer.apple-preview .day-payment-details .finance-heading{font-size:1rem;letter-spacing:-.01em;margin:20px 0 8px;color:var(--theme-text,#222632);font-weight:700}
 .viewer.apple-preview .day-payment-details .finance-help{font-size:.8rem;line-height:1.5;color:#737587;margin:8px 0 12px;text-align:left;display:block}
 .viewer.apple-preview .day-payment-details .trip-payment-link{background:none;border:0;padding:8px 0;min-height:44px;text-align:left;white-space:normal;color:var(--theme-strong);font-size:.88rem;font-weight:650}
-.repayment-list{display:flex;flex-direction:column;gap:4px;min-width:0}
-.viewer.apple-preview .repayment-row{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 0;min-height:52px;font-size:.88rem;text-transform:none;letter-spacing:normal;color:var(--theme-text,#222632);cursor:pointer}
+.repayment-list{display:flex;flex-direction:column;gap:0;min-width:0}
+.viewer.apple-preview .repayment-row{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;min-height:44px;font-size:.88rem;text-transform:none;letter-spacing:normal;color:var(--theme-text,#222632);cursor:pointer}
 .viewer.apple-preview .repayment-row input[type=checkbox]{appearance:auto;display:block;width:22px;height:22px;min-width:22px;margin:0;padding:0;box-shadow:none;accent-color:var(--theme-primary)}
 .repayment-row>span{overflow-wrap:anywhere;min-width:0;line-height:1.45}
 .repayment-row>strong{white-space:nowrap;font-variant-numeric:tabular-nums;font-size:.88rem}
@@ -11,11 +11,7 @@
 .viewer.apple-preview .day-payment-details .finance-error,.viewer.apple-preview .day-payment-details .finance-warning{color:#b34248;font-size:.85rem;line-height:1.5}
 .viewer.apple-preview .day-payment-details .finance-notice{color:var(--theme-strong);font-size:.85rem;line-height:1.5}
 .trip-spending{border-top:1px solid #e5e5eb;margin-top:20px;padding-top:4px}
-.viewer.apple-preview .day-payment-details .trip-spending-total{font-size:.9rem;color:var(--theme-strong);font-weight:650;margin:0 0 8px}
-.person-spending{padding:14px 0;border-top:1px solid #ededf2}
-.person-spending h4{font-size:.92rem;margin:0 0 10px;overflow-wrap:anywhere;color:var(--theme-text,#222632)}
-.person-spending dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0}
-.person-spending dt{font-size:.68rem;color:#737587;margin-bottom:5px;line-height:1.3}
-.person-spending dd{font-size:.9rem;font-weight:650;margin:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums;color:var(--theme-text,#222632)}
-.viewer.apple-preview .day-payment-details .person-spending p{font-size:.75rem;line-height:1.5;color:#737587;margin:10px 0 0}
-@media(max-width:350px){.viewer.apple-preview .repayment-row{gap:7px;font-size:.8rem}.repayment-row>strong{font-size:.8rem}.person-spending dd{font-size:.82rem}.person-spending dt{font-size:.64rem}}
+.person-spending{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:9px 0;font-size:.9rem;color:var(--theme-text,#222632)}
+.person-spending>span{min-width:0;overflow-wrap:anywhere}
+.person-spending>strong{flex-shrink:0;font-variant-numeric:tabular-nums;font-weight:650}
+@media(max-width:350px){.viewer.apple-preview .repayment-row{gap:7px;font-size:.8rem}.repayment-row>strong{font-size:.8rem}.person-spending{font-size:.85rem}}
