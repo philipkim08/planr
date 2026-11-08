@@ -1,4 +1,4 @@
-import {splitPeople} from './activity-helpers.js'
+import {splitPeople,hasActivePayments} from './activity-helpers.js'
 export const personKey=name=>String(name||'').trim().toLowerCase()
 export function cents(value){
  const text=String(value??'').trim()
@@ -49,7 +49,7 @@ export function expenseBalances(slots,guests=[],repayments=[]){
  const balances=new Map(),labels=new Map(),incomplete=[],transfers=[]
  let total=0
  const add=(name,value,id)=>{const guest=guests.find(g=>g.id===id)||guests.find(g=>personKey(g.name)===personKey(name)),key=guest?.id||id||personKey(name);labels.set(key,guest?.name||labels.get(key)||name);balances.set(key,(balances.get(key)||0)+value)}
- for(const slot of slots)for(const payment of slot.payments||[]){
+ for(const slot of slots.filter(hasActivePayments))for(const payment of slot.payments||[]){
   const value=cents(payment.amount),split=paymentSplit(payment,slot)
   if(value===null||!split){if(!incomplete.includes(slot.title))incomplete.push(slot.title);continue}
   total+=value;add(payment.paid_by,value,payment.paid_by_id);split.shares.forEach(r=>add(r.name,-r.cents,r.person_id))

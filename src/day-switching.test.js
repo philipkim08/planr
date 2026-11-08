@@ -436,3 +436,18 @@ test('repayment checkmarks respond before saving and revert on failure without d
   assert.deepEqual(renderer.root.findAll(n=>hasClass(n,'person-spending')).map(n=>n.findByType('strong').props.children),['$5.00','$15.00'])
  }finally{if(renderer)await act(async()=>renderer.unmount())}
 })
+
+test('balance summary uses refreshed activity settings and hides when all payments are disabled',async()=>{
+ const plan={id:'toggle',guests:[{id:'a',name:'A'},{id:'b',name:'B'}],days:[{id:'day',label:'Friday',timeslots:[{id:'slot',splitting_payments:true,payments:[{paid_by:'A',paid_by_id:'a',amount:'20',split:{mode:'equal',shares:[{name:'A',person_id:'a',cents:1000},{name:'B',person_id:'b',cents:1000}]}}]}]}]}
+ let renderer
+ const render=trip=>React.createElement(DayPaymentSummary,{plan:trip,day:trip.days[0],visitor:'B'})
+ try{
+  await act(async()=>{renderer=TestRenderer.create(render(plan))})
+  assert.equal(renderer.root.findAll(n=>hasClass(n,'balance-banner'))[0].findByType('strong').props.children,'$10.00')
+  const disabled=structuredClone(plan);disabled.days[0].timeslots[0].splitting_payments=false
+  await act(async()=>renderer.update(render(disabled)))
+  assert.equal(renderer.toJSON(),null)
+  await act(async()=>renderer.update(render(plan)))
+  assert.equal(renderer.root.findAll(n=>hasClass(n,'balance-banner'))[0].findByType('strong').props.children,'$10.00')
+ }finally{if(renderer)await act(async()=>renderer.unmount())}
+})

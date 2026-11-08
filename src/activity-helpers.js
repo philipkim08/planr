@@ -10,7 +10,11 @@ export function outOfOrder(slots) {
   }
   return warnings
 }
+// Older stored activities may omit the flag. An explicit off switch always wins.
+export const hasActivePayments=slot=>slot.splitting_payments!==false&&!slot.minor_stop
+
 export function expenseTotal(slot) {
+  if(!hasActivePayments(slot))return 0
   return Math.round((slot.payments||[]).reduce((total,payment)=>total+(parseFloat(String(payment.amount||'').replace(/[^0-9.]/g,''))||0),0)*100)/100
 }
 export function itineraryPeople(days) {

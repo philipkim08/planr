@@ -195,7 +195,7 @@ function PublicSlot({slot,trip,day,visitor,guestId,refresh,allDays,theme,plan}){
       {commentAction}
     </div>}
     {rsvp&&<RsvpSheet personId={personId} slot={slot} visitor={visitor} guestId={guestId} theme={theme} onClose={()=>setRsvp(false)} onSave={status=>send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/attendance`,{name:visitor,guest_id:guestId,person_id:personId,status})}/>}
-    {payments&&<PaymentSheet plan={plan} slot={slot} trip={trip} day={day} visitor={visitor} refresh={refresh} api={api} theme={theme} onClose={()=>setPayments(false)}/>}
+    {payments&&slot.splitting_payments&&<PaymentSheet plan={plan} slot={slot} trip={trip} day={day} visitor={visitor} refresh={refresh} api={api} theme={theme} onClose={()=>setPayments(false)}/>}
     {comments&&<div className="comments">
       {slot.comments?.map(c=><p key={c.id}><b className="comment-author">{c.name}:</b> {c.body}{isGuest(c,guestId,visitor)&&<button type="button" className="delete-comment" onClick={()=>send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/comments/${c.id}`,{name:visitor,guest_id:guestId},'DELETE')}>Delete</button>}</p>)}
       <form className="comment-form" onSubmit={async e=>{e.preventDefault();if(sending)return;setSending(true);if(await send(`/trips/${trip}/days/${day}/timeslots/${slot.id}/comments`,{name:visitor,guest_id:guestId,body}))setBody('');setSending(false)}}>

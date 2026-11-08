@@ -1,9 +1,10 @@
+import {hasActivePayments} from './activity-helpers.js'
 import {cents,expenseBalances,paymentSplit,personKey} from './expense-splits.js'
 import {prepareGuests,tripGuests} from './trip-guests.js'
 import {validGuestId} from './guest-identity.js'
 
 export function tripFinances(trip){
- const guests=tripGuests(trip),slots=(trip.days||[]).flatMap(d=>d.timeslots||[]),repayments=(trip.repayments||[]).filter(r=>!r.voided_at)
+ const guests=tripGuests(trip),slots=(trip.days||[]).flatMap(d=>d.timeslots||[]).filter(hasActivePayments),repayments=(trip.repayments||[]).filter(r=>!r.voided_at)
  const result=expenseBalances(slots,guests,repayments)
  const people=guests.map(g=>({...g,paid:0,share:0,sent:0,received:0,expenses:0,balance:result.balances.get(g.id)||0}))
  const find=(id,name)=>people.find(g=>id?g.id===id:personKey(g.name)===personKey(name))

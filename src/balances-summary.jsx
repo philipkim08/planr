@@ -1,3 +1,4 @@
+import {hasActivePayments} from './activity-helpers.js'
 import {PreviewSheet,PreviewAvatar} from './preview-sheet.jsx'
 import React,{useState,useRef} from 'react'
 import {expenseBalances,personKey} from './expense-splits.js'
@@ -13,9 +14,9 @@ export function DayPaymentSummary({day,visitor,plan,apiClient,refresh}){
  const trip=plan||{days:[day]},guests=tripGuests(trip),whole=tripFinances(trip)
  const result=scope==='trip'?whole:expenseBalances(day.timeslots||[],guests)
  const viewer=guests.find(g=>personKey(g.name)===personKey(visitor)),net=result.balances.get(viewer?.id)||0
- const hasExpenses=(trip.days||[]).some(d=>(d.timeslots||[]).some(s=>s.payments?.length))
+ const hasExpenses=(trip.days||[]).some(d=>(d.timeslots||[]).some(s=>hasActivePayments(s)&&s.payments?.length))
  if(!hasExpenses&&!whole.repayments.length)return null
- const hasDayExpenses=(day.timeslots||[]).some(s=>s.payments?.length)
+ const hasDayExpenses=(day.timeslots||[]).some(s=>hasActivePayments(s)&&s.payments?.length)
  const headline=result.incomplete.length?'Partial balance':!visitor?'Total spending':net<0?'You owe':net>0?'You’re owed':'You’re settled up'
  const changeScope=value=>{setScope(value);setError('');setNotice('')}
  const update=async(transfer,undo=false)=>{

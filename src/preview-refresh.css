@@ -147,3 +147,5 @@ html:has(.viewer.preview-refresh),body:has(.viewer.preview-refresh){background:#
 .viewer.preview-refresh .planr-sheet .sheet-ledger .sheet-transaction:last-child{border-bottom:0!important}
 .viewer.preview-refresh .planr-sheet .sheet-share{border-top:0!important}
 @media(prefers-reduced-motion:reduce){.balance-scope-content{animation:none}.preview-sheet .balance-scope:before,.preview-sheet .balance-scope button,.viewer.preview-refresh .planr-sheet .expense-split-modes button,.viewer.preview-refresh .expense-split-person{transition:none!important}}
+/* Quick stops stay on the timeline without a full activity card surface. */
+.viewer.preview-refresh .minor-stop .public-card{background:transparent!important;border:0!important;box-shadow:none!important}

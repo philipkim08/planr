@@ -61,3 +61,43 @@ test('serialized repayment history retains exact cent balances after reload',()=
  const copy=JSON.parse(JSON.stringify(trip))
  assert.deepEqual(tripFinances(copy),tripFinances(trip))
 })
+
+test('latest activity payment settings control day balances, trip totals and final shares',async()=>{
+ const {expenseBalances}=await import('./expense-splits.js')
+ const {expenseTotal}=await import('./activity-helpers.js')
+ const trip=fixture(),dinner=trip.days[0].timeslots[0]
+ dinner.splitting_payments=true
+ assert.equal(tripFinances(trip).total,150)
+ dinner.splitting_payments=false
+ assert.equal(expenseTotal(dinner),0)
+ assert.equal(expenseBalances([dinner],trip.guests).total,0)
+ assert.deepEqual(expenseBalances([dinner],trip.guests).transfers,[])
+ let summary=tripFinances(trip)
+ assert.equal(summary.total,60)
+ assert.equal(summary.expenseCount,1)
+ assert.deepEqual(summary.people.map(p=>[p.paid,p.share,p.balance]),[[0,2000,-2000],[6000,2000,4000],[0,2000,-2000]])
+ // Saved expenses survive the toggle, and are included again only when enabled.
+ assert.equal(dinner.payments.length,1)
+ dinner.splitting_payments=true
+ assert.equal(tripFinances(trip).total,150)
+ dinner.minor_stop=true
+ assert.equal(tripFinances(trip).total,60)
+ dinner.minor_stop=false
+ dinner.payments[0].amount='120'
+ assert.equal(tripFinances(trip).total,180)
+ trip.days[0].timeslots=[]
+ assert.equal(tripFinances(trip).total,60)
+})
+
+test('disabled expenses cannot create incomplete warnings or erase money already repaid',async()=>{
+ const trip=fixture(),repayment=mark(trip)
+ for(const day of trip.days)for(const slot of day.timeslots)slot.splitting_payments=false
+ const summary=tripFinances(trip)
+ assert.equal(summary.total,0)
+ assert.equal(summary.expenseCount,0)
+ assert.ok(summary.people.every(p=>p.share===0&&p.paid===0))
+ assert.equal(summary.repayments.length,1)
+ assert.equal(summary.people.find(p=>p.id===repayment.from_id).sent,repayment.amount_cents)
+ trip.days[0].timeslots[0].payments[0].amount='invalid'
+ assert.deepEqual(tripFinances(trip).incomplete,[])
+})
