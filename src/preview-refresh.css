@@ -31,7 +31,10 @@ body:has(.viewer.preview-refresh){background:#f3f3f7}
 .viewer.preview-refresh .activity-icon-badge{border:0!important;border-radius:12px!important;background:var(--theme-soft)!important}
 .viewer.preview-refresh .activity-actions .action-button{border-color:transparent!important;box-shadow:none!important;background:#f0f0f5}
 .viewer.preview-refresh .activity-actions .rsvp-action:not([class*=status-]){background:var(--theme-soft)!important;color:var(--theme-strong)!important}
-.viewer.preview-refresh .timeline-time{color:#565963!important}
+.viewer.preview-refresh .timeline-time,
+.viewer.preview-refresh .timeline-time time,
+.viewer.preview-refresh .timeline-time .timeline-clock,
+.viewer.preview-refresh .timeline-time .timeline-period{color:#000!important}
 .viewer.preview-refresh footer{color:#8b8b94;font-size:.78rem}
 /* Native modal gives focus containment, Escape dismissal and an isolated scroll surface. */
 .preview-sheet{position:fixed;inset:0;margin:auto;width:min(100% - 32px,520px);max-width:none;max-height:90dvh;padding:0;border:0;border-radius:28px;background:#f3f3f7;color:#202124;box-shadow:0 24px 90px #0003;overflow:hidden;animation:preview-sheet-enter .28s cubic-bezier(.2,.8,.2,1)}
@@ -147,5 +150,19 @@ html:has(.viewer.preview-refresh),body:has(.viewer.preview-refresh){background:#
 .viewer.preview-refresh .planr-sheet .sheet-ledger .sheet-transaction:last-child{border-bottom:0!important}
 .viewer.preview-refresh .planr-sheet .sheet-share{border-top:0!important}
 @media(prefers-reduced-motion:reduce){.balance-scope-content{animation:none}.preview-sheet .balance-scope:before,.preview-sheet .balance-scope button,.viewer.preview-refresh .planr-sheet .expense-split-modes button,.viewer.preview-refresh .expense-split-person{transition:none!important}}
-/* Quick stops stay on the timeline without a full activity card surface. */
+/* Quick stops blend into the page while retaining their compact layout. */
 .viewer.preview-refresh .minor-stop .public-card{background:transparent!important;border:0!important;box-shadow:none!important}
+.viewer.preview-refresh .minor-stop .activity-icon-badge{border:0!important;box-sizing:border-box;background:transparent!important}
+/* Keep clock and period together, with enough space for two-digit hours. */
+.viewer.preview-refresh .public-slot.timeline-stop{grid-template-columns:80px minmax(0,1fr)!important}
+.viewer.preview-refresh .timeline-time time{display:flex;align-items:baseline;justify-content:flex-end;gap:4px;white-space:nowrap}
+.viewer.preview-refresh .timeline-time .timeline-clock,
+.viewer.preview-refresh .timeline-time .timeline-period{display:inline;margin:0;white-space:nowrap;text-box-trim:none}
+@media(max-width:600px){.viewer.preview-refresh .public-slot.timeline-stop{grid-template-columns:70px minmax(0,1fr)!important}}
+/* Follow the title's first rendered text line, including wrapped titles and icons. */
+.viewer.preview-refresh .public-slot.timeline-stop>.timeline-time{align-self:start;padding:0!important;transform:translateY(var(--timestamp-offset,0px))}
+.viewer.preview-refresh .timeline-time .timeline-clock{font-variant-numeric:lining-nums tabular-nums}
+/* Legacy cap-height trimming overrides normal line boxes and offsets the digits. */
+.viewer.preview-refresh .timeline-stop .timeline-clock,
+.viewer.preview-refresh .timeline-stop .activity-copy>h2,
+.viewer.preview-refresh .timeline-stop.minor-stop .public-card>h2{text-box-trim:none!important;text-box-edge:auto!important}

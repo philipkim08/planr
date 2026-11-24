@@ -10,7 +10,7 @@ import {readVisitorName,rememberVisitorName,readGuestId} from './visitor-name.js
 import {guestResponse,isGuest} from './guest-identity.js'
 import {watchSharedPlan} from './shared-plan-refresh.js'
 import {themeOptions} from './plan-themes.js'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { outOfOrder, splitPeople, expenseTotal, itineraryPeople } from './activity-helpers.js'
 import { calendarDates, planDateRange, newestPlansFirst, dayLabel } from './plan-dates.js'
 import { SignIn, AccountSettings, PasswordReset } from './account-forms.jsx'
@@ -162,8 +162,40 @@ function View({id}){
   </main>
 }
 function TimelineTime({value}){
+  const element=useRef(null)
+  useLayoutEffect(()=>{
+    const node=element.current,article=node?.closest?.('.public-slot'),title=article?.querySelector('h2'),clock=node?.querySelector?.('.timeline-clock')
+    if(!title||!clock)return
+    // Match title metrics before aligning the first text line; AM/PM stays smaller.
+    const textRect=target=>{
+      const walker=document.createTreeWalker(target,NodeFilter.SHOW_TEXT)
+      let text
+      while((text=walker.nextNode()))if(text.textContent.trim()){
+        const range=document.createRange();range.selectNodeContents(text)
+        const rect=range.getClientRects()[0]
+        if(rect)return rect
+      }
+      return target.getBoundingClientRect()
+    }
+    const align=()=>{
+      const titleText=title.querySelector('.activity-title')||title,metrics=getComputedStyle(titleText)
+      for(const property of ['fontFamily','fontSize','fontWeight','fontStyle','lineHeight'])clock.style[property]=metrics[property]
+      const heading=textRect(titleText),digits=textRect(clock),box=node.getBoundingClientRect()
+      const offset=heading.top-article.getBoundingClientRect().top-(digits.top-box.top)
+      node.style.setProperty('--timestamp-offset',`${offset}px`)
+    }
+    align()
+    const observer=new ResizeObserver(align)
+    observer.observe(title);observer.observe(article);observer.observe(clock)
+    // Card entrance animations move the title without triggering ResizeObserver.
+    article.addEventListener('animationend',align)
+    article.addEventListener('transitionend',align)
+    let active=true
+    document.fonts?.ready.then(()=>{if(active)align()})
+    return()=>{active=false;observer.disconnect();article.removeEventListener('animationend',align);article.removeEventListener('transitionend',align)}
+  },[value])
   const [clock,period]=value?fmt(value).split(' '):['Any time','']
-  return <div className="timeline-time"><time dateTime={value||undefined}><span className="timeline-clock">{clock}</span>{period&&<span className="timeline-period">{period}</span>}</time></div>
+  return <div ref={element} className="timeline-time"><time dateTime={value||undefined}><span className="timeline-clock">{clock}</span>{period&&<span className="timeline-period">{period}</span>}</time></div>
 }
 function PublicSlot({slot,trip,day,visitor,guestId,refresh,allDays,theme,plan}){
   const[body,setBody]=useState(''),[rsvp,setRsvp]=useState(false),[payments,setPayments]=useState(false),[comments,setComments]=useState(false),[message,setMessage]=useState(''),[sending,setSending]=useState(false)
