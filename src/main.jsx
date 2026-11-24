@@ -187,12 +187,10 @@ function TimelineTime({value}){
     align()
     const observer=new ResizeObserver(align)
     observer.observe(title);observer.observe(article);observer.observe(clock)
-    // Card entrance animations move the title without triggering ResizeObserver.
-    article.addEventListener('animationend',align)
-    article.addEventListener('transitionend',align)
+    // The agenda animates as one unit; alignment is resolved before first paint.
     let active=true
     document.fonts?.ready.then(()=>{if(active)align()})
-    return()=>{active=false;observer.disconnect();article.removeEventListener('animationend',align);article.removeEventListener('transitionend',align)}
+    return()=>{active=false;observer.disconnect()}
   },[value])
   const [clock,period]=value?fmt(value).split(' '):['Any time','']
   return <div ref={element} className="timeline-time"><time dateTime={value||undefined}><span className="timeline-clock">{clock}</span>{period&&<span className="timeline-period">{period}</span>}</time></div>

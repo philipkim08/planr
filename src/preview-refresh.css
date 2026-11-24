@@ -166,3 +166,8 @@ html:has(.viewer.preview-refresh),body:has(.viewer.preview-refresh){background:#
 .viewer.preview-refresh .timeline-stop .timeline-clock,
 .viewer.preview-refresh .timeline-stop .activity-copy>h2,
 .viewer.preview-refresh .timeline-stop.minor-stop .public-card>h2{text-box-trim:none!important;text-box-edge:auto!important}
+
+/* Animate the whole day, not the card separately from its timestamp.
+   Independent card transforms contaminate the initial title measurement and
+   otherwise force a visible correction when the entrance animation finishes. */
+.viewer.preview-refresh .timeline-stop>.public-card{animation:none!important}
